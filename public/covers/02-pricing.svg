@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img">
+  <rect width="1200" height="800" fill="#f3f0ea"/>
+  <rect x="0" y="0" width="16" height="800" fill="#8e1d38"/>
+  <text x="72" y="140" fill="#5e574f" font-family="Georgia, 'Times New Roman', serif" font-size="22" letter-spacing="8">LEDGERLINE</text>
+  <text x="64" y="470" fill="#161310" font-family="Georgia, 'Times New Roman', serif" font-size="300">02</text>
+  <line x1="72" y1="620" x2="280" y2="620" stroke="#8e1d38" stroke-width="8"/>
+  <text x="72" y="700" fill="#161310" font-family="Georgia, 'Times New Roman', serif" font-size="48">AI</text>
+</svg>
