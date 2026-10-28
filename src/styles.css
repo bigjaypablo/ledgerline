@@ -192,3 +192,8 @@
 .table-pop { right: auto; width: max-content; max-width: calc(100% - 1rem); flex-direction: column; overflow: visible; }
 .rich-body table { table-layout: auto; width: 100%; min-width: 0; }
 .rich-body th, .rich-body td { min-width: 3.5rem; overflow-wrap: anywhere; }
+
+/* Compact icon toolbar, wraps like Blogger */
+.rich-bar { flex-wrap: wrap; overflow: visible; gap: .25rem; padding: .35rem; }
+.rich-sep { width: 1px; align-self: stretch; margin: 0 .2rem; background: var(--color-line); }
+.table-pop { gap: .25rem; padding: .3rem; }
