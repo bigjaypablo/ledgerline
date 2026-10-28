@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import LinkExt from "@tiptap/extension-link";
@@ -31,6 +31,17 @@ function Btn({ label, onClick, active }: { label: string; onClick: () => void; a
   );
 }
 
+function Stepper({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (n: number) => void }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-16 text-sm font-semibold">{label}</span>
+      <Btn label="−" onClick={() => onChange(Math.max(min, value - 1))} />
+      <span className="w-8 text-center text-base font-bold">{value}</span>
+      <Btn label="+" onClick={() => onChange(Math.min(max, value + 1))} />
+    </div>
+  );
+}
+
 function getMd(editor: Editor): string {
   return (editor.storage as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
 }
@@ -38,6 +49,11 @@ function getMd(editor: Editor): string {
 export function RichBody({ value, onChange, compress, onError }: Props) {
   const last = useRef(value);
   const fileRef = useRef<HTMLInputElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [popTop, setPopTop] = useState<number | null>(null);
+  const [picker, setPicker] = useState(false);
+  const [rows, setRows] = useState(4);
+  const [cols, setCols] = useState(3);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -69,10 +85,26 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
     editor.commands.setContent(value, false);
   }, [value, editor]);
 
+  // Place the table menu just above the table the cursor is in.
+  useEffect(() => {
+    let top: number | null = null;
+    try {
+      if (editor && wrapRef.current && editor.isActive("table")) {
+        const { node } = editor.view.domAtPos(editor.state.selection.from);
+        const el = (node instanceof Element ? node : node.parentElement)?.closest("table");
+        if (el) {
+          top = Math.max(el.getBoundingClientRect().top - wrapRef.current.getBoundingClientRect().top - 56, 4);
+        }
+      }
+    } catch {
+      top = null;
+    }
+    setPopTop((p) => (p === top ? p : top));
+  });
+
   if (!editor) return <div className="min-h-80 border border-line bg-card" aria-hidden />;
 
   const c = () => editor.chain().focus();
-  const inTable = editor.isActive("table");
 
   function setLink() {
     const prev = (editor!.getAttributes("link").href as string | undefined) ?? "https://";
@@ -96,7 +128,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
         <Btn label="Quote" active={editor.isActive("blockquote")} onClick={() => c().toggleBlockquote().run()} />
         <Btn label="Link" active={editor.isActive("link")} onClick={setLink} />
         <Btn label="Image" onClick={() => fileRef.current?.click()} />
-        <Btn label="Table" onClick={() => c().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} />
+        <Btn label="Table" active={picker} onClick={() => setPicker((p) => !p)} />
         <Btn label="Code" active={editor.isActive("codeBlock")} onClick={() => c().toggleCodeBlock().run()} />
         <Btn label="Rule" onClick={() => c().setHorizontalRule().run()} />
         <input
@@ -117,19 +149,36 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
           }}
         />
       </div>
-      {inTable ? (
-        <div className="rich-bar rich-table" role="toolbar" aria-label="Table">
-          <Btn label="Row above" onClick={() => c().addRowBefore().run()} />
-          <Btn label="Row below" onClick={() => c().addRowAfter().run()} />
-          <Btn label="Column left" onClick={() => c().addColumnBefore().run()} />
-          <Btn label="Column right" onClick={() => c().addColumnAfter().run()} />
-          <Btn label="Header row" onClick={() => c().toggleHeaderRow().run()} />
-          <Btn label="Delete row" onClick={() => c().deleteRow().run()} />
-          <Btn label="Delete column" onClick={() => c().deleteColumn().run()} />
-          <Btn label="Delete table" onClick={() => c().deleteTable().run()} />
+      {picker ? (
+        <div className="table-picker" role="group" aria-label="New table size">
+          <Stepper label="Rows" value={rows} min={2} max={30} onChange={setRows} />
+          <Stepper label="Columns" value={cols} min={1} max={8} onChange={setCols} />
+          <div className="flex gap-2">
+            <Btn
+              label={`Insert ${rows} × ${cols}`}
+              active
+              onClick={() => {
+                c().insertTable({ rows, cols, withHeaderRow: true }).run();
+                setPicker(false);
+              }}
+            />
+            <Btn label="Cancel" onClick={() => setPicker(false)} />
+          </div>
         </div>
       ) : null}
-      <div className="rich-wrap">
+      <div className="rich-wrap" ref={wrapRef}>
+        {popTop !== null ? (
+          <div className="table-pop" style={{ top: popTop }} role="toolbar" aria-label="Table">
+            <Btn label="+ Row ↑" onClick={() => c().addRowBefore().run()} />
+            <Btn label="+ Row ↓" onClick={() => c().addRowAfter().run()} />
+            <Btn label="+ Col ←" onClick={() => c().addColumnBefore().run()} />
+            <Btn label="+ Col →" onClick={() => c().addColumnAfter().run()} />
+            <Btn label="− Row" onClick={() => c().deleteRow().run()} />
+            <Btn label="− Col" onClick={() => c().deleteColumn().run()} />
+            <Btn label="Header" onClick={() => c().toggleHeaderRow().run()} />
+            <Btn label="Delete table" onClick={() => c().deleteTable().run()} />
+          </div>
+        ) : null}
         <EditorContent editor={editor} />
       </div>
     </div>

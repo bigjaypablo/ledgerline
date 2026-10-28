@@ -181,3 +181,9 @@
 .rich-body th { background: var(--color-paper); font-weight: 700; text-align: left; }
 .rich-body .selectedCell { background: rgba(142, 29, 56, .12); }
 .rich-body .tableWrapper { overflow-x: auto; }
+
+/* Table popup + flexible sizing */
+.rich-wrap { position: relative; }
+.table-pop { position: absolute; left: .5rem; right: .5rem; z-index: 10; display: flex; gap: .4rem; overflow-x: auto; padding: .4rem; background: var(--color-card); border: 1px solid var(--color-accent); box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.table-picker { display: flex; flex-direction: column; gap: .6rem; padding: .75rem; background: var(--color-card); border: 1px solid var(--color-accent); border-top: 0; }
+.rich-body table { table-layout: auto; width: auto; min-width: 100%; }
