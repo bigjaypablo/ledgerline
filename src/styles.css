@@ -187,3 +187,8 @@
 .table-pop { position: absolute; left: .5rem; right: .5rem; z-index: 10; display: flex; gap: .4rem; overflow-x: auto; padding: .4rem; background: var(--color-card); border: 1px solid var(--color-accent); box-shadow: 0 4px 14px rgba(0,0,0,.18); }
 .table-picker { display: flex; flex-direction: column; gap: .6rem; padding: .75rem; background: var(--color-card); border: 1px solid var(--color-accent); border-top: 0; }
 .rich-body table { table-layout: auto; width: auto; min-width: 100%; }
+
+/* Foldable table menu + tables that fit the phone */
+.table-pop { right: auto; width: max-content; max-width: calc(100% - 1rem); flex-direction: column; overflow: visible; }
+.rich-body table { table-layout: auto; width: 100%; min-width: 0; }
+.rich-body th, .rich-body td { min-width: 3.5rem; overflow-wrap: anywhere; }

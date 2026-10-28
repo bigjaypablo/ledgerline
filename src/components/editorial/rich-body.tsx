@@ -50,7 +50,10 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
   const last = useRef(value);
   const fileRef = useRef<HTMLInputElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [popTop, setPopTop] = useState<number | null>(null);
+  const popRef = useRef<HTMLDivElement>(null);
+  const [popY, setPopY] = useState<number | null>(null);
+  const [popSide, setPopSide] = useState<"above" | "below">("above");
+  const [more, setMore] = useState(false);
   const [picker, setPicker] = useState(false);
   const [rows, setRows] = useState(4);
   const [cols, setCols] = useState(3);
@@ -85,21 +88,32 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
     editor.commands.setContent(value, false);
   }, [value, editor]);
 
-  // Place the table menu just above the table the cursor is in.
+  // Put the table menu above the table; if there is no room, put it below.
   useEffect(() => {
-    let top: number | null = null;
+    let y: number | null = null;
+    let side: "above" | "below" = "above";
     try {
       if (editor && wrapRef.current && editor.isActive("table")) {
         const { node } = editor.view.domAtPos(editor.state.selection.from);
         const el = (node instanceof Element ? node : node.parentElement)?.closest("table");
         if (el) {
-          top = Math.max(el.getBoundingClientRect().top - wrapRef.current.getBoundingClientRect().top - 56, 4);
+          const w = wrapRef.current.getBoundingClientRect();
+          const t = el.getBoundingClientRect();
+          const h = popRef.current?.offsetHeight ?? 56;
+          if (t.top - w.top >= h + 8) {
+            y = Math.round(w.bottom - t.top + 4);
+            side = "above";
+          } else {
+            y = Math.round(t.bottom - w.top + 4);
+            side = "below";
+          }
         }
       }
     } catch {
-      top = null;
+      y = null;
     }
-    setPopTop((p) => (p === top ? p : top));
+    setPopY((p) => (p === y ? p : y));
+    setPopSide((s) => (s === side ? s : side));
   });
 
   if (!editor) return <div className="min-h-80 border border-line bg-card" aria-hidden />;
@@ -167,16 +181,29 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
         </div>
       ) : null}
       <div className="rich-wrap" ref={wrapRef}>
-        {popTop !== null ? (
-          <div className="table-pop" style={{ top: popTop }} role="toolbar" aria-label="Table">
-            <Btn label="+ Row ↑" onClick={() => c().addRowBefore().run()} />
-            <Btn label="+ Row ↓" onClick={() => c().addRowAfter().run()} />
-            <Btn label="+ Col ←" onClick={() => c().addColumnBefore().run()} />
-            <Btn label="+ Col →" onClick={() => c().addColumnAfter().run()} />
-            <Btn label="− Row" onClick={() => c().deleteRow().run()} />
-            <Btn label="− Col" onClick={() => c().deleteColumn().run()} />
-            <Btn label="Header" onClick={() => c().toggleHeaderRow().run()} />
-            <Btn label="Delete table" onClick={() => c().deleteTable().run()} />
+        {popY !== null ? (
+          <div
+            ref={popRef}
+            className="table-pop"
+            style={popSide === "above" ? { bottom: popY } : { top: popY }}
+            role="toolbar"
+            aria-label="Table"
+          >
+            <div className="flex gap-2">
+              <Btn label="+ Row" onClick={() => c().addRowAfter().run()} />
+              <Btn label="+ Col" onClick={() => c().addColumnAfter().run()} />
+              <Btn label={more ? "✕" : "⋯"} active={more} onClick={() => setMore((m) => !m)} />
+            </div>
+            {more ? (
+              <div className="flex flex-wrap gap-2">
+                <Btn label="Row above" onClick={() => c().addRowBefore().run()} />
+                <Btn label="Col left" onClick={() => c().addColumnBefore().run()} />
+                <Btn label="Delete row" onClick={() => c().deleteRow().run()} />
+                <Btn label="Delete col" onClick={() => c().deleteColumn().run()} />
+                <Btn label="Header row" onClick={() => c().toggleHeaderRow().run()} />
+                <Btn label="Delete table" onClick={() => c().deleteTable().run()} />
+              </div>
+            ) : null}
           </div>
         ) : null}
         <EditorContent editor={editor} />
