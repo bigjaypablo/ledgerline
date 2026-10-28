@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { MarkdownBody } from "@/components/editorial/markdown-body";
+import { RichBody } from "@/components/editorial/rich-body";
 import { changeArticleStatus, getAdminArticle, getEditorMeta, saveArticle } from "@/lib/editorial/admin";
 import { LABELS, publishErrors, readingMinutes, slugify } from "@/lib/editorial/text";
 import type { ArticleInput, ArticleStatus, SourceInput } from "@/lib/editorial/types";
@@ -268,70 +269,17 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
             Standfirst
             <textarea value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} className="mt-1 min-h-24 w-full border border-line bg-card px-3 py-2" />
           </label>
-          <div className="border border-line bg-card p-3">
-            <p className="text-xs font-bold tracking-widest uppercase text-muted">Insert</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <button type="button" className="min-h-11 border border-line px-2 text-sm" onClick={undo}>
-                Undo
-              </button>
-              <button type="button" className="min-h-11 border border-line px-2 text-sm" onClick={redo}>
-                Redo
-              </button>
-              {[
-                ["H2", "\n\n## "],
-                ["H3", "\n\n### "],
-                ["Bold", "**bold**"],
-                ["Italic", "*italic*"],
-                ["List", "\n- "],
-                ["Numbered", "\n1. "],
-                ["Quote", "\n\n> "],
-                ["Link", "[text](https://)"],
-                ["Code", "\n\n```\n\n```\n"],
-                ["Rule", "\n\n---\n"],
-              ].map(([label, snippet]) => (
-                <button key={label} type="button" className="min-h-11 border border-line px-2 text-sm" onClick={() => insert(snippet)}>
-                  {label}
-                </button>
-              ))}
-              <button type="button" className="min-h-11 border border-line px-2 text-sm" onClick={() => imageRef.current?.click()}>
-                Image
-              </button>
-              <input
-                ref={imageRef}
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  event.target.value = "";
-                  if (file) void onInlineImage(file).catch((err: unknown) => setError(err instanceof Error ? err.message : "Upload failed."));
-                }}
-              />
-            </div>
-            <div className="mt-3 flex flex-wrap items-end gap-2">
-              <label className="text-sm font-semibold">
-                Rows
-                <input type="number" min={1} max={8} value={tableRows} onChange={(event) => setTableRows(Number(event.target.value))} className="mt-1 block min-h-11 w-20 border border-line px-2" />
-              </label>
-              <label className="text-sm font-semibold">
-                Columns
-                <input type="number" min={2} max={6} value={tableCols} onChange={(event) => setTableCols(Number(event.target.value))} className="mt-1 block min-h-11 w-20 border border-line px-2" />
-              </label>
-              <button type="button" className="min-h-11 bg-ink px-3 text-sm font-semibold text-inverse-fg" onClick={() => insert(markdownTable(tableRows, tableCols))}>
-                Insert table
-              </button>
-            </div>
-          </div>
-          <textarea
-            ref={bodyRef}
+          <RichBody
             value={form.body}
-            onChange={(event) => setForm({ ...form, body: event.target.value })}
-            className="min-h-80 w-full border border-line bg-card px-3 py-2 font-mono text-sm"
-            aria-label="Markdown body"
+            onChange={(body) => setForm((f) => ({ ...f, body }))}
+            compress={compress}
+            onError={setError}
           />
         </div>
       )}
-      <div className="mt-6 grid gap-3 md:grid-cols-2">
+      <details className="mt-6 border border-line bg-card p-3">
+        <summary className="min-h-11 cursor-pointer py-2 text-sm font-bold tracking-widest uppercase">Post settings</summary>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
         <label className="text-sm font-semibold">
           Slug
           <input value={form.slug} onChange={(event) => setForm({ ...form, slug: slugify(event.target.value) })} className="mt-1 min-h-11 w-full border border-line bg-card px-3" />
@@ -451,6 +399,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
           ))}
         </fieldset>
       ) : null}
+      </details>
       <section className="mt-6">
         <h2 className="font-serif text-2xl font-semibold">Sources</h2>
         {form.sources.map((source, index) => (
@@ -504,7 +453,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
           ))}
         </ul>
       ) : null}
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="sticky bottom-0 z-30 mt-6 flex flex-wrap gap-2 border-t border-ink bg-paper py-3">
         <button
           type="button"
           className="min-h-11 border border-ink px-4 text-sm font-semibold"
