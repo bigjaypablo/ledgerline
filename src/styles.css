@@ -197,3 +197,12 @@
 .rich-bar { flex-wrap: wrap; overflow: visible; gap: .25rem; padding: .35rem; }
 .rich-sep { width: 1px; align-self: stretch; margin: 0 .2rem; background: var(--color-line); }
 .table-pop { gap: .25rem; padding: .3rem; }
+
+/* Top action bar, menu and settings slide-over */
+.desk-bar { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: .35rem; padding: .35rem 0; background: var(--color-paper); border-bottom: 1px solid var(--color-line); }
+.desk-note { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-muted); }
+.desk-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 50; min-width: 11rem; display: flex; flex-direction: column; background: var(--color-card); border: 1px solid var(--color-ink); box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+.desk-menu button { min-height: 2.75rem; padding: 0 .9rem; text-align: left; font-size: .9rem; border-bottom: 1px solid var(--color-line); }
+.desk-panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(24rem, 92vw); overflow-y: auto; padding: .75rem 1rem 2rem; background: var(--color-paper); border-left: 1px solid var(--color-ink); animation: desk-in .18s ease-out; }
+@keyframes desk-in { from { transform: translateX(100%); } to { transform: none; } }
+.rich-bar { top: 3.4rem; }
