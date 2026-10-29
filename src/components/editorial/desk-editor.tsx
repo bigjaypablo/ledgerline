@@ -36,6 +36,8 @@ function blank(): ArticleInput {
   };
 }
 
+const DRAFT_KEY = "ledgerline:new-draft";
+
 async function compress(file: File) {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, 1400 / Math.max(bitmap.width, bitmap.height));
@@ -84,7 +86,20 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
     opened
       .then((result) => {
         if (!live || !result) return;
+        let restored = false;
         if (result.draft) setForm(result.draft);
+        else if (!articleId) {
+          try {
+            const raw = window.localStorage.getItem(DRAFT_KEY);
+            const saved = raw ? (JSON.parse(raw) as Partial<ArticleInput>) : null;
+            if (saved && Array.isArray(saved.sources)) {
+              setForm({ ...blank(), ...saved });
+              restored = true;
+            }
+          } catch {
+            /* ignore unreadable backup */
+          }
+        }
         setStatus(result.status);
         setRole(result.role);
         setMeta({
@@ -96,7 +111,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
           })),
           authors: result.authors.map((item) => ({ user_id: item.user_id, display_name: item.display_name })),
         });
-        setNote(result.hasUnpublishedEdits ? "Unpublished edits stored privately" : "Loaded");
+        setNote(restored ? "Recovered your unsaved draft" : result.hasUnpublishedEdits ? "Unpublished edits stored privately" : "Loaded");
         skipAutosave.current = true;
         setReady(true);
       })
@@ -127,11 +142,28 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
     return () => window.clearTimeout(timer);
   }, [form, user?.id, articleId, ready]);
 
+  useEffect(() => {
+    if (articleId || !ready) return;
+    const timer = window.setTimeout(() => {
+      try {
+        if (form.title || form.summary || form.body) window.localStorage.setItem(DRAFT_KEY, JSON.stringify(form));
+      } catch {
+        /* storage full: skip the backup */
+      }
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [form, articleId, ready]);
+
   async function saveNow() {
     const payload = { ...formRef.current, slug: slugify(formRef.current.slug || formRef.current.title) };
     const result = await saveArticle({ data: payload });
     setNote(result.private ? "Saved privately. The live article is unchanged." : "Draft saved");
     if (!articleId) {
+      try {
+        window.localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* ignore */
+      }
       await navigate({ to: "/admin/articles/$articleId", params: { articleId: result.id } });
     }
     return result.id;
