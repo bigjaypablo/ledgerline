@@ -82,7 +82,9 @@
     "@tiptap/extension-table-row": "^2.11.0",
     "@tiptap/extension-table-header": "^2.11.0",
     "@tiptap/extension-table-cell": "^2.11.0",
-    "tiptap-markdown": "^0.8.10"
+    "tiptap-markdown": "^0.8.10",
+    "@tiptap/extension-underline": "^2.11.0",
+    "rehype-raw": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",

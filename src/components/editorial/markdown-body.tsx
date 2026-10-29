@@ -1,7 +1,10 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { headingIds } from "@/lib/editorial/text";
+
+const ALLOWED = ["p", "br", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "a", "strong", "em", "del", "u", "code", "pre", "hr", "img", "table", "thead", "tbody", "tr", "th", "td"];
 
 export function MarkdownBody({ markdown }: { markdown: string }) {
   const ids = headingIds(markdown);
@@ -12,6 +15,9 @@ export function MarkdownBody({ markdown }: { markdown: string }) {
     <div className="max-w-3xl text-lg leading-8">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+        allowedElements={ALLOWED}
+        unwrapDisallowed
         components={{
           h2: ({ children }) => (
             <h2 id={takeId()} className="mt-10 scroll-mt-24 font-serif text-3xl font-semibold leading-tight">

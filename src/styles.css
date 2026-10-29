@@ -208,3 +208,5 @@
 .rich-bar { top: 3.4rem; }
 
 .rich-hint { position: absolute; top: 1rem; left: 1rem; right: 1rem; z-index: 1; pointer-events: none; font-size: 1.05rem; line-height: 1.7; color: var(--color-muted); opacity: .7; }
+
+.rich-html { display: block; width: 100%; min-height: 22rem; padding: 1rem; border: 0; outline: none; resize: vertical; font-family: ui-monospace, monospace; font-size: .85rem; line-height: 1.6; background: var(--color-card); color: inherit; }

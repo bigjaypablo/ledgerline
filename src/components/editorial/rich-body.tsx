@@ -8,6 +8,7 @@ import TableRow from "@tiptap/extension-table-row";
 import TableHeader from "@tiptap/extension-table-header";
 import TableCell from "@tiptap/extension-table-cell";
 import { Markdown } from "tiptap-markdown";
+import Underline from "@tiptap/extension-underline";
 import { Icon } from "@/components/editorial/icons";
 
 type Props = {
@@ -48,6 +49,10 @@ function Stepper({ label, value, min, max, onChange }: { label: string; value: n
   );
 }
 
+function formatHtml(html: string): string {
+  return html.replace(/(<\/(?:p|h[1-6]|ul|ol|li|blockquote|table|tr|pre)>)(?=<)/g, "$1\n");
+}
+
 function getMd(editor: Editor): string {
   return (editor.storage as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
 }
@@ -63,6 +68,9 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
   const [picker, setPicker] = useState(false);
   const [rows, setRows] = useState(4);
   const [cols, setCols] = useState(3);
+  const [view, setView] = useState<"compose" | "html">("compose");
+  const [viewMenu, setViewMenu] = useState(false);
+  const [htmlText, setHtmlText] = useState("");
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -75,7 +83,8 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
       TableRow,
       TableHeader,
       TableCell,
-      Markdown.configure({ html: false, tightLists: true }),
+      Underline,
+      Markdown.configure({ html: true, tightLists: true }),
     ],
     content: value,
     editorProps: {
@@ -99,7 +108,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
     let y: number | null = null;
     let side: "above" | "below" = "above";
     try {
-      if (editor && wrapRef.current && editor.isActive("table")) {
+      if (view === "compose" && editor && wrapRef.current && editor.isActive("table")) {
         const { node } = editor.view.domAtPos(editor.state.selection.from);
         const el = (node instanceof Element ? node : node.parentElement)?.closest("table");
         if (el) {
@@ -126,6 +135,13 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
 
   const c = () => editor.chain().focus();
 
+  function switchView(next: "compose" | "html") {
+    setViewMenu(false);
+    if (next === view) return;
+    if (next === "html") setHtmlText(formatHtml(editor!.getHTML()));
+    setView(next);
+  }
+
   function setLink() {
     const prev = (editor!.getAttributes("link").href as string | undefined) ?? "https://";
     const url = window.prompt("Link address", prev);
@@ -137,6 +153,21 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
   return (
     <div className="rich">
       <div className="rich-bar" role="toolbar" aria-label="Formatting">
+        <div className="relative">
+          <Btn label="Switch view" icon={view === "html" ? "htmlview" : "pencil"} active={viewMenu} onClick={() => setViewMenu((m) => !m)} />
+          {viewMenu ? (
+            <div className="desk-menu" style={{ left: 0, right: "auto" }}>
+              <button type="button" onClick={() => switchView("html")}>
+                HTML view
+              </button>
+              <button type="button" onClick={() => switchView("compose")}>
+                Compose view
+              </button>
+            </div>
+          ) : null}
+        </div>
+        {view === "compose" ? (
+          <>
         <Btn label="Undo" icon="undo" onClick={() => c().undo().run()} />
         <Btn label="Redo" icon="redo" onClick={() => c().redo().run()} />
         <Sep />
@@ -145,6 +176,8 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
         <Sep />
         <Btn label="Bold" icon="bold" active={editor.isActive("bold")} onClick={() => c().toggleBold().run()} />
         <Btn label="Italic" icon="italic" active={editor.isActive("italic")} onClick={() => c().toggleItalic().run()} />
+        <Btn label="Underline" icon="underline" active={editor.isActive("underline")} onClick={() => c().toggleUnderline().run()} />
+        <Btn label="Strikethrough" icon="strike" active={editor.isActive("strike")} onClick={() => c().toggleStrike().run()} />
         <Btn label="Bulleted list" icon="ul" active={editor.isActive("bulletList")} onClick={() => c().toggleBulletList().run()} />
         <Btn label="Numbered list" icon="ol" active={editor.isActive("orderedList")} onClick={() => c().toggleOrderedList().run()} />
         <Btn label="Quote" icon="quote" active={editor.isActive("blockquote")} onClick={() => c().toggleBlockquote().run()} />
@@ -152,8 +185,11 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
         <Btn label="Link" icon="link" active={editor.isActive("link")} onClick={setLink} />
         <Btn label="Image" icon="image" onClick={() => fileRef.current?.click()} />
         <Btn label="Table" icon="table" active={picker} onClick={() => setPicker((p) => !p)} />
-        <Btn label="Code block" icon="code" active={editor.isActive("codeBlock")} onClick={() => c().toggleCodeBlock().run()} />
+        <Btn label="Code block" icon="braces" active={editor.isActive("codeBlock")} onClick={() => c().toggleCodeBlock().run()} />
         <Btn label="Divider" icon="rule" onClick={() => c().setHorizontalRule().run()} />
+        <Btn label="Clear formatting" icon="clear" onClick={() => c().unsetAllMarks().clearNodes().run()} />
+          </>
+        ) : null}
         <input
           ref={fileRef}
           type="file"
@@ -210,8 +246,22 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
             ) : null}
           </div>
         ) : null}
-        {editor.isEmpty ? <p className="rich-hint">Start writing here. Use the toolbar for headings, lists, tables and images.</p> : null}
-        <EditorContent editor={editor} />
+        {view === "compose" && editor.isEmpty ? <p className="rich-hint">Start writing here. Use the toolbar for headings, lists, tables and images.</p> : null}
+        <div hidden={view === "html"}>
+          <EditorContent editor={editor} />
+        </div>
+        {view === "html" ? (
+          <textarea
+            className="rich-html"
+            aria-label="HTML source"
+            spellCheck={false}
+            value={htmlText}
+            onChange={(event) => {
+              setHtmlText(event.target.value);
+              editor.commands.setContent(event.target.value, true);
+            }}
+          />
+        ) : null}
       </div>
     </div>
   );
