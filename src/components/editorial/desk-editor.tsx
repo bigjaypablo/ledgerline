@@ -64,6 +64,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
   const [ready, setReady] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [panel, setPanel] = useState(false);
+  const [justPublished, setJustPublished] = useState(false);
   const [meta, setMeta] = useState<EditorMeta>({ categories: [], affiliates: [], authors: [] });
   const skipAutosave = useRef(true);
   const formRef = useRef(form);
@@ -180,6 +181,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
         setStatus("published");
         setConfirming(false);
         setNote("Live version updated.");
+        setJustPublished(true);
       })
       .catch((err: unknown) => {
         setConfirming(false);
@@ -217,6 +219,17 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
         onArchive={() => void setStatusTo("archived").then(() => setStatus("archived"))}
       />
 
+      {justPublished ? (
+        <div className="mt-3 flex items-center gap-2 border border-ink bg-card px-3 py-2">
+          <p className="flex-1 text-sm font-semibold">Published. The live article is updated.</p>
+          <button type="button" className="min-h-11 bg-ink px-3 text-sm font-semibold text-inverse-fg" onClick={() => window.location.assign("/admin/articles/new")}>
+            Write next post
+          </button>
+          <button type="button" className="min-h-11 border border-line px-3 text-sm" onClick={() => setJustPublished(false)}>
+            Dismiss
+          </button>
+        </div>
+      ) : null}
       {status === "published" ? (
         <p className="mt-3 border border-line bg-card px-3 py-2 text-sm">
           Autosave does not change the public article. Tap Update when the edit should go out.
