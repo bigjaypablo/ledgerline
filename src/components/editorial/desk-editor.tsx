@@ -6,7 +6,7 @@ import { DeskTopBar } from "@/components/editorial/desk-top-bar";
 import { SettingsPanel, type EditorMeta } from "@/components/editorial/settings-panel";
 import { SourcesEditor, emptySource } from "@/components/editorial/sources-editor";
 import { PublishDialog } from "@/components/editorial/publish-dialog";
-import { changeArticleStatus, getAdminArticle, getEditorMeta, saveArticle } from "@/lib/editorial/admin";
+import { changeArticleStatus, getAdminArticle, getEditorMeta, saveArticle, uploadImage } from "@/lib/editorial/admin";
 import { publishErrors, readingMinutes, slugify } from "@/lib/editorial/text";
 import type { ArticleInput, ArticleStatus } from "@/lib/editorial/types";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -51,6 +51,17 @@ async function compress(file: File) {
   const url = canvas.toDataURL("image/jpeg", 0.82);
   if (url.length > 1_500_000) throw new Error("That image is still too large.");
   return url;
+}
+
+// Upload to Blob and return a short link; fall back to the embedded image if the upload fails.
+async function storeImage(file: File) {
+  const dataUrl = await compress(file);
+  try {
+    const { url } = await uploadImage({ data: { dataUrl } });
+    return url;
+  } catch {
+    return dataUrl;
+  }
 }
 
 export function ArticleEditor({ articleId }: { articleId: string | null }) {
@@ -290,7 +301,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
             Standfirst
             <textarea value={form.summary} placeholder="One or two sentences that sum up the article" onChange={(event) => setForm({ ...form, summary: event.target.value })} className="mt-1 min-h-24 w-full border border-line bg-card px-3 py-2" />
           </label>
-          <RichBody value={form.body} onChange={(body) => setForm((f) => ({ ...f, body }))} compress={compress} onError={setError} />
+          <RichBody value={form.body} onChange={(body) => setForm((f) => ({ ...f, body }))} compress={storeImage} onError={setError} />
         </div>
       )}
 
@@ -309,7 +320,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
           form={form}
           meta={meta}
           onChange={setForm}
-          onCover={(file) => void compress(file).then((coverImage) => setForm((f) => ({ ...f, coverImage }))).catch(fail("Upload failed."))}
+          onCover={(file) => void storeImage(file).then((coverImage) => setForm((f) => ({ ...f, coverImage }))).catch(fail("Upload failed."))}
           onClose={() => setPanel(false)}
         />
       ) : null}

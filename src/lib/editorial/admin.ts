@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { put } from "@vercel/blob";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql, type Sql } from "@/lib/db";
 import { isEmail, publishErrors, readingMinutes, safeImageSrc, slugify } from "@/lib/editorial/text";
@@ -977,4 +978,22 @@ export const claimStaff = createServerFn({ method: "POST" })
     const profile = await ensureProfile(sql, context.userId);
     if (!staffRoles.includes(profile.role)) return { ok: false as const, role: profile.role };
     return { ok: true as const, role: profile.role };
+  });
+
+export const uploadImage = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator((input: { dataUrl: string }) => input)
+  .handler(async ({ context, data }) => {
+    const { profile } = await gate(context.userId);
+    if (profile.role === "reader") throw new Error("You do not have permission to upload images.");
+    const match = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(data.dataUrl);
+    if (!match) throw new Error("Only JPEG images can be uploaded.");
+    const bytes = Buffer.from(match[1], "base64");
+    if (bytes.length > 2_000_000) throw new Error("That image is too large.");
+    const blob = await put(`media/${Date.now()}.jpg`, bytes, {
+      access: "public",
+      contentType: "image/jpeg",
+      addRandomSuffix: true,
+    });
+    return { url: blob.url };
   });
