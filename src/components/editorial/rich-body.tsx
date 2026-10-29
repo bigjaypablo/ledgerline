@@ -210,6 +210,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
             ) : null}
           </div>
         ) : null}
+        {editor.isEmpty ? <p className="rich-hint">Start writing here. Use the toolbar for headings, lists, tables and images.</p> : null}
         <EditorContent editor={editor} />
       </div>
     </div>

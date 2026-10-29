@@ -53,7 +53,7 @@ export function SettingsPanel({ form, meta, onChange, onCover, onClose }: Props)
         <Section title="Basics" open>
           <label className="block text-sm font-semibold">
             Slug
-            <input value={form.slug} onChange={(e) => set({ slug: slugify(e.target.value) })} className={field} />
+            <input value={form.slug} placeholder="lowercase-words-with-hyphens" onChange={(e) => set({ slug: slugify(e.target.value) })} className={field} />
           </label>
           <label className="block text-sm font-semibold">
             Category
@@ -99,11 +99,11 @@ export function SettingsPanel({ form, meta, onChange, onCover, onClose }: Props)
         <Section title="SEO">
           <label className="block text-sm font-semibold">
             SEO title
-            <input value={form.seoTitle} onChange={(e) => set({ seoTitle: e.target.value })} className={field} />
+            <input value={form.seoTitle} placeholder="Title shown on Google (under 60 characters)" onChange={(e) => set({ seoTitle: e.target.value })} className={field} />
           </label>
           <label className="block text-sm font-semibold">
             SEO description
-            <textarea value={form.seoDescription} onChange={(e) => set({ seoDescription: e.target.value })} className={area} />
+            <textarea value={form.seoDescription} placeholder="One or two sentences shown under the title on Google (under 160 characters)" onChange={(e) => set({ seoDescription: e.target.value })} className={area} />
           </label>
         </Section>
 
@@ -131,11 +131,11 @@ export function SettingsPanel({ form, meta, onChange, onCover, onClose }: Props)
           </label>
           <label className="block text-sm font-semibold">
             Cover alt text
-            <input value={form.coverAlt} onChange={(e) => set({ coverAlt: e.target.value })} className={field} />
+            <input value={form.coverAlt} placeholder="Describe the image for screen readers" onChange={(e) => set({ coverAlt: e.target.value })} className={field} />
           </label>
           <label className="block text-sm font-semibold">
             Cover caption
-            <input value={form.coverCaption} onChange={(e) => set({ coverCaption: e.target.value })} className={field} />
+            <input value={form.coverCaption} placeholder="Short caption shown under the cover image" onChange={(e) => set({ coverCaption: e.target.value })} className={field} />
           </label>
         </Section>
 

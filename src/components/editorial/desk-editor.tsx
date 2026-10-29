@@ -206,13 +206,14 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
             Headline
             <input
               value={form.title}
+              placeholder="Write a clear headline"
               onChange={(event) => setForm({ ...form, title: event.target.value, slug: form.slug || slugify(event.target.value) })}
               className="mt-1 min-h-12 w-full border border-line bg-card px-3 font-serif text-2xl"
             />
           </label>
           <label className="block text-sm font-semibold">
             Standfirst
-            <textarea value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} className="mt-1 min-h-24 w-full border border-line bg-card px-3 py-2" />
+            <textarea value={form.summary} placeholder="One or two sentences that sum up the article" onChange={(event) => setForm({ ...form, summary: event.target.value })} className="mt-1 min-h-24 w-full border border-line bg-card px-3 py-2" />
           </label>
           <RichBody value={form.body} onChange={(body) => setForm((f) => ({ ...f, body }))} compress={compress} onError={setError} />
         </div>
