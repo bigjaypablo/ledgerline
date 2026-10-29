@@ -37,6 +37,7 @@ function blank(): ArticleInput {
 }
 
 const DRAFT_KEY = "ledgerline:new-draft";
+const ZOOM_KEY = "ledgerline:desk-zoom";
 
 async function compress(file: File) {
   const bitmap = await createImageBitmap(file);
@@ -65,6 +66,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
   const [confirming, setConfirming] = useState(false);
   const [panel, setPanel] = useState(false);
   const [justPublished, setJustPublished] = useState(false);
+  const [zoom, setZoom] = useState(100);
   const [meta, setMeta] = useState<EditorMeta>({ categories: [], affiliates: [], authors: [] });
   const skipAutosave = useRef(true);
   const formRef = useRef(form);
@@ -155,6 +157,32 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
     return () => window.clearTimeout(timer);
   }, [form, articleId, ready]);
 
+  useEffect(() => {
+    try {
+      const saved = Number(window.localStorage.getItem(ZOOM_KEY));
+      if (saved >= 60 && saved <= 130) setZoom(saved);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${zoom}%`;
+    return () => {
+      document.documentElement.style.fontSize = "";
+    };
+  }, [zoom]);
+
+  function changeZoom(next: number) {
+    const value = Math.min(130, Math.max(60, next));
+    setZoom(value);
+    try {
+      window.localStorage.setItem(ZOOM_KEY, String(value));
+    } catch {
+      /* ignore */
+    }
+  }
+
   async function saveNow() {
     const payload = { ...formRef.current, slug: slugify(formRef.current.slug || formRef.current.title) };
     const result = await saveArticle({ data: payload });
@@ -217,6 +245,8 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
           })
         }
         onArchive={() => void setStatusTo("archived").then(() => setStatus("archived"))}
+        zoom={zoom}
+        onZoom={changeZoom}
       />
 
       {justPublished ? (

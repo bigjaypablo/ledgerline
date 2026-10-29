@@ -14,6 +14,8 @@ type Props = {
   onSubmit: () => void;
   onUnpublish: () => void;
   onArchive: () => void;
+  zoom: number;
+  onZoom: (next: number) => void;
 };
 
 export function DeskTopBar(p: Props) {
@@ -39,6 +41,16 @@ export function DeskTopBar(p: Props) {
         <IconBtn label="More actions" icon={menu ? "close" : "more"} active={menu} onClick={() => setMenu((m) => !m)} />
         {menu ? (
           <div className="desk-menu">
+            <div className="desk-zoom">
+              <span>Page size</span>
+              <button type="button" aria-label="Smaller" onClick={() => p.onZoom(p.zoom - 10)}>
+                −
+              </button>
+              <b>{p.zoom}%</b>
+              <button type="button" aria-label="Larger" onClick={() => p.onZoom(p.zoom + 10)}>
+                +
+              </button>
+            </div>
             {p.canSubmit ? (
               <button type="button" onClick={run(p.onSubmit)}>
                 Submit for review
