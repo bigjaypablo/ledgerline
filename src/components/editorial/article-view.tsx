@@ -5,7 +5,7 @@ import { Cover } from "@/components/editorial/cards";
 import { MarkdownBody, TableOfContents } from "@/components/editorial/markdown-body";
 import { NewsletterForm, PublicShell } from "@/components/editorial/shell";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { absoluteUrl, formatDate } from "@/lib/editorial/text";
+import { absoluteUrl, formatDate, headingIds } from "@/lib/editorial/text";
 import type { ArticlePage } from "@/lib/editorial/types";
 import { getReactions, reactToArticle, saveState, submitComment, toggleSave, trackAffiliateClick } from "@/lib/editorial/public";
 
@@ -56,7 +56,8 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <article className="sheet py-6">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-10">
+        <div className="min-w-0">
         <p className="text-sm text-muted">
           <Link to="/" className="hover:text-accent">
             Home
@@ -280,6 +281,39 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           </div>
         </section>
       </div>
+        <aside className="hidden lg:block lg:self-start lg:sticky lg:top-6" aria-label="Sidebar">
+          {headingIds(article.body).filter((item) => item.level === 2).length > 1 ? (
+            <nav className="border-t border-ink pt-3" aria-label="On this page">
+              <h2 className="text-xs font-bold tracking-widest uppercase">On this page</h2>
+              <ol className="mt-3 space-y-2 text-sm leading-5">
+                {headingIds(article.body)
+                  .filter((item) => item.level === 2)
+                  .map((item) => (
+                    <li key={item.id}>
+                      <a href={`#${item.id}`} className="hover:text-accent">
+                        {item.text}
+                      </a>
+                    </li>
+                  ))}
+              </ol>
+            </nav>
+          ) : null}
+          {data.related.length > 0 ? (
+            <div className="mt-8 border-t border-ink pt-3">
+              <h2 className="text-xs font-bold tracking-widest uppercase">More from Ledgerline</h2>
+              <ul className="mt-3 space-y-3">
+                {data.related.map((card) => (
+                  <li key={card.id} className="border-b border-line pb-3">
+                    <Link to="/article/$slug" params={{ slug: card.slug }} className="font-serif text-lg font-semibold leading-snug hover:text-accent">
+                      {card.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </aside>
+        </div>
       </article>
     </PublicShell>
   );
