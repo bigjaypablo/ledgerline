@@ -88,7 +88,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           ) : null}
           <SaveButton articleId={article.id} />
         </div>
-        <figure className="mt-6">
+        <figure className="mt-6 max-w-3xl">
           <Cover card={article} eager />
           {article.coverCaption ? <figcaption className="mt-2 text-sm text-muted">{article.coverCaption}</figcaption> : null}
         </figure>

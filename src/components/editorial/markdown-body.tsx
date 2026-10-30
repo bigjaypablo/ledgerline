@@ -85,7 +85,7 @@ export function TableOfContents({ markdown }: { markdown: string }) {
   const [open, setOpen] = useState(true);
   if (items.length < 2) return null;
   return (
-    <nav className="my-6 border-y border-line py-4" aria-label="Contents">
+    <nav className="my-6 max-w-3xl border-y border-line py-4" aria-label="Contents">
       <button type="button" className="text-xs font-bold tracking-widest uppercase" onClick={() => setOpen((value) => !value)}>
         Contents {open ? "–" : "+"}
       </button>
