@@ -104,7 +104,7 @@ export type ArticlePage = {
   next: { slug: string; title: string } | null;
   comments: Comment[];
   tools: Tool[];
-  author: { name: string; bio: string; xUrl: string };
+  author: { name: string; bio: string; xUrl: string; avatarUrl?: string };
   settings: Settings;
 };
 

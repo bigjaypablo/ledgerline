@@ -368,8 +368,8 @@ export const getArticle = createServerFn({ method: "GET" })
             and length(trim(f.affiliate_url)) > 0
           order by f.name asc
         `,
-        sql<{ display_name: string; bio: string; x_url: string }>`
-          select display_name, bio, x_url from profiles where user_id = ${row.author_id}
+        sql<{ display_name: string; bio: string; x_url: string; avatar_url: string }>`
+          select display_name, bio, x_url, avatar_url from profiles where user_id = ${row.author_id}
         `,
         loadSettings(),
       ]);
@@ -419,6 +419,7 @@ export const getArticle = createServerFn({ method: "GET" })
       })),
       author: {
         name: author?.display_name || settings.authorName,
+        avatarUrl: author?.avatar_url || "",
         bio: author?.bio || settings.authorBio,
         xUrl: author?.x_url || settings.xUrl,
       },

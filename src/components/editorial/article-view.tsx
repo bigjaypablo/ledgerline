@@ -61,7 +61,14 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         <h1 className="mt-2 mx-auto max-w-4xl font-serif text-4xl font-semibold leading-tight sm:text-5xl">{article.title}</h1>
         <p className="mt-4 mx-auto max-w-4xl text-xl leading-8">{article.summary}</p>
         <p className="mt-4 text-sm text-muted">
-          By {data.author.name}
+          <span className="mr-2 inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-line bg-card align-middle text-xs font-bold text-ink">
+            {data.author.avatarUrl ? (
+              <img src={data.author.avatarUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              data.author.name.slice(0, 1).toUpperCase()
+            )}
+          </span>
+          <span className="font-semibold text-ink">{data.author.name}</span>
           <span aria-hidden> · </span>
           {formatDate(article.publishedAt)}
           {article.updatedAt ? ` · Updated ${formatDate(article.updatedAt)}` : ""}
