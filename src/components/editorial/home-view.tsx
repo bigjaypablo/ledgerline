@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Cover, SectionBand, StoryCard } from "@/components/editorial/cards";
 import { FeatureCard, LatestList, ThumbRow } from "@/components/editorial/rows";
 import { NewsletterForm, PublicShell } from "@/components/editorial/shell";
@@ -18,26 +19,59 @@ function slideCards(data: HomeData): Card[] {
   return cards;
 }
 
+const NOTE_KEY = "ledgerline:standards-dismissed";
+
+function StandardsNote() {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(NOTE_KEY)) setHidden(true);
+    } catch {
+      /* storage blocked: keep it visible */
+    }
+  }, []);
+  if (hidden) return null;
+  return (
+    <div className="border-b border-line bg-card">
+      <div className="sheet relative flex flex-col gap-4 py-6 pr-10 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-serif text-3xl font-semibold leading-tight">Research before you pay.</p>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
+            Ledgerline reads pricing pages, terms, and primary sources. It is not a product lab and it is not
+            financial advice.
+          </p>
+        </div>
+        <Link to="/standards" className="inline-flex min-h-11 items-center justify-center bg-ink px-4 text-sm font-semibold text-inverse-fg">
+          Editorial standards
+        </Link>
+        <button
+          type="button"
+          aria-label="Dismiss this note"
+          title="Dismiss"
+          className="absolute right-0 top-3 inline-flex h-9 w-9 items-center justify-center text-lg leading-none text-muted hover:text-ink"
+          onClick={() => {
+            try {
+              window.localStorage.setItem(NOTE_KEY, "1");
+            } catch {
+              /* ignore */
+            }
+            setHidden(true);
+          }}
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function HomeView({ data }: { data: HomeData }) {
   const { lead } = data;
   const shown = new Set<string>([lead?.id ?? "", ...data.secondary.map((c) => c.id)]);
   const latest = data.latest.filter((c) => !shown.has(c.id));
   return (
     <PublicShell>
-      <div className="border-b border-line bg-card">
-        <div className="sheet flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-serif text-3xl font-semibold leading-tight">Research before you pay.</p>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
-              Ledgerline reads pricing pages, terms, and primary sources. It is not a product lab and it is not
-              financial advice.
-            </p>
-          </div>
-          <Link to="/standards" className="inline-flex min-h-11 items-center justify-center bg-ink px-4 text-sm font-semibold text-inverse-fg">
-            Editorial standards
-          </Link>
-        </div>
-      </div>
+      <StandardsNote />
       <main>
         {lead ? (
           <>
