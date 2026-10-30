@@ -6,7 +6,7 @@ import { NewsletterForm, PublicShell } from "@/components/editorial/shell";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { absoluteUrl, formatDate } from "@/lib/editorial/text";
 import type { ArticlePage } from "@/lib/editorial/types";
-import { saveState, submitComment, toggleSave, trackAffiliateClick } from "@/lib/editorial/public";
+import { getReactions, reactToArticle, saveState, submitComment, toggleSave, trackAffiliateClick } from "@/lib/editorial/public";
 
 export function ArticleView({ data }: { data: ArticlePage }) {
   const { article, settings } = data;
@@ -94,6 +94,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         </figure>
         <TableOfContents markdown={article.body} />
         <MarkdownBody markdown={article.body} />
+        <ReactionButtons articleId={article.id} />
         <aside className="mt-8 mx-auto max-w-4xl border border-line bg-card p-4 text-sm leading-6">
           <p className="font-semibold">Information only. Not financial advice.</p>
           <p className="mt-2">
@@ -321,5 +322,59 @@ function ShareFallback({ title }: { title: string }) {
     >
       Share on X
     </button>
+  );
+}
+
+function voterId(): string {
+  try {
+    let id = window.localStorage.getItem("ledgerline:voter");
+    if (!id) {
+      id = crypto.randomUUID();
+      window.localStorage.setItem("ledgerline:voter", id);
+    }
+    return id;
+  } catch {
+    return "";
+  }
+}
+
+function ReactionButtons({ articleId }: { articleId: string }) {
+  const [state, setState] = useState({ likes: 0, dislikes: 0, mine: 0 });
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    let live = true;
+    getReactions({ data: { articleId, voterId: voterId() } })
+      .then((result) => {
+        if (live) setState(result);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [articleId]);
+
+  function vote(value: 1 | -1) {
+    setNote("");
+    const next = state.mine === value ? 0 : value;
+    void reactToArticle({ data: { articleId, voterId: voterId(), value: next } })
+      .then(setState)
+      .catch((err: unknown) => setNote(err instanceof Error ? err.message : "Could not record your vote."));
+  }
+
+  const base = "inline-flex min-h-11 items-center gap-2 border px-4 text-sm font-semibold";
+  return (
+    <div className="mx-auto mt-8 max-w-4xl border-t border-line pt-4">
+      <p className="text-sm font-semibold">Was this article useful?</p>
+      <div className="mt-2 flex gap-2">
+        <button type="button" aria-pressed={state.mine === 1} aria-label="Like" onClick={() => vote(1)} className={`${base} ${state.mine === 1 ? "border-ink bg-ink text-inverse-fg" : "border-line bg-card"}`}>
+          <span aria-hidden>👍</span> {state.likes}
+        </button>
+        <button type="button" aria-pressed={state.mine === -1} aria-label="Dislike" onClick={() => vote(-1)} className={`${base} ${state.mine === -1 ? "border-ink bg-ink text-inverse-fg" : "border-line bg-card"}`}>
+          <span aria-hidden>👎</span> {state.dislikes}
+        </button>
+      </div>
+      {note ? <p className="mt-2 text-sm text-accent">{note}</p> : null}
+    </div>
   );
 }

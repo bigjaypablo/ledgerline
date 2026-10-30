@@ -785,3 +785,55 @@ export const getFeedDocument = createServerFn({ method: "GET" })
       .join("");
     return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</urlset>`;
   });
+
+type ReactionState = { likes: number; dislikes: number; mine: number };
+
+async function reactionState(sql: Awaited<ReturnType<typeof getSql>>, articleId: string, voterId: string): Promise<ReactionState> {
+  const counts = await sql<{ likes: number; dislikes: number }>`
+    select count(*) filter (where value = 1)::int as likes,
+           count(*) filter (where value = -1)::int as dislikes
+    from reactions where article_id = ${articleId}
+  `;
+  const mine = voterId
+    ? await sql<{ value: number }>`select value from reactions where article_id = ${articleId} and voter_id = ${voterId}`
+    : [];
+  return { likes: Number(counts[0]?.likes ?? 0), dislikes: Number(counts[0]?.dislikes ?? 0), mine: Number(mine[0]?.value ?? 0) };
+}
+
+const cleanVoter = (value: unknown) => {
+  const v = String(value ?? "");
+  return /^[A-Za-z0-9-]{16,64}$/.test(v) ? v : "";
+};
+
+export const getReactions = createServerFn({ method: "GET" })
+  .validator((input: { articleId?: string; voterId?: string }) => ({
+    articleId: String(input?.articleId ?? "").slice(0, 120),
+    voterId: cleanVoter(input?.voterId),
+  }))
+  .handler(async ({ data }): Promise<ReactionState> => {
+    const sql = await getSql();
+    return reactionState(sql, data.articleId, data.voterId);
+  });
+
+export const reactToArticle = createServerFn({ method: "POST" })
+  .validator((input: { articleId?: string; voterId?: string; value?: number }) => ({
+    articleId: String(input?.articleId ?? "").slice(0, 120),
+    voterId: cleanVoter(input?.voterId),
+    value: input?.value === 1 ? 1 : input?.value === -1 ? -1 : 0,
+  }))
+  .handler(async ({ data }): Promise<ReactionState> => {
+    if (!data.voterId) throw new Error("Could not record your vote.");
+    const sql = await getSql();
+    const found = await sql<{ id: string }>`select id from articles where id = ${data.articleId} and status = 'published'`;
+    if (!found[0]) throw new Error("That article is not open for voting.");
+    if (data.value === 0) {
+      await sql`delete from reactions where article_id = ${data.articleId} and voter_id = ${data.voterId}`;
+    } else {
+      await sql`
+        insert into reactions (article_id, voter_id, value)
+        values (${data.articleId}, ${data.voterId}, ${data.value})
+        on conflict (article_id, voter_id) do update set value = excluded.value
+      `;
+    }
+    return reactionState(sql, data.articleId, data.voterId);
+  });
