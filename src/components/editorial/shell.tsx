@@ -1,3 +1,4 @@
+import { CookieBanner } from "@/components/editorial/cookie-banner";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, X } from "lucide-react";
 import { useState } from "react";
@@ -200,6 +201,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       <SiteHeader />
       <div id="content">{children}</div>
       <SiteFooter />
+      <CookieBanner />
     </div>
   );
 }

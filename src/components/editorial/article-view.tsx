@@ -1,3 +1,4 @@
+import { ShareLinks } from "@/components/editorial/share-links";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Cover } from "@/components/editorial/cards";
@@ -76,9 +77,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         )}
         <div className="mt-4 flex flex-wrap gap-4 text-sm font-semibold">
           {canonical.startsWith("http") ? (
-            <a href={share} className="text-accent">
-              Share on X
-            </a>
+            <ShareLinks title={article.title} url={canonical} xHref={share} />
           ) : (
             <ShareFallback title={article.title} />
           )}
