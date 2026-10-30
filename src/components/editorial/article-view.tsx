@@ -95,9 +95,16 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           ) : null}
           <SaveButton articleId={article.id} />
         </div>
-        <figure className="mt-6 mx-auto max-w-4xl">
+        <figure className="-mx-4 mt-6 sm:mx-auto sm:max-w-4xl">
           <Cover card={article} eager />
-          {article.coverCaption ? <figcaption className="mt-2 text-sm text-muted">{article.coverCaption}</figcaption> : null}
+          {article.coverCaption ? (
+            <figcaption className="mt-2 px-4 text-sm text-muted sm:px-0">
+              {article.coverCaption.split(/\s*Photo:\s*/i)[0]}
+              {/Photo:/i.test(article.coverCaption) ? (
+                <span className="block text-xs">Photo: {article.coverCaption.split(/Photo:\s*/i)[1]}</span>
+              ) : null}
+            </figcaption>
+          ) : null}
         </figure>
         <TableOfContents markdown={article.body} />
         <MarkdownBody markdown={article.body} />
