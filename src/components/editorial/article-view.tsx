@@ -12,6 +12,13 @@ import { getReactions, reactToArticle, saveState, submitComment, toggleSave, tra
 export function ArticleView({ data }: { data: ArticlePage }) {
   const { article, settings } = data;
   const canonical = absoluteUrl(settings.publicUrl, `/article/${article.slug}`);
+  let preferredHost = "";
+  try {
+    const host = new URL(settings.publicUrl).hostname;
+    if (host && !host.endsWith("vercel.app") && host !== "localhost") preferredHost = host;
+  } catch {
+    /* no valid public URL yet */
+  }
   const share = `https://x.com/intent/post?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(canonical.startsWith("http") ? canonical : "")}`;
   const [name, setName] = useState("");
   const [body, setBody] = useState("");
@@ -35,7 +42,9 @@ export function ArticleView({ data }: { data: ArticlePage }) {
     description: article.summary,
     datePublished: article.publishedAt,
     dateModified: article.updatedAt || article.publishedAt,
-    author: { "@type": "Organization", name: data.author.name },
+    author: { "@type": "Person", name: data.author.name },
+    ...(article.coverImage.startsWith("https://") ? { image: [article.coverImage] } : {}),
+    ...(canonical.startsWith("http") ? { mainEntityOfPage: canonical } : {}),
     publisher: { "@type": "Organization", name: "Ledgerline" },
     articleSection: article.categoryName,
   };
@@ -109,6 +118,18 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         <TableOfContents markdown={article.body} />
         <MarkdownBody markdown={article.body} />
         <ReactionButtons articleId={article.id} />
+        {preferredHost ? (
+          <p className="mx-auto mt-4 max-w-4xl text-sm">
+            <a
+              href={`https://google.com/preferences/source?q=${encodeURIComponent(preferredHost)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-accent underline"
+            >
+              Add Ledgerline as a preferred source on Google
+            </a>
+          </p>
+        ) : null}
         <aside className="mt-8 mx-auto max-w-4xl border border-line bg-card p-4 text-sm leading-6">
           <p className="font-semibold">Information only. Not financial advice.</p>
           <p className="mt-2">
