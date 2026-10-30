@@ -46,6 +46,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <article className="sheet py-6">
+        <div className="mx-auto max-w-4xl">
         <p className="text-sm text-muted">
           <Link to="/" className="hover:text-accent">
             Home
@@ -244,6 +245,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             <NewsletterForm />
           </div>
         </section>
+      </div>
       </article>
     </PublicShell>
   );
