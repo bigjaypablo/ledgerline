@@ -57,7 +57,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         </p>
         <p className="mt-4 text-xs font-bold tracking-widest text-accent uppercase">{article.label}</p>
         <h1 className="mt-2 max-w-4xl font-serif text-4xl font-semibold leading-tight sm:text-5xl">{article.title}</h1>
-        <p className="mt-4 max-w-3xl text-xl leading-8">{article.summary}</p>
+        <p className="mt-4 max-w-4xl text-xl leading-8">{article.summary}</p>
         <p className="mt-4 text-sm text-muted">
           By {data.author.name}
           <span aria-hidden> · </span>
@@ -88,13 +88,13 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           ) : null}
           <SaveButton articleId={article.id} />
         </div>
-        <figure className="mt-6 max-w-3xl">
+        <figure className="mt-6 max-w-4xl">
           <Cover card={article} eager />
           {article.coverCaption ? <figcaption className="mt-2 text-sm text-muted">{article.coverCaption}</figcaption> : null}
         </figure>
         <TableOfContents markdown={article.body} />
         <MarkdownBody markdown={article.body} />
-        <aside className="mt-8 max-w-3xl border border-line bg-card p-4 text-sm leading-6">
+        <aside className="mt-8 max-w-4xl border border-line bg-card p-4 text-sm leading-6">
           <p className="font-semibold">Information only. Not financial advice.</p>
           <p className="mt-2">
             Ledgerline does not provide financial, investment, legal, or tax advice. Cryptocurrency coverage
@@ -112,7 +112,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </p>
           ) : null}
         </aside>
-        <section className="mt-10 max-w-3xl">
+        <section className="mt-10 max-w-4xl">
           <h2 className="font-serif text-3xl font-semibold">Sources</h2>
           {data.sources.length === 0 ? (
             <p className="mt-3 border border-accent bg-card px-3 py-2 text-sm">
@@ -137,7 +137,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           )}
         </section>
         {data.tools.length > 0 ? (
-          <section className="mt-10 max-w-3xl">
+          <section className="mt-10 max-w-4xl">
             <h2 className="font-serif text-3xl font-semibold">Related links</h2>
             <ul className="mt-4 space-y-4">
               {data.tools.map((tool) => (
@@ -168,12 +168,12 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         {article.tags.length > 0 ? (
           <p className="mt-6 text-sm text-muted">Tags: {article.tags.join(", ")}</p>
         ) : null}
-        <section className="mt-10 max-w-3xl border-t border-line pt-6">
+        <section className="mt-10 max-w-4xl border-t border-line pt-6">
           <h2 className="font-serif text-2xl font-semibold">{data.author.name}</h2>
           <p className="mt-2 text-base leading-7">{data.author.bio}</p>
         </section>
         {data.related.length > 0 ? (
-          <section className="mt-10 max-w-3xl">
+          <section className="mt-10 max-w-4xl">
             <h2 className="text-sm font-bold tracking-widest uppercase">Related</h2>
             <ul className="mt-3 divide-y divide-line">
               {data.related.map((card) => (
@@ -186,7 +186,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </ul>
           </section>
         ) : null}
-        <nav className="mt-8 grid max-w-3xl gap-4 border-t border-line pt-4 sm:grid-cols-2" aria-label="More articles">
+        <nav className="mt-8 grid max-w-4xl gap-4 border-t border-line pt-4 sm:grid-cols-2" aria-label="More articles">
           {data.previous ? (
             <Link to="/article/$slug" params={{ slug: data.previous.slug }} className="text-sm">
               <span className="block text-xs font-bold tracking-widest uppercase text-muted">Previous</span>
@@ -203,7 +203,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           ) : null}
         </nav>
         {settings.commentsEnabled ? (
-          <section className="mt-10 max-w-3xl border-t border-ink pt-6">
+          <section className="mt-10 max-w-4xl border-t border-ink pt-6">
             <h2 className="font-serif text-3xl font-semibold">Comments</h2>
             <p className="mt-2 text-sm text-muted">Comments are checked before they appear. Links are not accepted.</p>
             <ul className="mt-4 space-y-4">
