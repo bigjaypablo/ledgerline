@@ -173,7 +173,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           <p className="mt-2 text-base leading-7">{data.author.bio}</p>
         </section>
         {data.related.length > 0 ? (
-          <section className="mt-10">
+          <section className="mt-10 max-w-3xl">
             <h2 className="text-sm font-bold tracking-widest uppercase">Related</h2>
             <ul className="mt-3 divide-y divide-line">
               {data.related.map((card) => (
@@ -186,7 +186,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </ul>
           </section>
         ) : null}
-        <nav className="mt-8 grid gap-4 border-t border-line pt-4 sm:grid-cols-2" aria-label="More articles">
+        <nav className="mt-8 grid max-w-3xl gap-4 border-t border-line pt-4 sm:grid-cols-2" aria-label="More articles">
           {data.previous ? (
             <Link to="/article/$slug" params={{ slug: data.previous.slug }} className="text-sm">
               <span className="block text-xs font-bold tracking-widest uppercase text-muted">Previous</span>
