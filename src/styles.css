@@ -221,3 +221,10 @@ section[aria-roledescription="carousel"] > div:first-child { overflow-x: clip; }
 @media (min-width: 768px) {
   .hero-head { min-height: 14rem; justify-content: flex-start; }
 }
+
+/* Home polish: no stretched Latest box, no pink smudge, clearer dots */
+.latest-box { height: auto; align-self: start; }
+.hero-frame { box-shadow: none; }
+.hero-dot { width: .5rem; height: .5rem; background: var(--color-muted); opacity: .45; }
+.hero-dot.on { width: 1.75rem; background: var(--color-accent); opacity: 1; }
+.hero-dots { margin-bottom: .5rem; }
