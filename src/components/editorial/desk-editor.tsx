@@ -195,7 +195,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
     }
   }
 
-  async function saveNow() {
+  async function saveNow(stay = false) {
     const payload = { ...formRef.current, slug: slugify(formRef.current.slug || formRef.current.title) };
     const result = await saveArticle({ data: payload });
     setNote(result.private ? "Saved privately. The live article is unchanged." : "Draft saved");
@@ -205,23 +205,24 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
       } catch {
         /* ignore */
       }
-      await navigate({ to: "/admin/articles/$articleId", params: { articleId: result.id } });
+      if (!stay) await navigate({ to: "/admin/articles/$articleId", params: { articleId: result.id } });
     }
     return result.id;
   }
 
   const fail = (fallback: string) => (err: unknown) => setError(err instanceof Error ? err.message : fallback);
-  const setStatusTo = (next: ArticleStatus) => changeArticleStatus({ data: { id: form.id ?? "", status: next } });
+  const setStatusTo = (next: ArticleStatus, id: string = articleId ?? form.id ?? "") => changeArticleStatus({ data: { id, status: next } });
 
   function publishNow() {
-    void changeArticleStatus({
-      data: { id: form.id ?? "", status: "published", payload: { ...form, slug: form.slug || slugify(form.title) } },
-    })
-      .then(() => {
+    const payload = { ...formRef.current, slug: formRef.current.slug || slugify(formRef.current.title) };
+    void (articleId ? Promise.resolve(articleId) : saveNow(true))
+      .then((id) => changeArticleStatus({ data: { id, status: "published", payload: { ...payload, id } } }).then(() => id))
+      .then((id) => {
         setStatus("published");
         setConfirming(false);
         setNote("Live version updated.");
         setJustPublished(true);
+        if (!articleId) void navigate({ to: "/admin/articles/$articleId", params: { articleId: id } });
       })
       .catch((err: unknown) => {
         setConfirming(false);
@@ -246,7 +247,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
         onPublish={() => setConfirming(true)}
         onSubmit={() =>
           void saveNow()
-            .then(() => setStatusTo("review"))
+            .then((id) => setStatusTo("review", id))
             .then(() => setStatus("review"))
             .catch(fail("Could not submit."))
         }
