@@ -215,3 +215,9 @@
 .desk-zoom span { flex: 1; font-size: .8rem; font-weight: 700; }
 .desk-zoom b { min-width: 2.8rem; text-align: center; font-size: .85rem; }
 .desk-zoom button { min-height: 2.25rem; width: 2.25rem; padding: 0; text-align: center; border: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
+
+/* Hero: stop the page shaking on desktop */
+section[aria-roledescription="carousel"] > div:first-child { overflow-x: clip; }
+@media (min-width: 768px) {
+  .hero-head { min-height: 14rem; justify-content: flex-start; }
+}
