@@ -59,7 +59,8 @@ async function storeImage(file: File) {
   try {
     const { url } = await uploadImage({ data: { dataUrl } });
     return url;
-  } catch {
+  } catch (err) {
+    window.alert("Blob upload failed: " + (err instanceof Error ? err.message : String(err)));
     return dataUrl;
   }
 }
