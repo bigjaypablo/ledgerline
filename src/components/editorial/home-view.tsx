@@ -112,7 +112,7 @@ export function HomeView({ data }: { data: HomeData }) {
         ) : null}
 
         {data.secondary.length > 0 ? (
-          <ThumbSlider cards={data.secondary} />
+          <ThumbSlider cards={data.secondary.filter((c) => !latest.some((l) => l.id === c.id))} />
         ) : null}
 
         <SectionBand title="Crypto" href="/crypto" articles={data.crypto} />
