@@ -229,3 +229,6 @@ section[aria-roledescription="carousel"] > div:first-child { overflow-x: clip; }
 .hero-dot.on { width: 1.75rem; background: var(--color-accent); opacity: 1; }
 .hero-dots { margin-bottom: .5rem; }
 .latest-list { min-height: 0; }
+
+/* Centre image captions */
+figcaption { text-align: center; }
