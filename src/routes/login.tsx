@@ -91,7 +91,7 @@ function LoginPage() {
                   placeholder="Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  autoComplete="name"
+                  autoComplete="name" required minLength={2}
                 />
               </label>
             ) : null}

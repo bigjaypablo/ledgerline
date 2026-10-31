@@ -826,7 +826,7 @@ export const listProfiles = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
     const { sql, profile } = await gate(context.userId);
-    if (profile.role !== "admin") return { self: profile, people: [] as Profile[] };
+    if (profile.role !== "admin") return { self: profile, people: [] as (Profile & { email: string })[] };
     const rows = await sql<{
       user_id: string;
       role: Role;
@@ -834,7 +834,13 @@ export const listProfiles = createServerFn({ method: "GET" })
       bio: string;
       x_handle: string;
       x_url: string;
-    }>`select user_id, role, display_name, bio, x_handle, x_url from profiles order by created_at asc`;
+      email: string | null;
+    }>`
+      select p.user_id, p.role, p.display_name, p.bio, p.x_handle, p.x_url, u."email" as email
+      from profiles p
+      left join "user" u on u."id" = p.user_id
+      order by p.created_at asc
+    `;
     return {
       self: profile,
       people: rows.map((row) => ({
@@ -844,6 +850,7 @@ export const listProfiles = createServerFn({ method: "GET" })
         bio: row.bio ?? "",
         xHandle: row.x_handle ?? "",
         xUrl: row.x_url ?? "",
+        email: row.email ?? "",
       })),
     };
   });

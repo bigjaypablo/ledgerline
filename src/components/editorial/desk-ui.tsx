@@ -544,8 +544,22 @@ function SettingsForm({
           <ul className="mt-3 space-y-2 text-sm">
             {people.map((person) => (
               <li key={person.userId}>
-                <button type="button" className="font-semibold" onClick={() => setProfile(person)}>
+                <button
+                  type="button"
+                  className="text-left font-semibold"
+                  onClick={() =>
+                    setProfile({
+                      userId: person.userId,
+                      role: person.role,
+                      displayName: person.displayName,
+                      bio: person.bio,
+                      xHandle: person.xHandle,
+                      xUrl: person.xUrl,
+                    })
+                  }
+                >
                   {person.displayName} · {person.role}
+                  {person.email ? <span className="block text-xs font-normal text-muted">{person.email}</span> : null}
                 </button>
               </li>
             ))}
