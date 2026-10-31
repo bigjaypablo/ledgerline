@@ -302,6 +302,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
           <label className="block text-sm font-semibold">
             Standfirst
             <textarea value={form.summary} placeholder="One or two sentences that sum up the article" onChange={(event) => setForm({ ...form, summary: event.target.value })} className="mt-1 min-h-24 w-full border border-line bg-card px-3 py-2" />
+            <span className="mt-1 block text-xs font-normal text-muted">Press Enter twice for a new paragraph. Use *italic* or **bold**.</span>
           </label>
           <RichBody value={form.body} onChange={(body) => setForm((f) => ({ ...f, body }))} compress={storeImage} onError={setError} />
         </div>
