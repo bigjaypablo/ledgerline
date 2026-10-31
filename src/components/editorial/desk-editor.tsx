@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { MarkdownBody } from "@/components/editorial/markdown-body";
+import { ArticlePreview } from "@/components/editorial/article-preview";
 import { RichBody } from "@/components/editorial/rich-body";
 import { DeskTopBar } from "@/components/editorial/desk-top-bar";
 import { SettingsPanel, type EditorMeta } from "@/components/editorial/settings-panel";
@@ -281,13 +281,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
       {error ? <p className="mt-3 text-sm text-accent">{error}</p> : null}
 
       {tab === "preview" ? (
-        <div className="mt-4 border border-line bg-card p-4">
-          <h1 className="font-serif text-4xl font-semibold">{form.title || "Untitled"}</h1>
-          <p className="mt-3 text-lg">{form.summary}</p>
-          <div className="mt-4">
-            <MarkdownBody markdown={form.body} />
-          </div>
-        </div>
+        <ArticlePreview form={form} authorName={meta.authors.find((a) => a.user_id === form.authorId)?.display_name || user?.name || "Author"} />
       ) : (
         <div className="mt-4 space-y-3">
           <label className="block text-sm font-semibold">
