@@ -232,3 +232,10 @@ section[aria-roledescription="carousel"] > div:first-child { overflow-x: clip; }
 
 /* Centre image captions */
 figcaption { text-align: center; }
+
+/* Story slider: swipe with snapping */
+.snap-row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.snap-row::-webkit-scrollbar { display: none; }
+.snap-page { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; align-content: start; }
+.slider-arrow { width: 2.25rem; height: 2.25rem; border: 1px solid var(--color-line); background: var(--color-card); font-size: 1.4rem; line-height: 1; }
+.slider-arrow:disabled { opacity: .35; }

@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Cover, SectionBand, StoryCard } from "@/components/editorial/cards";
-import { FeatureCard, LatestList, ThumbRow } from "@/components/editorial/rows";
+import { FeatureCard, LatestList } from "@/components/editorial/rows";
+import { ThumbSlider } from "@/components/editorial/thumb-slider";
 import { NewsletterForm, PublicShell } from "@/components/editorial/shell";
 import { LeadSlideshow } from "@/components/editorial/slideshow";
 import { trackAffiliateClick } from "@/lib/editorial/public";
@@ -10,7 +11,7 @@ import type { Card, HomeData } from "@/lib/editorial/types";
 function slideCards(data: HomeData): Card[] {
   const seen = new Set<string>();
   const cards: Card[] = [];
-  for (const card of [data.lead, ...data.secondary, ...data.picks, ...data.latest, ...data.crypto, ...data.ai, ...data.saas]) {
+  for (const card of [data.lead, ...data.secondary.slice(0, 3), ...data.picks, ...data.latest, ...data.crypto, ...data.ai, ...data.saas]) {
     if (!card || seen.has(card.id)) continue;
     seen.add(card.id);
     cards.push(card);
@@ -67,7 +68,7 @@ function StandardsNote() {
 
 export function HomeView({ data }: { data: HomeData }) {
   const { lead } = data;
-  const shown = new Set<string>([lead?.id ?? "", ...data.secondary.map((c) => c.id)]);
+  const shown = new Set<string>([lead?.id ?? "", ...data.secondary.slice(0, 3).map((c) => c.id)]);
   const latest = data.latest.filter((c) => !shown.has(c.id));
   return (
     <PublicShell>
@@ -111,13 +112,7 @@ export function HomeView({ data }: { data: HomeData }) {
         ) : null}
 
         {data.secondary.length > 0 ? (
-          <section className="sheet pb-8">
-            <div className="grid gap-x-8 border-t border-line md:grid-cols-2">
-              {data.secondary.map((card) => (
-                <ThumbRow key={card.id} card={card} />
-              ))}
-            </div>
-          </section>
+          <ThumbSlider cards={data.secondary} />
         ) : null}
 
         <SectionBand title="Crypto" href="/crypto" articles={data.crypto} />

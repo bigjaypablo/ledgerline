@@ -167,7 +167,7 @@ export const getHome = createServerFn({ method: "GET" }).handler(async (): Promi
   const rest = cards.filter((card) => card.slug !== lead?.slug);
   return {
     lead,
-    secondary: rest.slice(0, 3),
+    secondary: rest.slice(0, 12),
     latest: cards.slice(0, 8),
     crypto: cards.filter((card) => card.categorySlug === "crypto" && card.slug !== lead?.slug).slice(0, 4),
     ai: cards.filter((card) => card.categorySlug === "ai").slice(0, 4),
