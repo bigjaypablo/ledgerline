@@ -135,7 +135,7 @@ export function ProfilePage() {
       >
         <label className="text-sm font-semibold">
           Display name
-          <input className={input} value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} />
+          <input className={input} placeholder="Your name as readers see it" value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} />
         </label>
         <label className="text-sm font-semibold">
           Bio
@@ -143,13 +143,14 @@ export function ProfilePage() {
             className="mt-1 min-h-28 w-full border border-line bg-card px-3 py-2"
             value={form.bio}
             maxLength={800}
+            placeholder="A short line about you and what you cover, e.g. Independent crypto researcher focused on custody and exchange risk."
             onChange={(e) => setForm({ ...form, bio: e.target.value })}
           />
           <span className="text-xs font-normal text-muted">{form.bio.length}/800. Shown at the bottom of your articles.</span>
         </label>
         <label className="text-sm font-semibold">
           X handle
-          <input className={input} value={form.xHandle} onChange={(e) => setForm({ ...form, xHandle: e.target.value })} />
+          <input className={input} placeholder="yourname (no @)" value={form.xHandle} onChange={(e) => setForm({ ...form, xHandle: e.target.value })} />
         </label>
         <label className="text-sm font-semibold">
           X link
