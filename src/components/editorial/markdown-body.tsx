@@ -94,7 +94,7 @@ export function TableOfContents({ markdown }: { markdown: string }) {
           {items.map((item) => (
             <li key={item.id}>
               <a href={`#${item.id}`} className="hover:text-accent">
-                {item.text}
+                {item.text.replace(/\((?:https?:\/\/|\/)[^\s)]*\)/g, "").replace(/\s{2,}/g, " ").trim()}
               </a>
             </li>
           ))}
