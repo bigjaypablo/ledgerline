@@ -34,7 +34,7 @@ function Gauge({ value, label }: { value: number; label: string }) {
   const v = Math.min(100, Math.max(0, value));
   const [mx, my] = polar(100, 100, 78, 135 + 2.7 * v);
   return (
-    <svg viewBox="0 0 200 165" className="mx-auto mt-2 block w-full max-w-[220px]" role="img" aria-label={`Fear and greed index ${value} out of 100, ${label}`}>
+    <svg viewBox="0 0 200 165" className="mx-auto mt-1 block w-full max-w-[140px]" role="img" aria-label={`Fear and greed index ${value} out of 100, ${label}`}>
       {SEGMENTS.map(([a, b, c]) => (
         <path key={a} d={arc(100, 100, 78, a, b)} fill="none" stroke={c} strokeWidth="13" />
       ))}
@@ -60,7 +60,7 @@ function Area({ points, up }: { points: number[]; up: boolean }) {
   const line = xy.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
   const color = up ? GREEN : RED;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="mt-3 block h-24 w-full" aria-hidden="true">
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="mt-2 block h-16 w-full" aria-hidden="true">
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.35" />
@@ -73,9 +73,9 @@ function Area({ points, up }: { points: number[]; up: boolean }) {
   );
 }
 
-function Card({ title, tag, children }: { title: string; tag?: string; children: React.ReactNode }) {
+function Card({ title, tag, wide, children }: { title: string; tag?: string; wide?: boolean; children: React.ReactNode }) {
   return (
-    <div className="border border-line bg-card p-4">
+    <div className={"border border-line bg-card p-3 md:p-4 " + (wide ? "col-span-2 md:col-span-1" : "")}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold tracking-wide">{title}</h3>
         {tag ? <span className="text-xs font-bold tracking-widest text-accent uppercase">{tag}</span> : null}
@@ -123,7 +123,7 @@ export function MarketWidgets() {
         <h2 className="text-sm font-bold tracking-widest uppercase">Market snapshot</h2>
         <span className="text-xs text-muted">Informational only. Not financial advice.</span>
       </div>
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
         {fg ? (
           <Card title="Fear & Greed">
             <Gauge value={fg.value} label={fg.label} />
@@ -131,26 +131,28 @@ export function MarketWidgets() {
         ) : null}
         {btc ? (
           <Card title="Bitcoin" tag="7D">
-            <p className="mt-2 font-serif text-3xl">${Math.round(btc.price).toLocaleString("en-US")}</p>
+            <p className="mt-1 font-serif text-2xl">${Math.round(btc.price).toLocaleString("en-US")}</p>
             <Change v={btc.change7d} suffix="" />
             <Area points={btc.points} up={btc.change7d >= 0} />
           </Card>
         ) : null}
         {data.marketCap !== null ? (
-          <Card title="Total market cap" tag="24H">
-            <p className="mt-2 font-serif text-3xl">{usd(data.marketCap)}</p>
-            {data.marketCapChange !== null ? <Change v={data.marketCapChange} suffix="" /> : null}
-            {data.btcDominance !== null ? (
-              <div className="mt-4 border-t border-line pt-3">
-                <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-semibold">BTC dominance</span>
-                  <span className="font-serif text-2xl">{data.btcDominance.toFixed(1)}%</span>
-                </div>
-                <div className="mt-2 h-2 bg-line">
-                  <div className="h-full bg-accent" style={{ width: `${Math.min(100, data.btcDominance)}%` }} />
-                </div>
-              </div>
-            ) : null}
+          <Card title="Total market cap" tag="24H" wide>
+            <div className="mt-1 flex items-baseline justify-between">
+              <p className="font-serif text-2xl">{usd(data.marketCap)}</p>
+              {data.marketCapChange !== null ? <Change v={data.marketCapChange} suffix="" /> : null}
+            </div>
+          </Card>
+        ) : null}
+        {data.btcDominance !== null ? (
+          <Card title="Bitcoin dominance" wide>
+            <div className="mt-1 flex items-baseline justify-between">
+              <span className="font-serif text-2xl">{data.btcDominance.toFixed(1)}%</span>
+              <span className="text-xs text-muted">of total crypto market cap</span>
+            </div>
+            <div className="mt-2 h-2 bg-line">
+              <div className="h-full bg-accent" style={{ width: `${Math.min(100, data.btcDominance)}%` }} />
+            </div>
           </Card>
         ) : null}
       </div>
