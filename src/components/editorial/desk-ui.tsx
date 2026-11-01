@@ -1,4 +1,5 @@
 import { MetricsPanel } from "@/components/editorial/metrics-panel";
+import { getArticleStats } from "@/lib/editorial/admin";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { RedirectToSignIn, UserButton } from "@/lib/auth/gates";
@@ -202,6 +203,10 @@ export function ArticleList() {
   const [category, setCategory] = useState("all");
   const [q, setQ] = useState("");
   const [rows, setRows] = useState<Awaited<ReturnType<typeof listAdminArticles>> | null>(null);
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof getArticleStats>>>({});
+  useEffect(() => {
+    getArticleStats().then(setStats).catch(() => {});
+  }, []);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -250,6 +255,11 @@ export function ArticleList() {
             <p className="text-xs font-semibold tracking-wide text-muted uppercase">
               {row.status} · {row.categorySlug} · {row.authorName} · {formatDate(row.updatedAt)}
             </p>
+            {stats[row.id] ? (
+              <p className="mt-1 text-xs text-muted">
+                {stats[row.id].imps30} impressions · {stats[row.id].views7} views (7d) · {stats[row.id].views30} views (30d) · {stats[row.id].viewsAll} all-time · {stats[row.id].clicks30} clicks (30d)
+              </p>
+            ) : null}
           </li>
         ))}
       </ul>

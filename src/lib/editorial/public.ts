@@ -867,3 +867,21 @@ export const trackPageView = createServerFn({ method: "POST" })
     `;
     return { ok: true };
   });
+
+
+export const trackImpressions = createServerFn({ method: "POST" })
+  .validator((input: { ids?: string[]; path?: string }) => ({
+    ids: (Array.isArray(input?.ids) ? input.ids : []).slice(0, 24).map((v) => String(v).slice(0, 80)),
+    path: String(input?.path ?? "").slice(0, 300),
+  }))
+  .handler(async ({ data }) => {
+    if (data.ids.length === 0 || data.path.startsWith("/admin")) return { ok: false };
+    const sql = await getSql();
+    await sql`
+      insert into page_events (kind, article_id, path)
+      select 'impression', id, ${data.path}
+      from articles
+      where id = any(${data.ids}::text[]) and status = 'published'
+    `;
+    return { ok: true };
+  });

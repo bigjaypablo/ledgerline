@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { formatDate, safeImageSrc } from "@/lib/editorial/text";
 import type { Card } from "@/lib/editorial/types";
+import { ImpressionMark } from "@/components/editorial/impression-mark";
 
 export function MetaLine({ card }: { card: Card }) {
   return (
@@ -33,6 +34,7 @@ export function Cover({ card, eager = false }: { card: Card; eager?: boolean }) 
 export function StoryCard({ card }: { card: Card }) {
   return (
     <article className="border-t border-line pt-4">
+      <ImpressionMark id={card.id} />
       <Cover card={card} />
       <p className="mt-3 text-xs font-bold tracking-widest text-accent uppercase">{card.label}</p>
       <h3 className="mt-1 font-serif text-2xl font-semibold leading-tight">
@@ -67,6 +69,7 @@ export function SectionBand({
       </div>
       <div className="grid gap-6 lg:grid-cols-12">
         <article className="lg:col-span-7">
+          <ImpressionMark id={first.id} />
           <Cover card={first} />
           <h3 className="mt-3 font-serif text-3xl font-semibold leading-tight">
             <Link to="/article/$slug" params={{ slug: first.slug }}>
@@ -79,6 +82,7 @@ export function SectionBand({
         <ul className="divide-y divide-line lg:col-span-5">
           {rest.map((card) => (
             <li key={card.id} className="py-3">
+              <ImpressionMark id={card.id} />
               <p className="text-xs font-bold tracking-widest text-accent uppercase">{card.categoryName}</p>
               <Link to="/article/$slug" params={{ slug: card.slug }} className="mt-1 block font-serif text-xl font-semibold leading-snug">
                 {card.title}

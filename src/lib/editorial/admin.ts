@@ -1059,3 +1059,38 @@ export const getMetrics = createServerFn({ method: "GET" })
       referrers: referrers.map((r) => ({ referrer: r.referrer, n: num(r.n) })),
     };
   });
+
+
+export const getArticleStats = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const { sql } = await gate(context.userId, editorRoles);
+    const rows = await sql<{
+      id: string;
+      views7: number;
+      views30: number;
+      views_all: number;
+      imps30: number;
+      clicks30: number;
+    }>`
+      select a.id,
+        (select count(*)::int from page_events e where e.article_id = a.id and e.kind = 'view' and e.created_at > now() - interval '7 days') as views7,
+        (select count(*)::int from page_events e where e.article_id = a.id and e.kind = 'view' and e.created_at > now() - interval '30 days') as views30,
+        (select count(*)::int from page_events e where e.article_id = a.id and e.kind = 'view') as views_all,
+        (select count(*)::int from page_events e where e.article_id = a.id and e.kind = 'impression' and e.created_at > now() - interval '30 days') as imps30,
+        (select count(*)::int from affiliate_clicks c where c.article_id = a.id and c.created_at > now() - interval '30 days') as clicks30
+      from articles a
+      where a.status = 'published'
+    `;
+    const out: Record<string, { views7: number; views30: number; viewsAll: number; imps30: number; clicks30: number }> = {};
+    for (const r of rows) {
+      out[r.id] = {
+        views7: num(r.views7),
+        views30: num(r.views30),
+        viewsAll: num(r.views_all),
+        imps30: num(r.imps30),
+        clicks30: num(r.clicks30),
+      };
+    }
+    return out;
+  });
