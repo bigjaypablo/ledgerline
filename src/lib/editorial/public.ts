@@ -169,12 +169,12 @@ export const getHome = createServerFn({ method: "GET" }).handler(async (): Promi
     lead,
     secondary: rest.slice(0, 12),
     latest: cards.slice(0, 8),
-    crypto: cards.filter((card) => card.categorySlug === "crypto" && card.slug !== lead?.slug).slice(0, 10),
-    ai: cards.filter((card) => card.categorySlug === "ai").slice(0, 10),
-    saas: cards.filter((card) => card.categorySlug === "saas").slice(0, 10),
+    crypto: cards.filter((card) => card.categorySlug === "crypto" && card.slug !== lead?.slug).slice(0, 4),
+    ai: cards.filter((card) => card.categorySlug === "ai").slice(0, 4),
+    saas: cards.filter((card) => card.categorySlug === "saas").slice(0, 4),
     guides: cards
       .filter((card) => card.categorySlug === "guides" || card.categorySlug === "comparisons")
-      .slice(0, 12),
+      .slice(0, 6),
     picks: cards.filter((card) => card.deepDive).slice(0, 4),
     categories,
     tools,

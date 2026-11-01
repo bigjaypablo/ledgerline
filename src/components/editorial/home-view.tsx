@@ -8,6 +8,17 @@ import { LeadSlideshow } from "@/components/editorial/slideshow";
 import { trackAffiliateClick } from "@/lib/editorial/public";
 import type { Card, HomeData } from "@/lib/editorial/types";
 
+function slideCards(data: HomeData): Card[] {
+  const seen = new Set<string>();
+  const cards: Card[] = [];
+  for (const card of [data.lead, ...data.secondary.slice(0, 3), ...data.picks, ...data.latest, ...data.crypto, ...data.ai, ...data.saas]) {
+    if (!card || seen.has(card.id)) continue;
+    seen.add(card.id);
+    cards.push(card);
+    if (cards.length === 8) break;
+  }
+  return cards;
+}
 
 const NOTE_KEY = "ledgerline:standards-dismissed";
 
@@ -57,40 +68,15 @@ function StandardsNote() {
 
 export function HomeView({ data }: { data: HomeData }) {
   const { lead } = data;
-  const used = new Set<string>();
-  const take = (cards: Card[], max = Infinity): Card[] => {
-    const out: Card[] = [];
-    for (const c of cards) {
-      if (out.length >= max) break;
-      if (used.has(c.id)) continue;
-      used.add(c.id);
-      out.push(c);
-    }
-    return out;
-  };
-  const byId = new Map<string, Card>();
-  for (const c of [lead, ...data.secondary, ...data.latest, ...data.crypto, ...data.ai, ...data.saas, ...data.guides, ...data.picks]) {
-    if (c) byId.set(c.id, c);
-  }
-  const newest = [...byId.values()].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-  const hero = take([lead, ...data.picks].filter((c): c is Card => !!c), 5);
-  if (hero.length < 3) hero.push(...take(newest, 3 - hero.length));
-  const latest = take(newest, 6);
-  const more = take(data.secondary, 8);
-  const crypto = take(data.crypto, 4);
-  const ai = take(data.ai, 4);
-  const saas = take(data.saas, 4);
-  const guidesAll = take(data.guides, 9);
-  const guides = guidesAll.length >= 3 ? guidesAll.slice(0, guidesAll.length - (guidesAll.length % 3)) : guidesAll;
-  const picks = take(data.picks);
-  
+  const shown = new Set<string>([lead?.id ?? "", ...data.secondary.slice(0, 3).map((c) => c.id)]);
+  const latest = data.latest.filter((c) => !shown.has(c.id));
   return (
     <PublicShell>
       <StandardsNote />
       <main>
         {lead ? (
           <>
-            <LeadSlideshow cards={hero} />
+            <LeadSlideshow cards={slideCards(data)} />
           </>
         ) : (
           <section className="sheet py-12">
@@ -125,15 +111,15 @@ export function HomeView({ data }: { data: HomeData }) {
           </section>
         ) : null}
 
-        {more.length > 0 ? (
-          <ThumbSlider cards={more} />
+        {data.secondary.length > 0 ? (
+          <ThumbSlider cards={data.secondary.filter((c) => !latest.some((l) => l.id === c.id))} />
         ) : null}
 
-        <SectionBand title="Crypto" href="/crypto" articles={crypto} />
-        <SectionBand title="AI" href="/ai" articles={ai} />
-        <SectionBand title="SaaS" href="/saas" articles={saas} />
+        <SectionBand title="Crypto" href="/crypto" articles={data.crypto} />
+        <SectionBand title="AI" href="/ai" articles={data.ai} />
+        <SectionBand title="SaaS" href="/saas" articles={data.saas} />
 
-        {guides.length > 0 ? (
+        {data.guides.length > 0 ? (
           <section className="sheet border-t border-ink py-8">
             <div className="mb-4 flex items-end justify-between border-b border-ink pb-2">
               <h2 className="text-sm font-bold tracking-widest uppercase">Guides and comparisons</h2>
@@ -142,19 +128,19 @@ export function HomeView({ data }: { data: HomeData }) {
               </Link>
             </div>
             <div className="grid gap-6 md:grid-cols-3">
-              {guides.map((card) => (
+              {data.guides.map((card) => (
                 <StoryCard key={card.id} card={card} />
               ))}
             </div>
           </section>
         ) : null}
 
-        {picks.length > 0 ? (
+        {data.picks.length > 0 ? (
           <section className="bg-ink text-inverse-fg">
             <div className="sheet py-8">
               <h2 className="text-sm font-bold tracking-widest uppercase">Editor's picks</h2>
               <div className="mt-4 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-                {picks.map((card) => (
+                {data.picks.map((card) => (
                   <article key={card.id}>
                     <Cover card={card} />
                     <p className="mt-3 text-xs font-bold tracking-widest text-accent uppercase">{card.label}</p>

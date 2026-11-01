@@ -80,21 +80,14 @@ export function SectionBand({
           <MetaLine card={first} />
         </article>
         <ul className="divide-y divide-line lg:col-span-5">
-          {rest.slice(0, 3).map((card) => (
-            <li key={card.id}>
+          {rest.map((card) => (
+            <li key={card.id} className="py-3">
               <ImpressionMark id={card.id} />
-              <div className="thumb-row" style={{ borderBottom: 0 }}>
-                <Link to="/article/$slug" params={{ slug: card.slug }} className="thumb-img" tabIndex={-1} aria-hidden="true" draggable={false}>
-                  {safeImageSrc(card.coverImage) ? <img src={safeImageSrc(card.coverImage)} alt="" width={240} height={240} loading="lazy" decoding="async" /> : null}
-                </Link>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold tracking-widest text-accent uppercase">{card.categoryName}</p>
-                  <Link to="/article/$slug" params={{ slug: card.slug }} className="mt-1 block font-serif text-lg font-semibold leading-snug">
-                    {card.title}
-                  </Link>
-                  <p className="mt-1 text-xs text-muted">{formatDate(card.publishedAt)}</p>
-                </div>
-              </div>
+              <p className="text-xs font-bold tracking-widest text-accent uppercase">{card.categoryName}</p>
+              <Link to="/article/$slug" params={{ slug: card.slug }} className="mt-1 block font-serif text-xl font-semibold leading-snug">
+                {card.title}
+              </Link>
+              <p className="mt-1 text-xs text-muted">{formatDate(card.publishedAt)}</p>
             </li>
           ))}
         </ul>
