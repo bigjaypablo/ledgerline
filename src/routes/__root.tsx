@@ -27,6 +27,7 @@ export const Route = createRootRoute({
         href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap",
       },
     ],
+    scripts: [{ children: "try{var t=localStorage.getItem(\"ledgerline:theme\");if(t===\"light\"||t===\"dark\")document.documentElement.setAttribute(\"data-theme\",t)}catch(e){}" }],
   }),
   component: RootComponent,
   notFoundComponent: NotFoundPage,

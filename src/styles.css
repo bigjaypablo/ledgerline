@@ -259,3 +259,30 @@ figcaption { text-align: center; }
   .hero-head { min-height: 14rem; justify-content: space-between; }
   .hero-head h3 { flex: 1; display: flex; align-items: center; justify-content: center; }
 }
+
+/* Theme: dark palette. System by default, or forced with data-theme on <html>. */
+.bg-ink { background-color: var(--color-ink-bg, var(--color-ink)); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-paper: #131110;
+    --color-card: #1b1815;
+    --color-ink: #f1ece3;
+    --color-muted: #a59d93;
+    --color-line: #38332d;
+    --color-accent: #e0607f;
+    --color-ink-bg: #2a2622;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-paper: #131110;
+  --color-card: #1b1815;
+  --color-ink: #f1ece3;
+  --color-muted: #a59d93;
+  --color-line: #38332d;
+  --color-accent: #e0607f;
+  --color-ink-bg: #2a2622;
+}

@@ -1,4 +1,5 @@
 import { PageTracker } from "@/components/editorial/page-tracker";
+import { ThemeToggle } from "@/components/editorial/theme-toggle";
 import { PublicAccountMenu } from "@/components/editorial/public-account-menu";
 import { CookieBanner } from "@/components/editorial/cookie-banner";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -188,6 +189,9 @@ export function SiteFooter() {
             Follow on X
           </a>
         </p>
+        <div className="mt-4">
+          <ThemeToggle />
+        </div>
       </div>
     </footer>
   );

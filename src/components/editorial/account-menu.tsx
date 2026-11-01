@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { getMyProfile } from "@/lib/editorial/admin";
 import { authEnabled, signOut } from "@/lib/auth/client";
+import { ThemeToggle } from "@/components/editorial/theme-toggle";
 
 type Me = Awaited<ReturnType<typeof getMyProfile>>;
 
@@ -103,6 +104,10 @@ export function AccountMenu() {
                 People and settings
               </Link>
             ) : null}
+          </div>
+          <div className="border-t border-line p-3">
+            <p className="mb-2 text-xs font-bold tracking-widest text-muted uppercase">Theme</p>
+            <ThemeToggle />
           </div>
           {authEnabled ? (
             <div className="border-t border-line py-1">
