@@ -127,7 +127,7 @@ export function SiteHeader() {
               </Link>
             </li>
             {NAV.map((item) => (
-              <li key={item.to}>
+              <li key={item.to} className="md:hidden">
                 <Link to={item.to} className="block py-4" onClick={() => setOpen(false)}>
                   {item.label}
                 </Link>

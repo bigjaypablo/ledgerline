@@ -105,7 +105,7 @@ export function HomeView({ data }: { data: HomeData }) {
                 <FeatureCard card={latest[0]} />
               </div>
               <div className="lg:col-span-5">
-                <LatestList cards={latest.slice(1)} />
+                <LatestList cards={data.latest.filter((c) => c.id !== latest[0].id).slice(0, 6)} />
               </div>
             </div>
           </section>
