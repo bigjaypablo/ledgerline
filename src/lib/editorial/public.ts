@@ -892,10 +892,12 @@ export type MarketWidgets = {
   btcDominance: number | null;
   marketCap: number | null;
   marketCapChange: number | null;
+  btc: { price: number; change7d: number; points: number[] } | null;
 };
 
 let widgetCache: { at: number; data: MarketWidgets } | null = null;
 let fngCache: { at: number; value: { value: number; label: string } | null } | null = null;
+let btcCache: { at: number; value: MarketWidgets["btc"] } | null = null;
 
 async function fetchFearGreed(): Promise<{ value: number; label: string } | null> {
   if (fngCache && Date.now() - fngCache.at < 30 * 60_000) return fngCache.value;
@@ -917,7 +919,30 @@ async function fetchFearGreed(): Promise<{ value: number; label: string } | null
   }
 }
 
-async function fetchGlobal(): Promise<Omit<MarketWidgets, "fearGreed">> {
+async function fetchBtc(): Promise<MarketWidgets["btc"]> {
+  if (btcCache && Date.now() - btcCache.at < 10 * 60_000) return btcCache.value;
+  try {
+    const res = await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7", {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return btcCache?.value ?? null;
+    const body = (await res.json()) as { prices?: Array<[number, number]> };
+    const all = (body.prices ?? []).map((p) => p[1]).filter((v) => Number.isFinite(v));
+    if (all.length < 2) return btcCache?.value ?? null;
+    const step = Math.ceil(all.length / 60);
+    const points = all.filter((_, i) => i % step === 0);
+    points.push(all[all.length - 1]);
+    const price = all[all.length - 1];
+    const out = { price, change7d: ((price - all[0]) / all[0]) * 100, points };
+    btcCache = { at: Date.now(), value: out };
+    return out;
+  } catch {
+    return btcCache?.value ?? null;
+  }
+}
+
+async function fetchGlobal(): Promise<Pick<MarketWidgets, "btcDominance" | "marketCap" | "marketCapChange">> {
   const empty = { btcDominance: null, marketCap: null, marketCapChange: null };
   try {
     const res = await fetch("https://api.coingecko.com/api/v3/global", {
@@ -946,8 +971,8 @@ async function fetchGlobal(): Promise<Omit<MarketWidgets, "fearGreed">> {
 
 export const getMarketWidgets = createServerFn({ method: "GET" }).handler(async (): Promise<MarketWidgets> => {
   if (widgetCache && Date.now() - widgetCache.at < 5 * 60_000) return widgetCache.data;
-  const [fearGreed, global] = await Promise.all([fetchFearGreed(), fetchGlobal()]);
-  const data: MarketWidgets = { fearGreed, ...global };
-  if (fearGreed || global.btcDominance !== null) widgetCache = { at: Date.now(), data };
+  const [fearGreed, btc, global] = await Promise.all([fetchFearGreed(), fetchBtc(), fetchGlobal()]);
+  const data: MarketWidgets = { fearGreed, btc, ...global };
+  if (fearGreed || btc || global.btcDominance !== null) widgetCache = { at: Date.now(), data };
   return data;
 });
