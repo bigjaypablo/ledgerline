@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Cover } from "@/components/editorial/cards";
 import type { Card } from "@/lib/editorial/types";
 
@@ -20,13 +20,6 @@ export function LeadSlideshow({ cards }: { cards: Card[] }) {
     setIndex(((next % total) + total) % total);
   }
 
-  useEffect(() => {
-    if (total < 2 || paused) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = window.setTimeout(() => go(index + 1, 1), DELAY);
-    return () => window.clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, paused, total]);
 
   if (total === 0) return null;
   const card = cards[index] ?? cards[0];
@@ -71,8 +64,8 @@ export function LeadSlideshow({ cards }: { cards: Card[] }) {
         if (e.key === "ArrowRight") go(index + 1, 1);
         if (e.key === "ArrowLeft") go(index - 1, -1);
       }}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setPaused(true)}
+      onPointerLeave={(e) => e.pointerType === "mouse" && setPaused(false)}
     >
       <div
         className="touch-pan-y select-none"
@@ -99,7 +92,7 @@ export function LeadSlideshow({ cards }: { cards: Card[] }) {
               </Link>
             </h3>
             <Link to="/article/$slug" params={{ slug: card.slug }} className="hero-cta" draggable={false}>
-              <span className="hero-cta-fill" aria-hidden="true" style={{ animationPlayState: paused ? "paused" : "running" }} />
+              
               <span className="relative">Read story</span>
             </Link>
           </div>
@@ -116,7 +109,15 @@ export function LeadSlideshow({ cards }: { cards: Card[] }) {
             className="hero-dot-hit"
             onClick={() => go(i)}
           >
-            <span className={i === index ? "hero-dot on" : "hero-dot"} />
+            <span className={i === index ? "hero-dot on" : "hero-dot"}>
+              {i === index && total > 1 ? (
+                <span
+                  className="hero-dot-fill"
+                  onAnimationEnd={() => go(index + 1, 1)}
+                  style={{ animationDuration: DELAY + "ms", animationPlayState: paused ? "paused" : "running" }}
+                />
+              ) : null}
+            </span>
           </button>
         ))}
       </div>

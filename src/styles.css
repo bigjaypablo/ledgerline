@@ -242,3 +242,20 @@ figcaption { text-align: center; }
 .snap-row { cursor: grab; }
 .snap-row.dragging { cursor: grabbing; scroll-snap-type: none; scroll-behavior: auto; user-select: none; }
 .snap-row img { -webkit-user-drag: none; user-select: none; }
+
+/* Hero v2: timer lives in the active dot, solid CTA, light transition */
+.hero-cta-fill { display: none; }
+.hero-dot { position: relative; overflow: hidden; }
+.hero-dot.on { background: rgba(94, 87, 79, .3); }
+.hero-dot-fill { position: absolute; inset: 0; background: var(--color-accent); transform-origin: left; transform: scaleX(0); animation-name: fx-bar; animation-timing-function: linear; animation-fill-mode: both; will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .hero-dot-fill { animation: none; transform: scaleX(1); } }
+
+@keyframes fx-in-next { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes fx-in-prev { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+.fx-next { animation: fx-in-next .4s cubic-bezier(.2,.8,.2,1) both; }
+.fx-prev { animation: fx-in-prev .4s cubic-bezier(.2,.8,.2,1) both; }
+
+@media (max-width: 767px) {
+  .hero-head { min-height: 14rem; justify-content: space-between; }
+  .hero-head h3 { flex: 1; display: flex; align-items: center; justify-content: center; }
+}
