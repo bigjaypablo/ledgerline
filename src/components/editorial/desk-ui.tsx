@@ -257,7 +257,7 @@ export function ArticleList() {
             </p>
             {stats[row.id] ? (
               <p className="mt-1 text-xs text-muted">
-                {stats[row.id].imps30} impressions · {stats[row.id].views7} views (7d) · {stats[row.id].views30} views (30d) · {stats[row.id].viewsAll} all-time · {stats[row.id].clicks30} clicks (30d)
+                {stats[row.id].viewsAll} views · <Link to="/admin/articles/stats/$articleId" params={{ articleId: row.id }} className="font-semibold text-accent">Stats</Link>
               </p>
             ) : null}
           </li>

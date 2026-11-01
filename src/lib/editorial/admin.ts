@@ -1094,3 +1094,75 @@ export const getArticleStats = createServerFn({ method: "GET" })
     }
     return out;
   });
+
+
+export const getArticleDetail = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .validator((input: { id?: string; days?: number }) => ({
+    id: String(input?.id ?? "").slice(0, 80),
+    days: [0, 1, 7, 30, 90, 180, 365].includes(Number(input?.days)) ? Number(input?.days) : 30,
+  }))
+  .handler(async ({ context, data }) => {
+    const { sql } = await gate(context.userId, editorRoles);
+    const found = await sql<{ title: string; slug: string; status: string }>`
+      select title, slug, status from articles where id = ${data.id}
+    `;
+    if (!found[0]) throw new Error("Article not found.");
+
+    const hourly = data.days === 1;
+    const fmt = hourly ? 'YYYY-MM-DD"T"HH24' : "YYYY-MM-DD";
+    const now = Date.now();
+    const buckets: string[] = [];
+    let since: string | null = null;
+    if (hourly) {
+      for (let i = 23; i >= 0; i -= 1) buckets.push(new Date(now - i * 3600000).toISOString().slice(0, 13));
+      since = `${buckets[0]}:00:00Z`;
+    } else if (data.days > 1) {
+      for (let i = data.days - 1; i >= 0; i -= 1) buckets.push(new Date(now - i * 86400000).toISOString().slice(0, 10));
+      since = `${buckets[0]}T00:00:00Z`;
+    }
+
+    const ev = await sql<{ kind: string; b: string; n: number }>`
+      select kind, to_char(created_at at time zone 'UTC', ${fmt}::text) as b, count(*)::int as n
+      from page_events
+      where article_id = ${data.id}
+        and (${since}::timestamptz is null or created_at >= ${since}::timestamptz)
+      group by kind, b
+    `;
+    const ck = await sql<{ b: string; n: number }>`
+      select to_char(created_at at time zone 'UTC', ${fmt}::text) as b, count(*)::int as n
+      from affiliate_clicks
+      where article_id = ${data.id}
+        and (${since}::timestamptz is null or created_at >= ${since}::timestamptz)
+      group by b
+    `;
+
+    if (data.days === 0) {
+      const today = new Date(now).toISOString().slice(0, 10);
+      const first = [...ev.map((r) => r.b), ...ck.map((r) => r.b)].sort()[0] ?? today;
+      let t = Date.parse(`${first}T00:00:00Z`);
+      const end = Date.parse(`${today}T00:00:00Z`);
+      while (t <= end && buckets.length < 730) {
+        buckets.push(new Date(t).toISOString().slice(0, 10));
+        t += 86400000;
+      }
+    }
+
+    const map = new Map(buckets.map((b) => [b, { label: b, views: 0, impressions: 0, clicks: 0 }]));
+    for (const r of ev) {
+      const p = map.get(r.b);
+      if (!p) continue;
+      if (r.kind === "view") p.views += num(r.n);
+      else p.impressions += num(r.n);
+    }
+    for (const r of ck) {
+      const p = map.get(r.b);
+      if (p) p.clicks += num(r.n);
+    }
+    const series = buckets.map((b) => map.get(b)!);
+    const totals = series.reduce(
+      (a, p) => ({ views: a.views + p.views, impressions: a.impressions + p.impressions, clicks: a.clicks + p.clicks }),
+      { views: 0, impressions: 0, clicks: 0 },
+    );
+    return { title: found[0].title, slug: found[0].slug, status: found[0].status, days: data.days, series, totals };
+  });

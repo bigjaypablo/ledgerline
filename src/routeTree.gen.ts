@@ -50,6 +50,7 @@ import { Route as AdminArticlesIndexRouteImport } from './routes/admin/articles/
 import { Route as AdminArticlesArticleIdRouteImport } from './routes/admin/articles/$articleId'
 import { Route as AdminArticlesNewRouteImport } from './routes/admin/articles/new'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AdminArticlesStatsArticleIdRouteImport } from './routes/admin/articles/stats.$articleId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -256,6 +257,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminArticlesStatsArticleIdRoute =
+  AdminArticlesStatsArticleIdRouteImport.update({
+    id: '/stats/$articleId',
+    path: '/stats/$articleId',
+    getParentRoute: () => AdminArticlesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -299,6 +306,7 @@ export interface FileRoutesByFullPath {
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
+  '/admin/articles/stats/$articleId': typeof AdminArticlesStatsArticleIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -340,6 +348,7 @@ export interface FileRoutesByTo {
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
+  '/admin/articles/stats/$articleId': typeof AdminArticlesStatsArticleIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -384,6 +393,7 @@ export interface FileRoutesById {
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
+  '/admin/articles/stats/$articleId': typeof AdminArticlesStatsArticleIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -429,6 +439,7 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/api/auth/$'
     | '/admin/articles/'
+    | '/admin/articles/stats/$articleId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -470,6 +481,7 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/api/auth/$'
     | '/admin/articles'
+    | '/admin/articles/stats/$articleId'
   id:
     | '__root__'
     | '/'
@@ -513,6 +525,7 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/api/auth/$'
     | '/admin/articles/'
+    | '/admin/articles/stats/$articleId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -834,6 +847,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/articles/stats/$articleId': {
+      id: '/admin/articles/stats/$articleId'
+      path: '/stats/$articleId'
+      fullPath: '/admin/articles/stats/$articleId'
+      preLoaderRoute: typeof AdminArticlesStatsArticleIdRouteImport
+      parentRoute: typeof AdminArticlesRoute
+    }
   }
 }
 
@@ -841,12 +861,14 @@ interface AdminArticlesRouteChildren {
   AdminArticlesArticleIdRoute: typeof AdminArticlesArticleIdRoute
   AdminArticlesNewRoute: typeof AdminArticlesNewRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
+  AdminArticlesStatsArticleIdRoute: typeof AdminArticlesStatsArticleIdRoute
 }
 
 const AdminArticlesRouteChildren: AdminArticlesRouteChildren = {
   AdminArticlesArticleIdRoute: AdminArticlesArticleIdRoute,
   AdminArticlesNewRoute: AdminArticlesNewRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
+  AdminArticlesStatsArticleIdRoute: AdminArticlesStatsArticleIdRoute,
 }
 
 const AdminArticlesRouteWithChildren = AdminArticlesRoute._addFileChildren(
