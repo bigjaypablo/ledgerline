@@ -1166,3 +1166,51 @@ export const getArticleDetail = createServerFn({ method: "GET" })
     );
     return { title: found[0].title, slug: found[0].slug, status: found[0].status, days: data.days, series, totals };
   });
+
+
+export const getMyProfile = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const { sql, profile } = await gate(context.userId);
+    const rows = await sql<{ avatar_url: string | null; email: string | null }>`
+      select p.avatar_url, u."email" as email
+      from profiles p
+      left join "user" u on u."id" = p.user_id
+      where p.user_id = ${profile.userId}
+    `;
+    return {
+      userId: profile.userId,
+      role: profile.role,
+      displayName: profile.displayName,
+      bio: profile.bio,
+      xHandle: profile.xHandle,
+      xUrl: profile.xUrl,
+      avatarUrl: rows[0]?.avatar_url ?? "",
+      email: rows[0]?.email ?? "",
+    };
+  });
+
+export const saveMyProfile = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator((input: { displayName?: string; bio?: string; xHandle?: string; xUrl?: string; avatarUrl?: string }) => input)
+  .handler(async ({ context, data }) => {
+    const { sql, profile } = await gate(context.userId);
+    const displayName = String(data.displayName ?? "").trim().slice(0, 80) || "Editor";
+    const bio = String(data.bio ?? "").trim().slice(0, 800);
+    const xHandle = String(data.xHandle ?? "").trim().replace(/^@/, "").slice(0, 40);
+    const xUrl = String(data.xUrl ?? "").trim().slice(0, 200);
+    const avatarUrl = String(data.avatarUrl ?? "").trim().slice(0, 500);
+    if (xUrl && !/^https:\/\/(x\.com|twitter\.com)\//i.test(xUrl)) {
+      throw new Error("X links must start with https://x.com/ or https://twitter.com/.");
+    }
+    if (avatarUrl && !/^https:\/\//i.test(avatarUrl)) {
+      throw new Error("Photo link is not valid.");
+    }
+    await sql`
+      update profiles
+      set display_name = ${displayName}, bio = ${bio}, x_handle = ${xHandle},
+          x_url = ${xUrl}, avatar_url = ${avatarUrl}
+      where user_id = ${profile.userId}
+    `;
+    return { ok: true };
+  });

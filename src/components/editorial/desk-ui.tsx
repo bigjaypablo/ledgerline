@@ -1,8 +1,9 @@
 import { MetricsPanel } from "@/components/editorial/metrics-panel";
+import { AccountMenu } from "@/components/editorial/account-menu";
 import { getArticleStats } from "@/lib/editorial/admin";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { RedirectToSignIn, UserButton } from "@/lib/auth/gates";
+import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import {
   deskOverview,
@@ -91,8 +92,7 @@ function StaffFrame() {
             Ledgerline Desk
           </Link>
           <div className="flex items-center gap-4 text-sm font-semibold">
-            <Link to="/">View site</Link>
-            <UserButton />
+            <AccountMenu />
           </div>
         </div>
         <nav className="sheet flex gap-4 overflow-x-auto text-sm font-semibold" aria-label="Desk">
