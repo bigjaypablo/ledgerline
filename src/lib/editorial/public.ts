@@ -885,3 +885,69 @@ export const trackImpressions = createServerFn({ method: "POST" })
     `;
     return { ok: true };
   });
+
+
+export type MarketWidgets = {
+  fearGreed: { value: number; label: string } | null;
+  btcDominance: number | null;
+  marketCap: number | null;
+  marketCapChange: number | null;
+};
+
+let widgetCache: { at: number; data: MarketWidgets } | null = null;
+let fngCache: { at: number; value: { value: number; label: string } | null } | null = null;
+
+async function fetchFearGreed(): Promise<{ value: number; label: string } | null> {
+  if (fngCache && Date.now() - fngCache.at < 30 * 60_000) return fngCache.value;
+  try {
+    const res = await fetch("https://api.alternative.me/fng/?limit=1", {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return fngCache?.value ?? null;
+    const body = (await res.json()) as { data?: Array<{ value?: string; value_classification?: string }> };
+    const row = body.data?.[0];
+    const value = Number(row?.value);
+    if (!row || !Number.isFinite(value)) return fngCache?.value ?? null;
+    const out = { value, label: String(row.value_classification ?? "") };
+    fngCache = { at: Date.now(), value: out };
+    return out;
+  } catch {
+    return fngCache?.value ?? null;
+  }
+}
+
+async function fetchGlobal(): Promise<Omit<MarketWidgets, "fearGreed">> {
+  const empty = { btcDominance: null, marketCap: null, marketCapChange: null };
+  try {
+    const res = await fetch("https://api.coingecko.com/api/v3/global", {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return empty;
+    const body = (await res.json()) as {
+      data?: {
+        market_cap_percentage?: { btc?: number };
+        total_market_cap?: { usd?: number };
+        market_cap_change_percentage_24h_usd?: number;
+      };
+    };
+    const d = body.data;
+    const pick = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
+    return {
+      btcDominance: pick(d?.market_cap_percentage?.btc),
+      marketCap: pick(d?.total_market_cap?.usd),
+      marketCapChange: pick(d?.market_cap_change_percentage_24h_usd),
+    };
+  } catch {
+    return empty;
+  }
+}
+
+export const getMarketWidgets = createServerFn({ method: "GET" }).handler(async (): Promise<MarketWidgets> => {
+  if (widgetCache && Date.now() - widgetCache.at < 5 * 60_000) return widgetCache.data;
+  const [fearGreed, global] = await Promise.all([fetchFearGreed(), fetchGlobal()]);
+  const data: MarketWidgets = { fearGreed, ...global };
+  if (fearGreed || global.btcDominance !== null) widgetCache = { at: Date.now(), data };
+  return data;
+});

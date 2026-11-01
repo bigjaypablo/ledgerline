@@ -5,6 +5,7 @@ import { FeatureCard, LatestList } from "@/components/editorial/rows";
 import { ThumbSlider } from "@/components/editorial/thumb-slider";
 import { NewsletterForm, PublicShell } from "@/components/editorial/shell";
 import { LeadSlideshow } from "@/components/editorial/slideshow";
+import { MarketWidgets } from "@/components/editorial/market-widgets";
 import { trackAffiliateClick } from "@/lib/editorial/public";
 import type { Card, HomeData } from "@/lib/editorial/types";
 
@@ -97,6 +98,8 @@ export function HomeView({ data }: { data: HomeData }) {
             </div>
           </section>
         )}
+
+        <MarketWidgets />
 
         {latest.length > 0 ? (
           <section className="sheet border-t border-ink py-8">
