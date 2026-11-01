@@ -182,7 +182,12 @@ export function SiteFooter() {
           product-testing laboratory. Cryptocurrency coverage is information, not a recommendation to buy or
           sell. Affiliate links, when present, are marked.
         </p>
-        <p className="mt-4 text-sm text-muted">© {new Date().getFullYear()} Ledgerline.</p>
+        <p className="mt-4 text-sm text-muted">
+          © {new Date().getFullYear()} Ledgerline. Created and owned by Big Jay.{" "}
+          <a href="https://x.com/0xNormadOnChain" target="_blank" rel="noopener noreferrer me" className="font-semibold text-accent underline underline-offset-4">
+            Follow on X
+          </a>
+        </p>
       </div>
     </footer>
   );
