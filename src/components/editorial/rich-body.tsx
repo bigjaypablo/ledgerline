@@ -53,8 +53,20 @@ function formatHtml(html: string): string {
   return html.replace(/(<\/(?:p|h[1-6]|ul|ol|li|blockquote|table|tr|pre)>)(?=<)/g, "$1\n");
 }
 
+function cleanMd(md: string): string {
+  let fenced = false;
+  const out: string[] = [];
+  for (const line of md.split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("\u0060\u0060\u0060")) fenced = !fenced;
+    if (!fenced && trimmed === "\\") continue;
+    out.push(line);
+  }
+  return out.join("\n");
+}
+
 function getMd(editor: Editor): string {
-  return (editor.storage as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
+  return cleanMd((editor.storage as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown());
 }
 
 export function RichBody({ value, onChange, compress, onError }: Props) {
@@ -86,7 +98,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
       Underline,
       Markdown.configure({ html: true, tightLists: true }),
     ],
-    content: value,
+    content: cleanMd(value),
     editorProps: {
       attributes: { class: "rich-body", "aria-label": "Article body" },
     },
@@ -100,8 +112,19 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
   useEffect(() => {
     if (!editor || value === last.current) return;
     last.current = value;
-    editor.commands.setContent(value, false);
+    editor.commands.setContent(cleanMd(value), false);
   }, [value, editor]);
+
+  // Heal stray backslash lines in an article that was loaded with them.
+  useEffect(() => {
+    if (!editor) return;
+    const cleaned = cleanMd(value);
+    if (cleaned !== value) {
+      last.current = cleaned;
+      onChange(cleaned);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor]);
 
   // Table menu above the table; below it if there is no room above.
   useEffect(() => {
