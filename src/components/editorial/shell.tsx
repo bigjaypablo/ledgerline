@@ -85,7 +85,7 @@ export function SiteHeader() {
         <AccountLink className="inline-flex min-h-11 items-center bg-ink px-3 text-sm font-semibold text-inverse-fg" />
       </div>
       <nav className="hidden border-t border-line md:block" aria-label="Sections">
-        <ul className="sheet flex gap-6 py-2 text-sm font-semibold">
+        <ul className="sheet flex justify-center gap-6 py-2 text-sm font-semibold">
           {NAV.map((item) => (
             <li key={item.to}>
               <Link to={item.to} className="inline-flex min-h-11 items-center hover:text-accent">
