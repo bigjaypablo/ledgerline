@@ -1,3 +1,4 @@
+import { MetricsPanel } from "@/components/editorial/metrics-panel";
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { RedirectToSignIn, UserButton } from "@/lib/auth/gates";
@@ -165,6 +166,7 @@ export function DeskHome() {
         <Stat label="Pending comments" value={data.counts.pendingComments} />
         <Stat label="Unread messages" value={data.counts.messages} />
       </dl>
+      <MetricsPanel />
       <h2 className="mt-10 font-serif text-2xl font-semibold">Launch checklist</h2>
       <ul className="mt-3 divide-y divide-line border-y border-line">
         {data.checklist.map((item) => (
@@ -555,6 +557,7 @@ function SettingsForm({
                       bio: person.bio,
                       xHandle: person.xHandle,
                       xUrl: person.xUrl,
+                      email: person.email,
                     })
                   }
                 >

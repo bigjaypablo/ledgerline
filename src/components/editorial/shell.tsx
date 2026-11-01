@@ -1,3 +1,4 @@
+import { PageTracker } from "@/components/editorial/page-tracker";
 import { CookieBanner } from "@/components/editorial/cookie-banner";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, X } from "lucide-react";
@@ -202,6 +203,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       <div id="content">{children}</div>
       <SiteFooter />
       <CookieBanner />
+      <PageTracker />
     </div>
   );
 }

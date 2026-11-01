@@ -281,7 +281,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
       {error ? <p className="mt-3 text-sm text-accent">{error}</p> : null}
 
       {tab === "preview" ? (
-        <ArticlePreview form={form} authorName={meta.authors.find((a) => a.user_id === form.authorId)?.display_name || user?.name || "Author"} />
+        <ArticlePreview form={form} authorName={meta.authors.find((a) => a.user_id === form.authorId)?.display_name || user?.displayName || "Author"} />
       ) : (
         <div className="mt-4 space-y-3">
           <label className="block text-sm font-semibold">

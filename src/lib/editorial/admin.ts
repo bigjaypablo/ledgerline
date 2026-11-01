@@ -1004,3 +1004,58 @@ export const uploadImage = createServerFn({ method: "POST" })
     });
     return { url: blob.url };
   });
+
+
+export const getMetrics = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const { sql } = await gate(context.userId, editorRoles);
+    const totals = await sql<{
+      views_1: number;
+      views_7: number;
+      views_30: number;
+      clicks_7: number;
+      clicks_30: number;
+    }>`
+      select
+        (select count(*)::int from page_events where kind = 'view' and created_at > now() - interval '1 day') as views_1,
+        (select count(*)::int from page_events where kind = 'view' and created_at > now() - interval '7 days') as views_7,
+        (select count(*)::int from page_events where kind = 'view' and created_at > now() - interval '30 days') as views_30,
+        (select count(*)::int from affiliate_clicks where created_at > now() - interval '7 days') as clicks_7,
+        (select count(*)::int from affiliate_clicks where created_at > now() - interval '30 days') as clicks_30
+    `;
+    const topArticles = await sql<{ title: string; slug: string; views: number; clicks: number }>`
+      select a.title, a.slug, count(*)::int as views,
+        (select count(*)::int from affiliate_clicks c
+          where c.article_id = a.id and c.created_at > now() - interval '30 days') as clicks
+      from page_events e
+      join articles a on a.id = e.article_id
+      where e.kind = 'view' and e.created_at > now() - interval '30 days'
+      group by a.id
+      order by views desc
+      limit 10
+    `;
+    const referrers = await sql<{ referrer: string; n: number }>`
+      select referrer, count(*)::int as n
+      from page_events
+      where kind = 'view' and referrer <> '' and created_at > now() - interval '30 days'
+      group by referrer
+      order by n desc
+      limit 8
+    `;
+    const t = totals[0];
+    return {
+      views1: num(t?.views_1),
+      views7: num(t?.views_7),
+      views30: num(t?.views_30),
+      clicks7: num(t?.clicks_7),
+      clicks30: num(t?.clicks_30),
+      topArticles: topArticles.map((r) => ({
+        title: r.title,
+        slug: r.slug,
+        views: num(r.views),
+        clicks: num(r.clicks),
+      })),
+      referrers: referrers.map((r) => ({ referrer: r.referrer, n: num(r.n) })),
+    };
+  });

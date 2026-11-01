@@ -838,3 +838,32 @@ export const reactToArticle = createServerFn({ method: "POST" })
     }
     return reactionState(sql, data.articleId, data.voterId);
   });
+
+
+export const trackPageView = createServerFn({ method: "POST" })
+  .validator((input: { path?: string; referrer?: string }) => ({
+    path: String(input?.path ?? "").slice(0, 300),
+    referrer: String(input?.referrer ?? "").slice(0, 200),
+  }))
+  .handler(async ({ data }) => {
+    if (!data.path.startsWith("/") || data.path.startsWith("/admin")) return { ok: false };
+    const sql = await getSql();
+    let articleId: string | null = null;
+    const match = data.path.match(/^\/article\/([^/?#]+)/);
+    if (match) {
+      try {
+        const slug = decodeURIComponent(match[1]);
+        const rows = await sql<{ id: string }>`
+          select id from articles where slug = ${slug} and status = 'published'
+        `;
+        articleId = rows[0]?.id ?? null;
+      } catch {
+        articleId = null;
+      }
+    }
+    await sql`
+      insert into page_events (kind, article_id, path, referrer)
+      values ('view', ${articleId}, ${data.path}, ${data.referrer})
+    `;
+    return { ok: true };
+  });
