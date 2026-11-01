@@ -1,4 +1,5 @@
 import { PageTracker } from "@/components/editorial/page-tracker";
+import { PublicAccountMenu } from "@/components/editorial/public-account-menu";
 import { CookieBanner } from "@/components/editorial/cookie-banner";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, X } from "lucide-react";
@@ -31,13 +32,7 @@ const MORE = [
 function AccountLink({ className }: { className: string }) {
   const { user, isPending } = useCurrentUserState();
   if (isPending) return <span className={`${className} bg-line`} aria-hidden />;
-  if (user) {
-    return (
-      <Link to="/account" className={className}>
-        Account
-      </Link>
-    );
-  }
+  if (user) return <PublicAccountMenu />;
   return (
     <Link to="/login" className={className}>
       Sign in
