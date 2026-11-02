@@ -329,6 +329,7 @@ export function MarketWidgets() {
               <p className="font-serif text-3xl">{usd(data.marketCap)}</p>
               {data.marketCapChange !== null ? <Change v={data.marketCapChange} /> : null}
               <p className="mt-1 text-xs text-muted">All cryptocurrencies combined</p>
+              {data.marketVolume !== null ? <p className="text-xs text-muted">24h volume {usd(data.marketVolume)}</p> : null}
             </div>
           </Card>
         ) : null}
@@ -353,7 +354,7 @@ export function MarketWidgets() {
         <a href="https://www.coingecko.com" target="_blank" rel="noopener noreferrer" className="underline">
           CoinGecko
         </a>
-        . Values can lag by minutes to a day.
+        . Values can lag by minutes to a day.{data ? " Updated " + new Date(data.updatedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + "." : null}
       </p>
     </section>
   );

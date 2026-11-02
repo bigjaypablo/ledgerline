@@ -893,6 +893,8 @@ export type MarketWidgets = {
   marketCap: number | null;
   marketCapChange: number | null;
   btc: { price: number; change7d: number; points: number[] } | null;
+  marketVolume: number | null;
+  updatedAt: number;
 };
 
 let widgetCache: { at: number; data: MarketWidgets } | null = null;
@@ -942,8 +944,8 @@ async function fetchBtc(): Promise<MarketWidgets["btc"]> {
   }
 }
 
-async function fetchGlobal(): Promise<Pick<MarketWidgets, "btcDominance" | "marketCap" | "marketCapChange">> {
-  const empty = { btcDominance: null, marketCap: null, marketCapChange: null };
+async function fetchGlobal(): Promise<Pick<MarketWidgets, "btcDominance" | "marketCap" | "marketCapChange" | "marketVolume">> {
+  const empty = { btcDominance: null, marketCap: null, marketCapChange: null, marketVolume: null };
   try {
     const res = await fetch("https://api.coingecko.com/api/v3/global", {
       headers: { accept: "application/json" },
@@ -954,6 +956,7 @@ async function fetchGlobal(): Promise<Pick<MarketWidgets, "btcDominance" | "mark
       data?: {
         market_cap_percentage?: { btc?: number };
         total_market_cap?: { usd?: number };
+        total_volume?: { usd?: number };
         market_cap_change_percentage_24h_usd?: number;
       };
     };
@@ -963,6 +966,7 @@ async function fetchGlobal(): Promise<Pick<MarketWidgets, "btcDominance" | "mark
       btcDominance: pick(d?.market_cap_percentage?.btc),
       marketCap: pick(d?.total_market_cap?.usd),
       marketCapChange: pick(d?.market_cap_change_percentage_24h_usd),
+      marketVolume: pick(d?.total_volume?.usd),
     };
   } catch {
     return empty;
@@ -972,7 +976,7 @@ async function fetchGlobal(): Promise<Pick<MarketWidgets, "btcDominance" | "mark
 export const getMarketWidgets = createServerFn({ method: "GET" }).handler(async (): Promise<MarketWidgets> => {
   if (widgetCache && Date.now() - widgetCache.at < 5 * 60_000) return widgetCache.data;
   const [fearGreed, btc, global] = await Promise.all([fetchFearGreed(), fetchBtc(), fetchGlobal()]);
-  const data: MarketWidgets = { fearGreed, btc, ...global };
+  const data: MarketWidgets = { fearGreed, btc, ...global, updatedAt: Date.now() };
   if (fearGreed || btc || global.btcDominance !== null) widgetCache = { at: Date.now(), data };
   return data;
 });
