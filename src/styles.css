@@ -286,3 +286,11 @@ figcaption { text-align: center; }
   --color-accent: #e0607f;
   --color-ink-bg: #2a2622;
 }
+
+/* Coin switch: calendar-page flip */
+.coin-flip { transform-origin: top center; animation: coin-flip-in .45s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes coin-flip-in {
+  from { transform: perspective(700px) rotateX(-80deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .coin-flip { animation: none; } }

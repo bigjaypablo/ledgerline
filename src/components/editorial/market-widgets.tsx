@@ -115,6 +115,7 @@ function PriceCard() {
   const [hover, setHover] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
   const gid = useId().replace(/[^a-zA-Z0-9]/g, "") + "g";
+  const step = (d: number) => setCoin(COINS[(COINS.indexOf(coin) + d + COINS.length) % COINS.length]);
 
   useEffect(() => {
     let live = true;
@@ -168,13 +169,21 @@ function PriceCard() {
   return (
     <div className="col-span-2 border border-line bg-card p-3 md:p-4">
       <div className="flex items-center justify-between gap-2">
-        <select value={coin} onChange={(e) => setCoin(e.target.value)} className={sel} aria-label="Coin">
+        <div className="flex items-center gap-1">
+          <button type="button" aria-label="Previous coin" className={sel + " w-9 text-base"} onClick={() => step(-1)}>
+            ‹
+          </button>
+          <select value={coin} onChange={(e) => setCoin(e.target.value)} className={sel} aria-label="Coin">
           {COINS.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
           ))}
         </select>
+          <button type="button" aria-label="Next coin" className={sel + " w-9 text-base"} onClick={() => step(1)}>
+            ›
+          </button>
+        </div>
         <select value={range} onChange={(e) => setRange(e.target.value)} className={sel} aria-label="Time range">
           {RANGES.map(([v, short]) => (
             <option key={v} value={v}>
@@ -184,7 +193,7 @@ function PriceCard() {
         </select>
       </div>
       {cur ? (
-        <>
+        <div key={chart?.coin} className="coin-flip">
           <p className="mt-2 font-serif text-3xl">{fmtPrice(cur[1])}</p>
           <div className="flex items-center justify-between gap-2">
             <span><Change v={change} />{hover !== null ? <span className="ml-1 text-xs text-muted">since start</span> : null}</span>
@@ -218,7 +227,7 @@ function PriceCard() {
             ) : null}
           </div>
           {failed ? <p className="mt-1 text-xs text-muted">Could not refresh. Showing the last chart.</p> : null}
-        </>
+        </div>
       ) : (
         <p className="mt-6 mb-4 text-sm text-muted">{failed ? "The chart is unavailable right now." : "Loading chart…"}</p>
       )}
