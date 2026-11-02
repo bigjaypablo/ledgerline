@@ -1,7 +1,9 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   getCoinChart,
   getMarketWidgets,
+  getPrices,
   type ChartData,
   type MarketWidgets as Data,
 } from "@/lib/editorial/public";
@@ -10,6 +12,7 @@ const GREEN = "#3c9a5f";
 const RED = "#c0392b";
 
 const COINS = ["BTC", "ETH", "SOL", "XRP", "ADA"];
+const NAMES: Record<string, string> = { BTC: "Bitcoin", ETH: "Ethereum", SOL: "Solana", XRP: "XRP", ADA: "Cardano" };
 const RANGES: Array<[string, string, string]> = [
   ["1h", "1H", "Last hour"],
   ["24h", "24H", "Last 24 hours"],
@@ -57,7 +60,7 @@ function Gauge({ value, label }: { value: number; label: string }) {
       <text x="100" y="108" textAnchor="middle" fontSize="40" fontWeight="600" fill="currentColor" style={{ fontFamily: "var(--font-serif)" }}>
         {value}
       </text>
-      <text x="100" y="132" textAnchor="middle" fontSize="14" fill="currentColor" opacity="0.65">
+      <text x="100" y="132" textAnchor="middle" fontSize="14" fill="currentColor" opacity="0.75">
         {label}
       </text>
     </svg>
@@ -66,7 +69,7 @@ function Gauge({ value, label }: { value: number; label: string }) {
 
 function Card({ title, tag, className = "", children }: { title: string; tag?: string; className?: string; children: React.ReactNode }) {
   return (
-    <div className={`border border-line bg-card p-3 md:p-4 ${className}`}>
+    <div className={`flex flex-col border border-line bg-card p-3 md:p-4 ${className}`}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold tracking-wide">{title}</h3>
         {tag ? <span className="text-xs font-bold tracking-widest text-accent uppercase">{tag}</span> : null}
@@ -104,7 +107,23 @@ function fmtTime(ts: number, range: string): string {
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
-const sel = "min-h-9 border border-line bg-card px-2 text-xs font-semibold text-ink";
+function Pick({ value, onChange, label, children }: { value: string; onChange: (v: string) => void; label: string; children: React.ReactNode }) {
+  return (
+    <span className="relative inline-flex">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label={label}
+        className="min-h-9 appearance-none rounded-full border border-line bg-paper py-0 pr-8 pl-3.5 text-xs font-semibold text-ink"
+      >
+        {children}
+      </select>
+      <ChevronDown aria-hidden className="pointer-events-none absolute top-1/2 right-2.5 size-3.5 -translate-y-1/2 text-muted" />
+    </span>
+  );
+}
+
+const arrowCls = "inline-grid size-9 place-items-center rounded-full border border-line bg-paper text-muted hover:text-ink";
 
 function PriceCard() {
   const [coin, setCoin] = useState("BTC");
@@ -113,9 +132,26 @@ function PriceCard() {
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const [hover, setHover] = useState<number | null>(null);
+  const [livePrice, setLivePrice] = useState<Record<string, number>>({});
   const box = useRef<HTMLDivElement>(null);
   const gid = useId().replace(/[^a-zA-Z0-9]/g, "") + "g";
   const step = (d: number) => setCoin(COINS[(COINS.indexOf(coin) + d + COINS.length) % COINS.length]);
+
+  useEffect(() => {
+    let live = true;
+    const load = () =>
+      getPrices()
+        .then((r) => {
+          if (live && r.ok) setLivePrice(Object.fromEntries(r.quotes.map((q) => [q.symbol, q.usd])));
+        })
+        .catch(() => {});
+    void load();
+    const t = window.setInterval(load, 60_000);
+    return () => {
+      live = false;
+      window.clearInterval(t);
+    };
+  }, []);
 
   useEffect(() => {
     let live = true;
@@ -144,7 +180,9 @@ function PriceCard() {
   const idx = n ? (hover === null ? n - 1 : Math.min(n - 1, Math.max(0, hover))) : 0;
   const cur = n ? pts[idx] : null;
   const first = n ? pts[0][1] : 0;
-  const change = cur && first ? ((cur[1] - first) / first) * 100 : 0;
+  const live = livePrice[chart?.coin ?? coin];
+  const shown = cur ? (hover === null && live ? live : cur[1]) : 0;
+  const change = shown && first ? ((shown - first) / first) * 100 : 0;
   const color = change >= 0 ? GREEN : RED;
 
   const W = 300;
@@ -169,39 +207,45 @@ function PriceCard() {
   return (
     <div className="col-span-2 border border-line bg-card p-3 md:p-4">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1">
-          <button type="button" aria-label="Previous coin" className={sel + " w-9 text-base"} onClick={() => step(-1)}>
-            ‹
+        <div className="flex items-center gap-1.5">
+          <button type="button" aria-label="Previous coin" className={arrowCls} onClick={() => step(-1)}>
+            <ChevronLeft className="size-4" aria-hidden />
           </button>
-          <select value={coin} onChange={(e) => setCoin(e.target.value)} className={sel} aria-label="Coin">
-          {COINS.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-          <button type="button" aria-label="Next coin" className={sel + " w-9 text-base"} onClick={() => step(1)}>
-            ›
+          <Pick value={coin} onChange={setCoin} label="Coin">
+            {COINS.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </Pick>
+          <button type="button" aria-label="Next coin" className={arrowCls} onClick={() => step(1)}>
+            <ChevronRight className="size-4" aria-hidden />
           </button>
         </div>
-        <select value={range} onChange={(e) => setRange(e.target.value)} className={sel} aria-label="Time range">
+        <Pick value={range} onChange={setRange} label="Time range">
           {RANGES.map(([v, short]) => (
             <option key={v} value={v}>
               {short}
             </option>
           ))}
-        </select>
+        </Pick>
       </div>
       {cur ? (
         <div key={chart?.coin} className="coin-flip">
-          <p className="mt-2 font-serif text-3xl">{fmtPrice(cur[1])}</p>
-          <div className="flex items-center justify-between gap-2">
-            <span><Change v={change} />{hover !== null ? <span className="ml-1 text-xs text-muted">since start</span> : null}</span>
-            <span className={hover !== null ? "text-sm font-semibold" : "text-xs text-muted"}>{hover !== null ? fmtTime(cur[0], range) : rangeLabel}</span>
+          <p className="mt-3 text-xs font-semibold tracking-widest text-muted uppercase">{NAMES[chart?.coin ?? coin]}</p>
+          <p className="font-serif text-3xl leading-tight">{fmtPrice(shown)}</p>
+          <div className="mt-0.5 flex items-center justify-between gap-2">
+            <span>
+              <Change v={change} />
+              {hover !== null ? <span className="ml-1 text-xs text-muted">since start</span> : null}
+            </span>
+            <span className={hover !== null ? "text-sm font-semibold" : "text-xs text-muted"}>
+              {hover !== null ? fmtTime(cur[0], range) : rangeLabel}
+            </span>
           </div>
           <div
             ref={box}
-            className={`relative mt-2 h-32 touch-pan-y select-none ${loading ? "opacity-50" : ""}`}
+            className={`relative mt-3 h-32 touch-pan-y select-none ${loading ? "opacity-50" : ""}`}
             onPointerDown={track}
             onPointerMove={track}
             onPointerLeave={() => setHover(null)}
@@ -209,14 +253,22 @@ function PriceCard() {
             <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden="true">
               <defs>
                 <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+                  <stop offset="0%" stopColor={color} stopOpacity="0.32" />
                   <stop offset="100%" stopColor={color} stopOpacity="0" />
                 </linearGradient>
               </defs>
+              <line x1="0" x2={W} y1={py(first)} y2={py(first)} stroke="currentColor" strokeOpacity="0.25" strokeDasharray="3 4" vectorEffect="non-scaling-stroke" />
               <path d={`${line} L${W} ${H} L0 ${H} Z`} fill={`url(#${gid})`} />
-              <path d={line} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+              <path d={line} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
             </svg>
-            {hover !== null ? (
+            {hover === null ? (
+              <span
+                className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                style={{ left: "100%", top: `${(py(pts[n - 1][1]) / H) * 100}%`, background: color }}
+              >
+                <span className="absolute inset-0 animate-ping rounded-full opacity-60" style={{ background: color }} />
+              </span>
+            ) : (
               <>
                 <div className="absolute top-0 bottom-0 w-px bg-muted/60" style={{ left: `${(idx / (n - 1)) * 100}%` }} />
                 <div
@@ -224,12 +276,18 @@ function PriceCard() {
                   style={{ left: `${(idx / (n - 1)) * 100}%`, top: `${(py(cur[1]) / H) * 100}%`, background: color }}
                 />
               </>
-            ) : null}
+            )}
+          </div>
+          <div className="mt-2 flex justify-between text-xs text-muted">
+            <span>Low {fmtPrice(min)}</span>
+            <span>High {fmtPrice(max)}</span>
           </div>
           {failed ? <p className="mt-1 text-xs text-muted">Could not refresh. Showing the last chart.</p> : null}
         </div>
       ) : (
-        <p className="mt-6 mb-4 text-sm text-muted">{failed ? "The chart is unavailable right now." : "Loading chart…"}</p>
+        <div className="grid min-h-[15rem] place-items-center text-sm text-muted">
+          {failed ? "The chart is unavailable right now." : "Loading chart…"}
+        </div>
       )}
     </div>
   );
@@ -256,19 +314,22 @@ export function MarketWidgets() {
     <section className="sheet border-t border-ink py-6" aria-label="Market widgets">
       <div className="mb-3 flex items-end justify-between gap-3 border-b border-ink pb-2">
         <h2 className="text-sm font-bold tracking-widest uppercase">Market snapshot</h2>
-        <span className="text-xs text-muted">Informational only. Not financial advice.</span>
+        <span className="text-xs text-muted">Not financial advice.</span>
       </div>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
         <PriceCard />
         {fg ? (
-          <Card title="Fear & Greed">
+          <Card title="Fear & Greed" tag="Daily">
             <Gauge value={fg.value} label={fg.label} />
           </Card>
         ) : null}
         {data && data.marketCap !== null ? (
           <Card title="Total market cap" tag="24H">
-            <p className="mt-2 font-serif text-3xl">{usd(data.marketCap)}</p>
-            {data.marketCapChange !== null ? <Change v={data.marketCapChange} /> : null}
+            <div className="my-auto py-3">
+              <p className="font-serif text-3xl">{usd(data.marketCap)}</p>
+              {data.marketCapChange !== null ? <Change v={data.marketCapChange} /> : null}
+              <p className="mt-1 text-xs text-muted">All cryptocurrencies combined</p>
+            </div>
           </Card>
         ) : null}
         {data && data.btcDominance !== null ? (
