@@ -65,17 +65,12 @@ export function MarkdownBody({ markdown }: { markdown: string }) {
             <pre className="mt-4 max-w-full overflow-x-auto bg-ink p-4 text-inverse-fg">{children}</pre>
           ),
           hr: () => <hr className="my-8 border-ink" />,
-          img: ({ src, alt, title }) => {
+          img: ({ src, alt }) => {
             const allowed =
               typeof src === "string" &&
               (src.startsWith("/") || src.startsWith("https://") || src.startsWith("data:image/jpeg"));
             if (!allowed) return null;
-            return (
-              <span className="mt-4 block">
-                <img src={src} alt={alt ?? ""} className="w-full" />
-                {title ? <span className="mt-2 block text-center text-sm leading-6 text-muted">{title}</span> : null}
-              </span>
-            );
+            return <img src={src} alt={alt ?? ""} className="mt-4 w-full" />;
           },
         }}
       >
