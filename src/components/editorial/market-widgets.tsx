@@ -1,8 +1,23 @@
-import { useEffect, useId, useState } from "react";
-import { getMarketWidgets, type MarketWidgets as Data } from "@/lib/editorial/public";
+import { useEffect, useId, useRef, useState } from "react";
+import {
+  getCoinChart,
+  getMarketWidgets,
+  type ChartData,
+  type MarketWidgets as Data,
+} from "@/lib/editorial/public";
 
 const GREEN = "#3c9a5f";
 const RED = "#c0392b";
+
+const COINS = ["BTC", "ETH", "SOL", "XRP", "ADA"];
+const RANGES: Array<[string, string, string]> = [
+  ["1h", "1H", "Last hour"],
+  ["24h", "24H", "Last 24 hours"],
+  ["7d", "7D", "Last 7 days"],
+  ["30d", "30D", "Last 30 days"],
+  ["6m", "6M", "Last 6 months"],
+  ["1y", "1Y", "Last 12 months"],
+];
 
 const SEGMENTS: Array<[number, number, string]> = [
   [0, 23, "#c0392b"],
@@ -49,33 +64,9 @@ function Gauge({ value, label }: { value: number; label: string }) {
   );
 }
 
-function Area({ points, up }: { points: number[]; up: boolean }) {
-  const id = useId().replace(/[^a-zA-Z0-9]/g, "");
-  const W = 300;
-  const H = 100;
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const span = max - min || 1;
-  const xy = points.map((p, i) => [(i / (points.length - 1)) * W, H - 8 - ((p - min) / span) * (H - 20)] as const);
-  const line = xy.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
-  const color = up ? GREEN : RED;
+function Card({ title, tag, className = "", children }: { title: string; tag?: string; className?: string; children: React.ReactNode }) {
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="mt-2 block h-16 w-full" aria-hidden="true">
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={`${line} L${W} ${H} L0 ${H} Z`} fill={`url(#${id})`} />
-      <path d={line} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function Card({ title, tag, wide, children }: { title: string; tag?: string; wide?: boolean; children: React.ReactNode }) {
-  return (
-    <div className={"border border-line bg-card p-3 md:p-4 " + (wide ? "col-span-2 md:col-span-1" : "")}>
+    <div className={`border border-line bg-card p-3 md:p-4 ${className}`}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold tracking-wide">{title}</h3>
         {tag ? <span className="text-xs font-bold tracking-widest text-accent uppercase">{tag}</span> : null}
@@ -90,12 +81,148 @@ function usd(v: number): string {
   return `$${(v / 1e9).toFixed(0)}B`;
 }
 
-function Change({ v, suffix }: { v: number; suffix: string }) {
+function Change({ v }: { v: number }) {
   const up = v >= 0;
   return (
     <span className="text-sm font-semibold" style={{ color: up ? GREEN : RED }}>
-      {up ? "▲" : "▼"} {Math.abs(v).toFixed(2)}% {suffix}
+      {up ? "▲" : "▼"} {Math.abs(v).toFixed(2)}%
     </span>
+  );
+}
+
+function fmtPrice(v: number): string {
+  const digits = v >= 100 ? 0 : v >= 1 ? 2 : 4;
+  return "$" + v.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+function fmtTime(ts: number, range: string): string {
+  const d = new Date(ts);
+  if (range === "1h") return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  if (range === "24h" || range === "7d") {
+    return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+const sel = "min-h-9 border border-line bg-card px-2 text-xs font-semibold text-ink";
+
+function PriceCard() {
+  const [coin, setCoin] = useState("BTC");
+  const [range, setRange] = useState("24h");
+  const [chart, setChart] = useState<ChartData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [hover, setHover] = useState<number | null>(null);
+  const box = useRef<HTMLDivElement>(null);
+  const gid = useId().replace(/[^a-zA-Z0-9]/g, "") + "g";
+
+  useEffect(() => {
+    let live = true;
+    setLoading(true);
+    setFailed(false);
+    setHover(null);
+    getCoinChart({ data: { coin, range } })
+      .then((v) => {
+        if (!live) return;
+        if (v.ok) setChart(v);
+        else setFailed(true);
+      })
+      .catch(() => {
+        if (live) setFailed(true);
+      })
+      .finally(() => {
+        if (live) setLoading(false);
+      });
+    return () => {
+      live = false;
+    };
+  }, [coin, range]);
+
+  const pts = chart?.points ?? [];
+  const n = pts.length;
+  const idx = n ? (hover === null ? n - 1 : Math.min(n - 1, Math.max(0, hover))) : 0;
+  const cur = n ? pts[idx] : null;
+  const first = n ? pts[0][1] : 0;
+  const change = cur && first ? ((cur[1] - first) / first) * 100 : 0;
+  const color = change >= 0 ? GREEN : RED;
+
+  const W = 300;
+  const H = 120;
+  const prices = pts.map((p) => p[1]);
+  const min = n ? Math.min(...prices) : 0;
+  const max = n ? Math.max(...prices) : 1;
+  const span = max - min || 1;
+  const px = (i: number) => (n > 1 ? (i / (n - 1)) * W : 0);
+  const py = (v: number) => H - 10 - ((v - min) / span) * (H - 24);
+  const line = pts.map((p, i) => `${i ? "L" : "M"}${px(i).toFixed(1)} ${py(p[1]).toFixed(1)}`).join(" ");
+
+  function track(e: React.PointerEvent) {
+    const el = box.current;
+    if (!el || n < 2) return;
+    const r = el.getBoundingClientRect();
+    setHover(Math.round(((e.clientX - r.left) / r.width) * (n - 1)));
+  }
+
+  const rangeLabel = RANGES.find((r) => r[0] === range)?.[2] ?? "";
+
+  return (
+    <div className="col-span-2 border border-line bg-card p-3 md:p-4">
+      <div className="flex items-center justify-between gap-2">
+        <select value={coin} onChange={(e) => setCoin(e.target.value)} className={sel} aria-label="Coin">
+          {COINS.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <select value={range} onChange={(e) => setRange(e.target.value)} className={sel} aria-label="Time range">
+          {RANGES.map(([v, short]) => (
+            <option key={v} value={v}>
+              {short}
+            </option>
+          ))}
+        </select>
+      </div>
+      {cur ? (
+        <>
+          <p className="mt-2 font-serif text-3xl">{fmtPrice(cur[1])}</p>
+          <div className="flex items-center justify-between gap-2">
+            <Change v={change} />
+            <span className="text-xs text-muted">{hover !== null ? fmtTime(cur[0], range) : rangeLabel}</span>
+          </div>
+          <div
+            ref={box}
+            className={`relative mt-2 h-32 touch-pan-y select-none ${loading ? "opacity-50" : ""}`}
+            onPointerDown={track}
+            onPointerMove={track}
+            onPointerLeave={() => setHover(null)}
+          >
+            <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden="true">
+              <defs>
+                <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+                  <stop offset="100%" stopColor={color} stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d={`${line} L${W} ${H} L0 ${H} Z`} fill={`url(#${gid})`} />
+              <path d={line} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+            </svg>
+            {hover !== null ? (
+              <>
+                <div className="absolute top-0 bottom-0 w-px bg-muted/60" style={{ left: `${(idx / (n - 1)) * 100}%` }} />
+                <div
+                  className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card"
+                  style={{ left: `${(idx / (n - 1)) * 100}%`, top: `${(py(cur[1]) / H) * 100}%`, background: color }}
+                />
+              </>
+            ) : null}
+          </div>
+          {failed ? <p className="mt-1 text-xs text-muted">Could not refresh. Showing the last chart.</p> : null}
+        </>
+      ) : (
+        <p className="mt-6 mb-4 text-sm text-muted">{failed ? "The chart is unavailable right now." : "Loading chart…"}</p>
+      )}
+    </div>
   );
 }
 
@@ -114,8 +241,7 @@ export function MarketWidgets() {
     };
   }, []);
 
-  if (!data || (!data.fearGreed && !data.btc && data.marketCap === null)) return null;
-  const { fearGreed: fg, btc } = data;
+  const fg = data?.fearGreed ?? null;
 
   return (
     <section className="sheet border-t border-ink py-6" aria-label="Market widgets">
@@ -124,28 +250,20 @@ export function MarketWidgets() {
         <span className="text-xs text-muted">Informational only. Not financial advice.</span>
       </div>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
+        <PriceCard />
         {fg ? (
           <Card title="Fear & Greed">
             <Gauge value={fg.value} label={fg.label} />
           </Card>
         ) : null}
-        {btc ? (
-          <Card title="Bitcoin" tag="7D">
-            <p className="mt-1 font-serif text-2xl">${Math.round(btc.price).toLocaleString("en-US")}</p>
-            <Change v={btc.change7d} suffix="" />
-            <Area points={btc.points} up={btc.change7d >= 0} />
+        {data && data.marketCap !== null ? (
+          <Card title="Total market cap" tag="24H">
+            <p className="mt-2 font-serif text-3xl">{usd(data.marketCap)}</p>
+            {data.marketCapChange !== null ? <Change v={data.marketCapChange} /> : null}
           </Card>
         ) : null}
-        {data.marketCap !== null ? (
-          <Card title="Total market cap" tag="24H" wide>
-            <div className="mt-1 flex items-baseline justify-between">
-              <p className="font-serif text-2xl">{usd(data.marketCap)}</p>
-              {data.marketCapChange !== null ? <Change v={data.marketCapChange} suffix="" /> : null}
-            </div>
-          </Card>
-        ) : null}
-        {data.btcDominance !== null ? (
-          <Card title="Bitcoin dominance" wide>
+        {data && data.btcDominance !== null ? (
+          <Card title="Bitcoin dominance" className="col-span-2 md:col-span-4">
             <div className="mt-1 flex items-baseline justify-between">
               <span className="font-serif text-2xl">{data.btcDominance.toFixed(1)}%</span>
               <span className="text-xs text-muted">of total crypto market cap</span>

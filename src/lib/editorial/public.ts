@@ -976,3 +976,64 @@ export const getMarketWidgets = createServerFn({ method: "GET" }).handler(async 
   if (fearGreed || btc || global.btcDominance !== null) widgetCache = { at: Date.now(), data };
   return data;
 });
+
+
+export type ChartData = { ok: boolean; coin: string; range: string; points: Array<[number, number]> };
+
+const CHART_COINS: Record<string, string> = {
+  BTC: "bitcoin",
+  ETH: "ethereum",
+  SOL: "solana",
+  XRP: "ripple",
+  ADA: "cardano",
+};
+const RANGE_DAYS: Record<string, number> = { "1h": 1, "24h": 1, "7d": 7, "30d": 30, "6m": 180, "1y": 365 };
+const chartCache = new Map<string, { at: number; points: Array<[number, number]> }>();
+
+export const getCoinChart = createServerFn({ method: "GET" })
+  .validator((input: { coin?: string; range?: string }) => ({
+    coin: String(input?.coin ?? "BTC").toUpperCase().slice(0, 6),
+    range: String(input?.range ?? "24h").slice(0, 4),
+  }))
+  .handler(async ({ data }): Promise<ChartData> => {
+    const fail: ChartData = { ok: false, coin: data.coin, range: data.range, points: [] };
+    const id = CHART_COINS[data.coin];
+    const days = RANGE_DAYS[data.range];
+    if (!id || !days) return fail;
+    const key = `${id}:${days}`;
+    let hit = chartCache.get(key);
+    if (!hit || Date.now() - hit.at > 5 * 60_000) {
+      try {
+        const res = await fetch(
+          `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${days}`,
+          { headers: { accept: "application/json" }, signal: AbortSignal.timeout(8000) },
+        );
+        if (res.ok) {
+          const body = (await res.json()) as { prices?: Array<[number, number]> };
+          const pts = (body.prices ?? []).filter(
+            (p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]),
+          );
+          if (pts.length > 1) {
+            hit = { at: Date.now(), points: pts };
+            chartCache.set(key, hit);
+          }
+        }
+      } catch {
+        /* fall back to whatever is cached */
+      }
+    }
+    if (!hit) return fail;
+    let points = hit.points;
+    if (data.range === "1h") {
+      const end = points[points.length - 1][0];
+      points = points.filter((p) => p[0] >= end - 3_600_000);
+    }
+    if (points.length > 200) {
+      const step = Math.ceil(points.length / 200);
+      const out = points.filter((_, i) => i % step === 0);
+      const last = points[points.length - 1];
+      if (out[out.length - 1] !== last) out.push(last);
+      points = out;
+    }
+    return { ok: points.length > 1, coin: data.coin, range: data.range, points };
+  });
