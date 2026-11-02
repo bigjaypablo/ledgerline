@@ -97,11 +97,11 @@ function fmtPrice(v: number): string {
 
 function fmtTime(ts: number, range: string): string {
   const d = new Date(ts);
-  if (range === "1h") return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-  if (range === "24h" || range === "7d") {
-    return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  if (range === "1h") return d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" });
+  if (range === "24h" || range === "7d" || range === "30d") {
+    return d.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
   }
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
 const sel = "min-h-9 border border-line bg-card px-2 text-xs font-semibold text-ink";
@@ -187,8 +187,8 @@ function PriceCard() {
         <>
           <p className="mt-2 font-serif text-3xl">{fmtPrice(cur[1])}</p>
           <div className="flex items-center justify-between gap-2">
-            <Change v={change} />
-            <span className="text-xs text-muted">{hover !== null ? fmtTime(cur[0], range) : rangeLabel}</span>
+            <span><Change v={change} />{hover !== null ? <span className="ml-1 text-xs text-muted">since start</span> : null}</span>
+            <span className={hover !== null ? "text-sm font-semibold" : "text-xs text-muted"}>{hover !== null ? fmtTime(cur[0], range) : rangeLabel}</span>
           </div>
           <div
             ref={box}
