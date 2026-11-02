@@ -173,17 +173,6 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
     else c().extendMarkRange("link").setLink({ href: url.trim() }).run();
   }
 
-  function setCaption() {
-    if (!editor!.isActive("image")) {
-      onError("Tap an image first, then tap Cap to add its caption.");
-      return;
-    }
-    const prev = (editor!.getAttributes("image").title as string | undefined) ?? "";
-    const text = window.prompt("Image caption", prev);
-    if (text === null) return;
-    c().updateAttributes("image", { title: text.trim() || null }).run();
-  }
-
   return (
     <div className="rich">
       <div className="rich-bar" role="toolbar" aria-label="Formatting">
@@ -218,7 +207,6 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
         <Sep />
         <Btn label="Link" icon="link" active={editor.isActive("link")} onClick={setLink} />
         <Btn label="Image" icon="image" onClick={() => fileRef.current?.click()} />
-        <Btn label="Image caption" text="Cap" active={editor.isActive("image")} onClick={setCaption} />
         <Btn label="Table" icon="table" active={picker} onClick={() => setPicker((p) => !p)} />
         <Btn label="Code block" icon="braces" active={editor.isActive("codeBlock")} onClick={() => c().toggleCodeBlock().run()} />
         <Btn label="Divider" icon="rule" onClick={() => c().setHorizontalRule().run()} />
@@ -237,8 +225,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
             compress(file)
               .then((src) => {
                 const alt = file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").slice(0, 80) || "Image";
-                const caption = (window.prompt("Caption for this image (optional)", "") ?? "").trim();
-                c().setImage({ src, alt, ...(caption ? { title: caption } : {}) }).run();
+                c().setImage({ src, alt }).run();
               })
               .catch((err: unknown) => onError(err instanceof Error ? err.message : "Upload failed."));
           }}
