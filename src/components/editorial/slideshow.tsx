@@ -56,7 +56,7 @@ export function LeadSlideshow({ cards }: { cards: Card[] }) {
 
   return (
     <section
-      className="sheet py-8"
+      className="sheet pt-8 pb-3"
       aria-roledescription="carousel"
       aria-label="Lead stories"
       tabIndex={0}
