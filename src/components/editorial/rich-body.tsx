@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { EditorContent, useEditor, type Editor } from "@tiptap/react";
+import { EditorContent, useEditor, ReactNodeViewRenderer, NodeViewWrapper, type Editor, type NodeViewProps } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import LinkExt from "@tiptap/extension-link";
 import ImageExt from "@tiptap/extension-image";
@@ -69,6 +69,50 @@ function getMd(editor: Editor): string {
   return cleanMd((editor.storage as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown());
 }
 
+function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
+  const saved = (node.attrs.title as string | null) ?? "";
+  const [text, setText] = useState(saved);
+  useEffect(() => {
+    setText(saved);
+  }, [saved]);
+  function commit() {
+    const next = text.trim();
+    if (next !== saved) updateAttributes({ title: next || null });
+  }
+  return (
+    <NodeViewWrapper className="my-3">
+      <img
+        src={node.attrs.src as string}
+        alt={(node.attrs.alt as string | null) ?? ""}
+        className={selected ? "block w-full outline outline-2 outline-offset-2" : "block w-full"}
+        draggable={false}
+      />
+      <input
+        type="text"
+        value={text}
+        placeholder="Add a caption (optional)"
+        aria-label="Image caption"
+        className="mt-2 w-full border border-line bg-card px-2 py-1 text-center text-sm"
+        onChange={(e) => setText(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.currentTarget.blur();
+          }
+        }}
+      />
+    </NodeViewWrapper>
+  );
+}
+
+const CaptionImage = ImageExt.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(ImageView);
+  },
+});
+
 export function RichBody({ value, onChange, compress, onError }: Props) {
   const last = useRef(value);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -90,7 +134,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
     extensions: [
       StarterKit,
       LinkExt.configure({ openOnClick: false }),
-      ImageExt,
+      CaptionImage,
       Table,
       TableRow,
       TableHeader,
@@ -173,17 +217,6 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
     else c().extendMarkRange("link").setLink({ href: url.trim() }).run();
   }
 
-  function setCaption() {
-    if (!editor!.isActive("image")) {
-      onError("Tap an image first, then tap Cap to add its caption.");
-      return;
-    }
-    const prev = (editor!.getAttributes("image").title as string | undefined) ?? "";
-    const text = window.prompt("Image caption", prev);
-    if (text === null) return;
-    c().updateAttributes("image", { title: text.trim() || null }).run();
-  }
-
   return (
     <div className="rich">
       <div className="rich-bar" role="toolbar" aria-label="Formatting">
@@ -218,7 +251,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
         <Sep />
         <Btn label="Link" icon="link" active={editor.isActive("link")} onClick={setLink} />
         <Btn label="Image" icon="image" onClick={() => fileRef.current?.click()} />
-        <Btn label="Image caption" text="Cap" active={editor.isActive("image")} onClick={setCaption} />
+        
         <Btn label="Table" icon="table" active={picker} onClick={() => setPicker((p) => !p)} />
         <Btn label="Code block" icon="braces" active={editor.isActive("codeBlock")} onClick={() => c().toggleCodeBlock().run()} />
         <Btn label="Divider" icon="rule" onClick={() => c().setHorizontalRule().run()} />
@@ -237,8 +270,8 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
             compress(file)
               .then((src) => {
                 const alt = file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").slice(0, 80) || "Image";
-                const caption = (window.prompt("Caption for this image (optional)", "") ?? "").trim();
-                c().setImage({ src, alt, ...(caption ? { title: caption } : {}) }).run();
+                // the caption is typed under the image in the editor
+                c().setImage({ src, alt }).run();
               })
               .catch((err: unknown) => onError(err instanceof Error ? err.message : "Upload failed."));
           }}
