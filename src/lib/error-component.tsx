@@ -1,29 +1,42 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { TriangleAlert } from "lucide-react";
+import { PublicShell } from "@/components/editorial/shell";
 
-const FALLBACK_MESSAGE = "An unexpected error occurred. Try reloading the page.";
+export function AppErrorComponent({ error, reset }: ErrorComponentProps) {
+  const isNetwork =
+    error instanceof Error &&
+    (error.message.includes("Failed to fetch") || error.message.includes("NetworkError"));
 
-function errorMessage(error: unknown): string {
-  if (error instanceof Error && error.message) return error.message;
-  if (typeof error === "string" && error) return error;
-  return FALLBACK_MESSAGE;
-}
+  const title = isNetwork ? "Connection interrupted" : "Something went wrong";
+  const message = isNetwork
+    ? "Could not load this page. Check your internet connection or try again."
+    : error instanceof Error && error.message
+      ? error.message
+      : "An unexpected error occurred while loading this page.";
 
-export function AppErrorComponent({ error }: ErrorComponentProps) {
   return (
-    <main
-      className={
-        "flex min-h-screen flex-col items-center justify-center gap-3 px-6 text-center " +
-        "bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50"
-      }
-    >
-      <span className="text-red-500" aria-hidden="true">
-        <TriangleAlert className="size-10" strokeWidth={2} />
-      </span>
-      <h1 className="text-lg font-semibold">Something went wrong</h1>
-      <p className="max-w-md text-sm break-words text-zinc-500 dark:text-zinc-400">
-        {errorMessage(error)}
-      </p>
-    </main>
+    <PublicShell>
+      <main className="sheet py-16 text-center">
+        <div className="mx-auto max-w-md border border-line bg-card p-8">
+          <p className="text-xs font-bold uppercase tracking-widest text-accent">Notice</p>
+          <h1 className="mt-2 font-serif text-2xl font-bold text-ink">{title}</h1>
+          <p className="mt-3 text-sm leading-6 text-muted">{message}</p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => reset()}
+              className="inline-flex min-h-11 items-center bg-ink px-4 text-sm font-semibold text-inverse-fg hover:opacity-90 transition-opacity"
+            >
+              Try again
+            </button>
+            <a
+              href="/"
+              className="inline-flex min-h-11 items-center border border-line px-4 text-sm font-semibold text-ink hover:bg-line/20 transition-colors"
+            >
+              Back to homepage
+            </a>
+          </div>
+        </div>
+      </main>
+    </PublicShell>
   );
 }
