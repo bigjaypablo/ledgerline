@@ -53,11 +53,7 @@ function formatHtml(html: string): string {
   return html.replace(/(<\/(?:p|h[1-6]|ul|ol|li|blockquote|table|tr|pre)>)(?=<)/g, "$1\n");
 }
 
-// A block image written straight into the next block ("
-
-![a](url)
-
-## Heading") needs a blank line after it.
+// An image written straight into the next block needs a blank line after it.
 const IMG_GLUE = /(!\[[^\]]*\]\((?:[^()\s]|\([^)]*\))+(?:\s+"(?:[^"\\]|\\.)*")?\))(?=\S)/g;
 
 function cleanMd(md: string): string {
