@@ -12,7 +12,7 @@ export function MarkdownBody({ markdown }: { markdown: string }) {
   const takeId = () => ids[index++]?.id ?? "section";
 
   return (
-    <div className="mx-auto max-w-4xl text-lg leading-8">
+    <div className="mx-auto max-w-3xl text-[17px] leading-[1.65] text-ink">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
@@ -20,27 +20,27 @@ export function MarkdownBody({ markdown }: { markdown: string }) {
         unwrapDisallowed
         components={{
           h2: ({ children }) => (
-            <h2 id={takeId()} className="mt-10 scroll-mt-24 font-serif text-3xl font-semibold leading-tight">
+            <h2 id={takeId()} className="mt-8 mb-3 scroll-mt-24 font-serif text-2xl font-bold tracking-tight text-ink">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 id={takeId()} className="mt-8 scroll-mt-24 font-serif text-2xl font-semibold">
+            <h3 id={takeId()} className="mt-6 mb-2 scroll-mt-24 font-sans text-lg font-bold tracking-tight text-ink/90">
               {children}
             </h3>
           ),
-          p: ({ children }) => <p className="mt-4">{children}</p>,
-          ul: ({ children }) => <ul className="mt-4 list-disc space-y-2 pl-5">{children}</ul>,
-          ol: ({ children }) => <ol className="mt-4 list-decimal space-y-2 pl-5">{children}</ol>,
+          p: ({ children }) => <p className="mt-3 mb-3">{children}</p>,
+          ul: ({ children }) => <ul className="my-3 list-disc space-y-1.5 pl-5">{children}</ul>,
+          ol: ({ children }) => <ol className="my-3 list-decimal space-y-1.5 pl-5">{children}</ol>,
           blockquote: ({ children }) => (
-            <blockquote className="mt-4 border-l-4 border-accent pl-4 text-muted">{children}</blockquote>
+            <blockquote className="my-4 border-l-2 border-accent pl-4 text-muted italic">{children}</blockquote>
           ),
           a: ({ href, children }) => {
             const external = Boolean(href && /^https?:\/\//i.test(href));
             return (
               <a
                 href={href}
-                className="text-accent underline decoration-accent/40 underline-offset-2"
+                className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
                 {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               >
                 {children}
@@ -48,32 +48,32 @@ export function MarkdownBody({ markdown }: { markdown: string }) {
             );
           },
           table: ({ children }) => (
-            <div className="mt-4 max-w-full overflow-x-auto border border-line">
-              <table className="w-full min-w-[36rem] border-collapse text-left text-base">{children}</table>
+            <div className="my-4 max-w-full overflow-x-auto border border-line">
+              <table className="w-full min-w-[36rem] border-collapse text-left text-sm">{children}</table>
             </div>
           ),
-          th: ({ children }) => <th className="border-b border-ink bg-card px-3 py-2 text-sm font-bold">{children}</th>,
+          th: ({ children }) => <th className="border-b border-ink bg-card px-3 py-2 text-xs font-bold tracking-wider uppercase">{children}</th>,
           td: ({ children }) => <td className="border-b border-line px-3 py-2 align-top text-sm leading-6">{children}</td>,
           code: ({ className, children }) => {
             const block = Boolean(className);
             if (block) {
-              return <code className="font-mono text-sm">{children}</code>;
+              return <code className="font-mono text-xs">{children}</code>;
             }
-            return <code className="bg-line px-1 font-mono text-base">{children}</code>;
+            return <code className="bg-line/60 rounded px-1.5 py-0.5 font-mono text-[0.9em]">{children}</code>;
           },
           pre: ({ children }) => (
-            <pre className="mt-4 max-w-full overflow-x-auto bg-ink p-4 text-inverse-fg">{children}</pre>
+            <pre className="my-4 max-w-full overflow-x-auto bg-ink p-4 text-inverse-fg rounded-sm">{children}</pre>
           ),
-          hr: () => <hr className="my-8 border-ink" />,
+          hr: () => <hr className="my-6 border-line" />,
           img: ({ src, alt, title }) => {
             const allowed =
               typeof src === "string" &&
               (src.startsWith("/") || src.startsWith("https://") || src.startsWith("data:image/jpeg"));
             if (!allowed) return null;
             return (
-              <span className="mt-4 block">
-                <img src={src} alt={alt ?? ""} className="w-full" />
-                {title ? <span className="mt-2 block text-center text-sm leading-6 text-muted">{title}</span> : null}
+              <span className="my-6 block">
+                <img src={src} alt={alt ?? ""} className="w-full rounded-sm" />
+                {title ? <span className="mt-2 block text-center text-xs leading-5 text-muted">{title}</span> : null}
               </span>
             );
           },
@@ -90,15 +90,15 @@ export function TableOfContents({ markdown }: { markdown: string }) {
   const [open, setOpen] = useState(true);
   if (items.length < 2) return null;
   return (
-    <nav className="my-6 mx-auto max-w-4xl border-y border-line py-4" aria-label="Contents">
-      <button type="button" className="text-xs font-bold tracking-widest uppercase" onClick={() => setOpen((value) => !value)}>
+    <nav className="my-5 mx-auto max-w-3xl border-y border-line py-3" aria-label="Contents">
+      <button type="button" className="text-xs font-bold tracking-widest uppercase text-muted hover:text-ink" onClick={() => setOpen((value) => !value)}>
         Contents {open ? "–" : "+"}
       </button>
       {open ? (
-        <ol className="mt-3 space-y-2 text-base">
+        <ol className="mt-2.5 space-y-1.5 text-sm">
           {items.map((item) => (
             <li key={item.id}>
-              <a href={`#${item.id}`} className="hover:text-accent">
+              <a href={`#${item.id}`} className="text-muted hover:text-accent transition-colors">
                 {item.text.replace(/\((?:https?:\/\/|\/)[^\s)]*\)/g, "").replace(/\s{2,}/g, " ").trim()}
               </a>
             </li>
