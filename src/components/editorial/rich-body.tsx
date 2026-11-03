@@ -170,8 +170,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
       last.current = cleaned;
       onChange(cleaned);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor]);
+  }, [editor, value, onChange]);
 
   // Table menu above the table; below it if there is no room above.
   useEffect(() => {
