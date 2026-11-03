@@ -53,6 +53,13 @@ function formatHtml(html: string): string {
   return html.replace(/(<\/(?:p|h[1-6]|ul|ol|li|blockquote|table|tr|pre)>)(?=<)/g, "$1\n");
 }
 
+// A block image written straight into the next block ("
+
+![a](url)
+
+## Heading") needs a blank line after it.
+const IMG_GLUE = /(!\[[^\]]*\]\((?:[^()\s]|\([^)]*\))+(?:\s+"(?:[^"\\]|\\.)*")?\))(?=\S)/g;
+
 function cleanMd(md: string): string {
   let fenced = false;
   const out: string[] = [];
@@ -62,7 +69,7 @@ function cleanMd(md: string): string {
     if (!fenced && trimmed === "\\") continue;
     out.push(line);
   }
-  return out.join("\n");
+  return out.join("\n").replace(IMG_GLUE, "$1\n\n");
 }
 
 function getMd(editor: Editor): string {
