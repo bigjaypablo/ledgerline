@@ -78,7 +78,7 @@ export function SiteHeader() {
           </Link>
         </div>
         <Link to="/" className="absolute left-1/2 -translate-x-1/2 text-center">
-          <span className="block font-serif text-2xl font-semibold leading-none tracking-tight sm:text-3xl">
+          <span className="block font-logo text-2xl font-semibold leading-none tracking-tight sm:text-3xl">
             Ledgerline
           </span>
           <span className="mt-1 block h-0.5 bg-accent" />
@@ -103,7 +103,7 @@ export function SiteHeader() {
               <X className="size-6" aria-hidden />
               <span className="sr-only">Close menu</span>
             </button>
-            <span className="font-serif text-2xl font-semibold">Ledgerline</span>
+            <span className="font-logo text-2xl font-semibold">Ledgerline</span>
             <AccountLink className="inline-flex min-h-11 items-center px-2 text-sm font-semibold" />
           </div>
           <form onSubmit={goSearch} className="sheet mt-2 flex">
@@ -152,7 +152,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-ink bg-card">
       <div className="sheet py-8">
-        <Link to="/" className="font-serif text-2xl font-semibold">
+        <Link to="/" className="font-logo text-2xl font-semibold">
           Ledgerline
         </Link>
         <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">

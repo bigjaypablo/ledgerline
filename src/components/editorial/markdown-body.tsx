@@ -12,7 +12,7 @@ export function MarkdownBody({ markdown }: { markdown: string }) {
   const takeId = () => ids[index++]?.id ?? "section";
 
   return (
-    <div className="mx-auto max-w-3xl break-words text-[17px] leading-[1.65] text-ink">
+    <div className="mx-auto max-w-3xl break-words text-[19px] leading-[1.7] text-ink">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
@@ -20,16 +20,16 @@ export function MarkdownBody({ markdown }: { markdown: string }) {
         unwrapDisallowed
         components={{
           h2: ({ children }) => (
-            <h2 id={takeId()} className="mt-8 mb-3 scroll-mt-24 font-serif text-2xl font-bold tracking-tight text-ink">
+            <h2 id={takeId()} className="mt-10 mb-4 scroll-mt-24 border-t border-line pt-6 font-sans text-[1.75rem] leading-tight font-medium tracking-tight text-ink">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 id={takeId()} className="mt-6 mb-2 scroll-mt-24 font-sans text-lg font-bold tracking-tight text-ink/90">
+            <h3 id={takeId()} className="mt-7 mb-2 scroll-mt-24 font-sans text-xl leading-snug font-bold text-ink/90">
               {children}
             </h3>
           ),
-          p: ({ children }) => <p className="mt-3 mb-3">{children}</p>,
+          p: ({ children }) => <p className="mt-4 mb-4">{children}</p>,
           ul: ({ children }) => <ul className="my-3 list-disc space-y-1.5 pl-5">{children}</ul>,
           ol: ({ children }) => <ol className="my-3 list-decimal space-y-1.5 pl-5">{children}</ol>,
           blockquote: ({ children }) => (
