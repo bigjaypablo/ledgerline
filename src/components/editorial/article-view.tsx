@@ -1,4 +1,5 @@
 import { CommentThread } from "@/components/editorial/comment-thread";
+import { ActionBar, ReadyBand } from "@/components/editorial/end-blocks";
 import { Standfirst } from "@/components/editorial/standfirst";
 import { MoreList } from "@/components/editorial/more-list";
 import { ShareLinks } from "@/components/editorial/share-links";
@@ -222,12 +223,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           ) : null}
         </nav>
         {settings.commentsEnabled ? <CommentThread slug={article.slug} comments={data.comments} /> : null}
-        <section className="mt-10 mx-auto max-w-3xl border-t border-line pt-6">
-          <h2 className="font-serif text-2xl font-semibold">The desk note</h2>
-          <div className="mt-4">
-            <NewsletterForm />
-          </div>
-        </section>
+        
       </div>
         <aside className="hidden min-w-0 break-words md:sticky md:top-40 md:block md:max-h-[calc(100vh-11rem)] md:self-start md:overflow-y-auto" aria-label="Sidebar">
           {headingIds(article.body).filter((item) => item.level === 2).length > 1 ? (
@@ -255,6 +251,8 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         </aside>
         </div>
       </article>
+      <ActionBar articleId={article.id} title={article.title} commentCount={data.comments.length} />
+      <ReadyBand />
     </PublicShell>
   );
 }

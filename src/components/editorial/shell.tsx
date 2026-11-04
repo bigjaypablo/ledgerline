@@ -155,7 +155,7 @@ export function SiteFooter() {
         <Link to="/" className="font-logo text-2xl font-semibold">
           Ledgerline
         </Link>
-        <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
+        <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 font-sans text-sm text-muted">
           <li>
             <Link to="/">Home</Link>
           </li>
