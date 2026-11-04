@@ -140,8 +140,13 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </p>
           ) : null}
         </aside>
-        <section className="mt-10 mx-auto max-w-3xl">
-          <h2 className="font-serif text-3xl font-semibold">Sources</h2>
+        <section id="sources" className="mx-auto mt-10 max-w-3xl">
+          <details className="group border-y border-line">
+            <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between font-sans text-xl font-medium [&::-webkit-details-marker]:hidden">
+              <span>Sources <span className="text-base font-normal text-muted">({data.sources.length})</span></span>
+              <span aria-hidden className="text-2xl text-muted transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <div className="pb-4">
           {data.sources.length === 0 ? (
             <p className="mt-3 border border-accent bg-card px-3 py-2 text-sm">
               This research article has no source list. Do not treat its claims as checked.
@@ -163,6 +168,8 @@ export function ArticleView({ data }: { data: ArticlePage }) {
               ))}
             </ol>
           )}
+        </div>
+          </details>
         </section>
         {data.tools.length > 0 ? (
           <section className="mt-10 mx-auto max-w-3xl">
