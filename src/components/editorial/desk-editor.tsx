@@ -210,7 +210,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
     return result.id;
   }
 
-  const fail = (fallback: string) => (err: unknown) => setError(err instanceof Error ? err.message : fallback);
+  const fail = (fallback: string) => (err: unknown) => setError(err instanceof Error ? err.message + " | " + String(err.stack).slice(0, 600) : fallback);
   const setStatusTo = (next: ArticleStatus, id: string = articleId ?? form.id ?? "") => changeArticleStatus({ data: { id, status: next } });
 
   function publishNow() {
@@ -226,7 +226,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
       })
       .catch((err: unknown) => {
         setConfirming(false);
-        setError(err instanceof Error ? err.message : "Publish blocked.");
+        setError(err instanceof Error ? err.message + " | " + String(err.stack).slice(0, 600) : "Publish blocked.");
       });
   }
 
