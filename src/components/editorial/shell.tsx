@@ -157,7 +157,7 @@ const fl = "inline-flex min-h-11 items-center hover:text-accent";
 export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-card font-sans">
-      <div className="sheet py-10">
+      <div className="sheet pt-10 pb-28 md:pb-10">
         <Link to="/" className="font-logo text-2xl font-semibold">
           Ledgerline
         </Link>
