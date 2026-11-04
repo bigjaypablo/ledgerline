@@ -96,7 +96,10 @@ function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
         placeholder="Add a caption (optional)"
         aria-label="Image caption"
         className="mt-2 w-full border border-line bg-card px-2 py-1 text-center text-sm"
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => {
+          setText(e.target.value);
+          updateAttributes({ title: e.target.value || null });
+        }}
         onBlur={commit}
         onKeyDown={(e) => {
           e.stopPropagation();
