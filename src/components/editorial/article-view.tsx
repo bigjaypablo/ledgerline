@@ -1,3 +1,4 @@
+import { CommentThread } from "@/components/editorial/comment-thread";
 import { Standfirst } from "@/components/editorial/standfirst";
 import { MoreList } from "@/components/editorial/more-list";
 import { ShareLinks } from "@/components/editorial/share-links";
@@ -9,7 +10,7 @@ import { NewsletterForm, PublicShell } from "@/components/editorial/shell";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { absoluteUrl, formatDate, headingIds } from "@/lib/editorial/text";
 import type { ArticlePage } from "@/lib/editorial/types";
-import { getReactions, reactToArticle, saveState, submitComment, toggleSave, trackAffiliateClick } from "@/lib/editorial/public";
+import { getReactions, reactToArticle, saveState, toggleSave, trackAffiliateClick } from "@/lib/editorial/public";
 
 export function ArticleView({ data }: { data: ArticlePage }) {
   const { article, settings } = data;
@@ -22,21 +23,6 @@ export function ArticleView({ data }: { data: ArticlePage }) {
     /* no valid public URL yet */
   }
   const share = `https://x.com/intent/post?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(canonical.startsWith("http") ? canonical : "")}`;
-  const [name, setName] = useState("");
-  const [body, setBody] = useState("");
-  const [company, setCompany] = useState("");
-  const [note, setNote] = useState("");
-
-  async function sendComment(event: React.FormEvent) {
-    event.preventDefault();
-    const result = await submitComment({ data: { articleSlug: article.slug, name, body, company } });
-    setNote(result.message);
-    if (result.ok) {
-      setBody("");
-      setName("");
-    }
-  }
-
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -235,41 +221,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </Link>
           ) : null}
         </nav>
-        {settings.commentsEnabled ? (
-          <section className="mt-10 mx-auto max-w-3xl border-t border-ink pt-6">
-            <h2 className="font-serif text-3xl font-semibold">Comments</h2>
-            <p className="mt-2 text-sm text-muted">Comments are checked before they appear. Links are not accepted.</p>
-            <ul className="mt-4 space-y-4">
-              {data.comments.map((comment) => (
-                <li key={comment.id} className="border-b border-line pb-3">
-                  <p className="text-sm font-semibold">
-                    {comment.authorName}{" "}
-                    <span className="font-normal text-muted">{formatDate(comment.createdAt)}</span>
-                  </p>
-                  <p className="mt-1 whitespace-pre-wrap text-base leading-7">{comment.body}</p>
-                </li>
-              ))}
-            </ul>
-            <form onSubmit={sendComment} className="mt-4 space-y-3">
-              <label className="block text-sm font-semibold" htmlFor="comment-name">
-                Name
-              </label>
-              <input id="comment-name" value={name} onChange={(event) => setName(event.target.value)} className="min-h-12 w-full border border-line bg-card px-3" required />
-              <label className="block text-sm font-semibold" htmlFor="comment-body">
-                Comment
-              </label>
-              <textarea id="comment-body" value={body} onChange={(event) => setBody(event.target.value)} className="min-h-28 w-full border border-line bg-card px-3 py-2" required />
-              <label className="absolute -left-[9999px]" aria-hidden="true">
-                Company
-                <input value={company} onChange={(event) => setCompany(event.target.value)} tabIndex={-1} autoComplete="off" />
-              </label>
-              <button type="submit" className="min-h-11 bg-ink px-4 text-sm font-semibold text-inverse-fg">
-                Submit for moderation
-              </button>
-              {note ? <p className="text-sm">{note}</p> : null}
-            </form>
-          </section>
-        ) : null}
+        {settings.commentsEnabled ? <CommentThread slug={article.slug} comments={data.comments} /> : null}
         <section className="mt-10 mx-auto max-w-3xl border-t border-line pt-6">
           <h2 className="font-serif text-2xl font-semibold">The desk note</h2>
           <div className="mt-4">

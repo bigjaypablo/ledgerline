@@ -74,6 +74,9 @@ export type Comment = {
   authorName: string;
   body: string;
   createdAt: string;
+  parentId: string | null;
+  likes: number;
+  avatarUrl: string | null;
 };
 
 export type HomeData = {
