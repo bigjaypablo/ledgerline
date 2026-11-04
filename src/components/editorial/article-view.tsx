@@ -57,7 +57,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <article className="sheet py-6">
-        <div className="mx-auto max-w-6xl md:grid md:grid-cols-[minmax(0,1fr)_16rem] lg:gap-10">
+        <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-10">
         <div className="min-w-0">
         <p className="text-sm text-muted">
           <Link to="/" className="hover:text-accent">
@@ -117,7 +117,9 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </figcaption>
           ) : null}
         </figure>
-        <TableOfContents markdown={article.body} />
+        <div className="lg:hidden">
+          <TableOfContents markdown={article.body} />
+        </div>
         <MarkdownBody markdown={article.body} />
         <ReactionButtons articleId={article.id} />
         {preferredHost ? (
@@ -282,7 +284,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           </div>
         </section>
       </div>
-        <aside className="hidden md:block lg:self-start lg:sticky lg:top-6" aria-label="Sidebar">
+        <aside className="hidden min-w-0 break-words lg:sticky lg:top-6 lg:block lg:self-start" aria-label="Sidebar">
           {headingIds(article.body).filter((item) => item.level === 2).length > 1 ? (
             <nav className="border-t border-ink pt-3" aria-label="On this page">
               <h2 className="text-xs font-bold tracking-widest uppercase">On this page</h2>

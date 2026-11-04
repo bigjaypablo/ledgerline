@@ -57,7 +57,12 @@ export function headingIds(markdown: string): { level: 2 | 3; text: string; id: 
     if (fence) continue;
     const match = /^(#{2,3})\s+(.+?)\s*$/.exec(line);
     if (!match) continue;
-    const text = match[2].replace(/[*_`[\]]/g, "").trim();
+    const text = match[2]
+      .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1")
+      .replace(/https?:\/\/\S+/g, "")
+      .replace(/[*_`[\]]/g, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
     const base = slugify(text) || "section";
     const seen = used.get(base) ?? 0;
     used.set(base, seen + 1);
