@@ -328,9 +328,9 @@ export const getArticle = createServerFn({ method: "GET" })
                  a.published_at, a.updated_at, a.reading_minutes, a.featured, a.deep_dive, a.last_checked
           from articles a
           join categories c on c.slug = a.category_slug
-          where a.status = 'published' and a.category_slug = ${row.category_slug} and a.id <> ${row.id}
-          order by a.published_at desc nulls last
-          limit 3
+          where a.status = 'published' and a.id <> ${row.id}
+          order by (a.category_slug = ${row.category_slug}) desc, a.published_at desc nulls last
+          limit 8
         `,
         sql<{ slug: string; title: string }>`
           select slug, title from articles

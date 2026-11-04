@@ -1,4 +1,5 @@
 import { Standfirst } from "@/components/editorial/standfirst";
+import { MoreList } from "@/components/editorial/more-list";
 import { ShareLinks } from "@/components/editorial/share-links";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -57,7 +58,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <article className="sheet py-6">
-        <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-10">
+        <div className="mx-auto max-w-6xl md:grid md:grid-cols-[minmax(0,1fr)_15rem] md:gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-10">
         <div className="min-w-0">
         <p className="text-sm text-muted">
           <Link to="/" className="hover:text-accent">
@@ -69,8 +70,8 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           </Link>
         </p>
         <p className="mt-4 text-xs font-bold tracking-widest text-accent uppercase">{article.label}</p>
-        <h1 className="mt-2 font-serif text-4xl font-semibold leading-tight sm:text-5xl">{article.title}</h1>
-        <Standfirst className="mt-4 text-xl leading-8" text={article.summary} />
+        <h1 className="mt-2 font-sans text-[2rem] font-medium leading-[1.15] tracking-tight sm:text-5xl">{article.title}</h1>
+        <Standfirst className="mt-4 font-sans text-xl leading-8 text-muted" text={article.summary} />
         <p className="mt-4 text-sm text-muted">
           <span className="mr-2 inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-line bg-card align-middle text-xs font-bold text-ink">
             {data.author.avatarUrl ? (
@@ -106,7 +107,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           ) : null}
           <SaveButton articleId={article.id} />
         </div>
-        <figure className="-mx-4 mt-6 sm:mx-auto sm:max-w-4xl">
+        <figure className="mx-auto mt-6 max-w-3xl">
           <Cover card={article} eager />
           {article.coverCaption ? (
             <figcaption className="mt-2 px-4 text-sm text-muted sm:px-0">
@@ -117,13 +118,13 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </figcaption>
           ) : null}
         </figure>
-        <div className="lg:hidden">
+        <div className="md:hidden">
           <TableOfContents markdown={article.body} />
         </div>
         <MarkdownBody markdown={article.body} />
         <ReactionButtons articleId={article.id} />
         {preferredHost ? (
-          <p className="mx-auto mt-4 max-w-4xl text-sm">
+          <p className="mx-auto mt-4 max-w-3xl text-sm">
             <a
               href={`https://google.com/preferences/source?q=${encodeURIComponent(preferredHost)}`}
               target="_blank"
@@ -134,7 +135,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </a>
           </p>
         ) : null}
-        <aside className="mt-8 mx-auto max-w-4xl border border-line bg-card p-4 text-sm leading-6">
+        <aside className="mt-8 mx-auto max-w-3xl border border-line bg-card p-4 text-sm leading-6">
           <p className="font-semibold">Information only. Not financial advice.</p>
           <p className="mt-2">
             Ledgerline does not provide financial, investment, legal, or tax advice. Cryptocurrency coverage
@@ -152,7 +153,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </p>
           ) : null}
         </aside>
-        <section className="mt-10 mx-auto max-w-4xl">
+        <section className="mt-10 mx-auto max-w-3xl">
           <h2 className="font-serif text-3xl font-semibold">Sources</h2>
           {data.sources.length === 0 ? (
             <p className="mt-3 border border-accent bg-card px-3 py-2 text-sm">
@@ -177,7 +178,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           )}
         </section>
         {data.tools.length > 0 ? (
-          <section className="mt-10 mx-auto max-w-4xl">
+          <section className="mt-10 mx-auto max-w-3xl">
             <h2 className="font-serif text-3xl font-semibold">Related links</h2>
             <ul className="mt-4 space-y-4">
               {data.tools.map((tool) => (
@@ -208,25 +209,17 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         {article.tags.length > 0 ? (
           <p className="mt-6 text-sm text-muted">Tags: {article.tags.join(", ")}</p>
         ) : null}
-        <section className="mt-10 mx-auto max-w-4xl border-t border-line pt-6">
+        <section className="mt-10 mx-auto max-w-3xl border-t border-line pt-6">
           <h2 className="font-serif text-2xl font-semibold">{data.author.name}</h2>
           <p className="mt-2 text-base leading-7">{data.author.bio}</p>
         </section>
         {data.related.length > 0 ? (
-          <section className="mt-10 mx-auto max-w-4xl">
-            <h2 className="text-sm font-bold tracking-widest uppercase">Related</h2>
-            <ul className="mt-3 divide-y divide-line">
-              {data.related.map((card) => (
-                <li key={card.id} className="py-3">
-                  <Link to="/article/$slug" params={{ slug: card.slug }} className="font-serif text-2xl font-semibold">
-                    {card.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <section className="mx-auto mt-10 max-w-3xl md:hidden">
+            <h2 className="text-sm font-bold tracking-widest uppercase">More from Ledgerline</h2>
+            <MoreList cards={data.related} />
           </section>
         ) : null}
-        <nav className="mt-8 grid mx-auto max-w-4xl gap-4 border-t border-line pt-4 sm:grid-cols-2" aria-label="More articles">
+        <nav className="mt-8 grid mx-auto max-w-3xl gap-4 border-t border-line pt-4 sm:grid-cols-2" aria-label="More articles">
           {data.previous ? (
             <Link to="/article/$slug" params={{ slug: data.previous.slug }} className="text-sm">
               <span className="block text-xs font-bold tracking-widest uppercase text-muted">Previous</span>
@@ -243,7 +236,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           ) : null}
         </nav>
         {settings.commentsEnabled ? (
-          <section className="mt-10 mx-auto max-w-4xl border-t border-ink pt-6">
+          <section className="mt-10 mx-auto max-w-3xl border-t border-ink pt-6">
             <h2 className="font-serif text-3xl font-semibold">Comments</h2>
             <p className="mt-2 text-sm text-muted">Comments are checked before they appear. Links are not accepted.</p>
             <ul className="mt-4 space-y-4">
@@ -277,14 +270,14 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             </form>
           </section>
         ) : null}
-        <section className="mt-10 mx-auto max-w-4xl border-t border-line pt-6">
+        <section className="mt-10 mx-auto max-w-3xl border-t border-line pt-6">
           <h2 className="font-serif text-2xl font-semibold">The desk note</h2>
           <div className="mt-4">
             <NewsletterForm />
           </div>
         </section>
       </div>
-        <aside className="hidden min-w-0 break-words lg:sticky lg:top-6 lg:block lg:self-start" aria-label="Sidebar">
+        <aside className="hidden min-w-0 break-words md:sticky md:top-40 md:block md:max-h-[calc(100vh-11rem)] md:self-start md:overflow-y-auto" aria-label="Sidebar">
           {headingIds(article.body).filter((item) => item.level === 2).length > 1 ? (
             <nav className="border-t border-ink pt-3" aria-label="On this page">
               <h2 className="text-xs font-bold tracking-widest uppercase">On this page</h2>
@@ -304,15 +297,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           {data.related.length > 0 ? (
             <div className="mt-8 border-t border-ink pt-3">
               <h2 className="text-xs font-bold tracking-widest uppercase">More from Ledgerline</h2>
-              <ul className="mt-3 space-y-3">
-                {data.related.map((card) => (
-                  <li key={card.id} className="border-b border-line pb-3">
-                    <Link to="/article/$slug" params={{ slug: card.slug }} className="font-serif text-lg font-semibold leading-snug hover:text-accent">
-                      {card.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <MoreList cards={data.related} />
             </div>
           ) : null}
         </aside>
@@ -437,7 +422,7 @@ function ReactionButtons({ articleId }: { articleId: string }) {
 
   const base = "inline-flex min-h-11 items-center gap-2 border px-4 text-sm font-semibold";
   return (
-    <div className="mx-auto mt-8 max-w-4xl border-t border-line pt-4">
+    <div className="mx-auto mt-8 max-w-3xl border-t border-line pt-4">
       <p className="text-sm font-semibold">Was this article useful?</p>
       <div className="mt-2 flex gap-2">
         <button type="button" aria-pressed={state.mine === 1} aria-label="Like" onClick={() => vote(1)} className={`${base} ${state.mine === 1 ? "border-ink bg-ink text-inverse-fg" : "border-line bg-card"}`}>
