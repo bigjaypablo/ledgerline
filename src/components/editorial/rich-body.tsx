@@ -150,9 +150,13 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
       attributes: { class: "rich-body", "aria-label": "Article body" },
     },
     onUpdate: ({ editor: ed }) => {
-      const md = getMd(ed);
-      last.current = md;
-      onChange(md);
+      try {
+        const md = getMd(ed);
+        last.current = md;
+        onChange(md);
+      } catch (err) {
+        onError("EDITOR CONVERT: " + (err instanceof Error ? err.message + " | " + String(err.stack).slice(0, 600) : String(err)));
+      }
     },
   });
 
