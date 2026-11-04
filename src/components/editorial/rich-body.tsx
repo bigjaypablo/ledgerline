@@ -114,6 +114,26 @@ const CaptionImage = ImageExt.extend({
   addNodeView() {
     return ReactNodeViewRenderer(ImageView);
   },
+  addStorage() {
+    return {
+      markdown: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        serialize(state: any, node: any) {
+          const alt = String(node.attrs.alt ?? "");
+          const src = String(node.attrs.src ?? "");
+          const title = node.attrs.title ? String(node.attrs.title) : "";
+          state.write(
+            "
+
+![" + state.esc(alt) + "](" + src.replace(/[()
+
+]/g, "\\$&") +
+              (title ? ' "' + title.replace(/"/g, '\\"') + '"' : "") + ")",
+          );
+        },
+      },
+    };
+  },
 });
 
 export function RichBody({ value, onChange, compress, onError }: Props) {
