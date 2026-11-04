@@ -119,17 +119,15 @@ const CaptionImage = ImageExt.extend({
       markdown: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         serialize(state: any, node: any) {
-          const alt = String(node.attrs.alt ?? "");
-          const src = String(node.attrs.src ?? "");
-          const title = node.attrs.title ? String(node.attrs.title) : "";
-          state.write(
-            "
-
-![" + state.esc(alt) + "](" + src.replace(/[()
-
-]/g, "\\$&") +
-              (title ? ' "' + title.replace(/"/g, '\\"') + '"' : "") + ")",
-          );
+          const bs = String.fromCharCode(92);
+          const bang = String.fromCharCode(33);
+          const alt0 = String(node.attrs.alt ?? "");
+          const alt = alt0.split("]").join(bs + "]");
+          const src0 = String(node.attrs.src ?? "");
+          const src = src0.split("(").join("%28").split(")").join("%29");
+          const t = String(node.attrs.title ?? "");
+          const title = t ? " " + JSON.stringify(t) : "";
+          state.write(bang + "[" + alt + "](" + src + title + ")");
         },
       },
     };
