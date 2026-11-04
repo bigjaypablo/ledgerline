@@ -1,9 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, MessageCircle, Bookmark, Share2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { NewsletterForm } from "@/components/editorial/shell";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { getReactions, reactToArticle, saveState, toggleSave } from "@/lib/editorial/public";
+import { getReactions, reactToArticle, saveState, subscribe, toggleSave } from "@/lib/editorial/public";
 
 function voterId(): string {
   try {
@@ -114,14 +113,59 @@ export function ActionBar({ articleId, title, commentCount }: { articleId: strin
 }
 
 export function ReadyBand() {
+  const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [company, setCompany] = useState("");
+  const [msg, setMsg] = useState("");
+  const [pending, setPending] = useState(false);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setPending(true);
+    setMsg("");
+    try {
+      const r = await subscribe({ data: { email, consent, company } });
+      setMsg(r.message);
+      if (r.ok) setEmail("");
+    } catch {
+      setMsg("Could not save that address. Try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
   return (
     <section className="mt-12 bg-accent text-white">
       <div className="mx-auto max-w-xl px-4 py-12 text-center font-sans">
         <h2 className="text-3xl font-medium">Ready for more?</h2>
         <p className="mt-2 text-base text-white/80">One short desk note when we publish something worth your time.</p>
-        <div className="mt-6 text-left">
-          <NewsletterForm />
-        </div>
+        <form onSubmit={onSubmit} className="mt-6">
+          <div className="flex">
+            <label className="sr-only" htmlFor="band-email">Email</label>
+            <input
+              id="band-email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="Type your email…"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="min-h-12 min-w-0 flex-1 border border-white/60 bg-transparent px-3 text-white placeholder:text-white/60"
+            />
+            <button type="submit" disabled={pending} className="min-h-12 bg-white px-5 text-sm font-semibold text-accent disabled:opacity-60">
+              {pending ? "Saving…" : "Subscribe"}
+            </button>
+          </div>
+          <label className="mt-3 flex items-start justify-center gap-2 text-left text-sm text-white/85">
+            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 size-4" />
+            <span>Send me the occasional desk note. I can unsubscribe later.</span>
+          </label>
+          <label className="absolute -left-[9999px]" aria-hidden="true">
+            Company
+            <input value={company} onChange={(e) => setCompany(e.target.value)} tabIndex={-1} autoComplete="off" />
+          </label>
+          {msg ? <p className="mt-3 text-sm">{msg}</p> : null}
+        </form>
       </div>
     </section>
   );

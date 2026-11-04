@@ -150,7 +150,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
             <ol className="mt-4 space-y-4">
               {data.sources.map((source) => (
                 <li key={source.id} className="border-t border-line pt-3">
-                  <a href={source.url} className="font-semibold text-accent" {...linkAttrs(source.url)}>
+                  <a href={source.url} className="font-sans font-semibold text-accent" {...linkAttrs(source.url)}>
                     {source.title}
                   </a>
                   <p className="text-sm text-muted">
@@ -225,7 +225,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         {settings.commentsEnabled ? <CommentThread slug={article.slug} comments={data.comments} /> : null}
         
       </div>
-        <aside className="hidden min-w-0 break-words md:sticky md:top-40 md:block md:max-h-[calc(100vh-11rem)] md:self-start md:overflow-y-auto" aria-label="Sidebar">
+        <aside className="hidden min-w-0 break-words md:sticky md:top-28 md:block md:max-h-[calc(100vh-8rem)] md:self-start md:overflow-y-auto" aria-label="Sidebar">
           {headingIds(article.body).filter((item) => item.level === 2).length > 1 ? (
             <nav className="border-t border-ink pt-3" aria-label="On this page">
               <h2 className="text-xs font-bold tracking-widest uppercase">On this page</h2>

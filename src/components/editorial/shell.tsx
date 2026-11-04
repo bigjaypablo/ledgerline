@@ -53,7 +53,8 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-card">
+    <header className="contents">
+      <div className="sticky top-0 z-40 border-b border-line bg-card">
       <PriceTicker />
       <div className="h-1 bg-accent" />
       <div className="sheet flex h-16 items-center justify-between gap-3">
@@ -85,7 +86,8 @@ export function SiteHeader() {
         </Link>
         <AccountLink className="inline-flex min-h-11 items-center bg-ink px-3 text-sm font-semibold text-inverse-fg" />
       </div>
-      <nav className="hidden border-t border-line md:block" aria-label="Sections">
+      </div>
+      <nav className="hidden border-b border-line bg-card md:block" aria-label="Sections">
         <ul className="sheet flex justify-center gap-6 py-2 text-sm font-semibold">
           {NAV.map((item) => (
             <li key={item.to}>
@@ -148,48 +150,62 @@ export function SiteHeader() {
   );
 }
 
+const ABOUT = MORE.filter((i) => ["/about", "/standards", "/corrections", "/contact"].includes(i.to));
+const LEGAL = MORE.filter((i) => ["/disclosure", "/disclaimer", "/privacy", "/terms"].includes(i.to));
+const fl = "inline-flex min-h-11 items-center hover:text-accent";
+
 export function SiteFooter() {
   return (
-    <footer className="border-t border-ink bg-card">
-      <div className="sheet py-8">
+    <footer className="border-t border-line bg-card font-sans">
+      <div className="sheet py-10">
         <Link to="/" className="font-logo text-2xl font-semibold">
           Ledgerline
         </Link>
-        <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 font-sans text-sm text-muted">
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          {NAV.map((item) => (
-            <li key={item.to}>
-              <Link to={item.to}>{item.label}</Link>
-            </li>
-          ))}
-          {MORE.map((item) => (
-            <li key={item.to}>
-              <Link to={item.to}>{item.label}</Link>
-            </li>
-          ))}
-          <li>
-            <a href="/rss.xml">RSS</a>
-          </li>
-          <li>
-            <Link to="/admin" className="text-muted">
-              Staff
-            </Link>
-          </li>
-        </ul>
-        <p className="mt-6 max-w-3xl text-sm leading-6 text-muted">
+        <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-8 text-sm text-muted sm:grid-cols-3">
+          <nav aria-label="Sections">
+            <h2 className="text-xs font-bold tracking-widest text-ink uppercase">Sections</h2>
+            <ul className="mt-2">
+              {NAV.map((item) => (
+                <li key={item.to}>
+                  <Link to={item.to} className={fl}>{item.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <nav aria-label="About">
+            <h2 className="text-xs font-bold tracking-widest text-ink uppercase">About</h2>
+            <ul className="mt-2">
+              {ABOUT.map((item) => (
+                <li key={item.to}>
+                  <Link to={item.to} className={fl}>{item.label}</Link>
+                </li>
+              ))}
+              <li><a href="/rss.xml" className={fl}>RSS</a></li>
+            </ul>
+          </nav>
+          <nav aria-label="Legal" className="col-span-2 sm:col-span-1">
+            <h2 className="text-xs font-bold tracking-widest text-ink uppercase">Legal</h2>
+            <ul className="mt-2">
+              {LEGAL.map((item) => (
+                <li key={item.to}>
+                  <Link to={item.to} className={fl}>{item.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+        <p className="mt-8 max-w-3xl border-t border-line pt-6 text-xs leading-5 text-muted">
           Ledgerline is an independent research publication. It is not a financial adviser, a broker, or a
           product-testing laboratory. Cryptocurrency coverage is information, not a recommendation to buy or
           sell. Affiliate links, when present, are marked.
         </p>
-        <p className="mt-4 text-sm text-muted">
-          © {new Date().getFullYear()} Ledgerline. Created and owned by Big Jay.{" "}
-          <a href="https://x.com/0xNormadOnChain" target="_blank" rel="noopener noreferrer me" className="font-semibold text-accent underline underline-offset-4">
-            Follow on X
-          </a>
-        </p>
-        <div className="mt-4">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4 text-xs text-muted">
+          <p>
+            © {new Date().getFullYear()} Ledgerline. Created and owned by Big Jay.{" "}
+            <a href="https://x.com/0xNormadOnChain" target="_blank" rel="noopener noreferrer me" className="underline hover:text-accent">
+              Follow on X
+            </a>
+          </p>
           <ThemeToggle />
         </div>
       </div>
