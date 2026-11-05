@@ -31,6 +31,7 @@ const links = [
   ["/admin/comments", "Comments"],
   ["/admin/subscribers", "Subscribers"],
   ["/admin/affiliates", "Affiliates"],
+  ["/admin/opportunities", "Opportunities"],
   ["/admin/messages", "Messages"],
   ["/admin/settings", "People"],
 ] as const;

@@ -3,15 +3,16 @@ import { ThemeToggle } from "@/components/editorial/theme-toggle";
 import { PublicAccountMenu } from "@/components/editorial/public-account-menu";
 import { CookieBanner } from "@/components/editorial/cookie-banner";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { useState } from "react";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { subscribe } from "@/lib/editorial/public";
 import { PriceTicker } from "@/components/editorial/ticker";
+import { MobileMenu } from "@/components/editorial/menu/mobile-menu";
 
 export const NAV = [
   { to: "/crypto", label: "Crypto" },
-  { to: "/opportunities", label: "Opportunities" },
+  { to: "/opportunities", label: "Airdrops" },
   { to: "/ai", label: "AI" },
   { to: "/saas", label: "SaaS" },
   { to: "/guides", label: "Guides" },
@@ -99,87 +100,14 @@ export function SiteHeader() {
           ))}
         </ul>
       </nav>
-      {open ? (
-        <div id="site-menu" className="fixed inset-0 z-50 overflow-y-auto bg-card text-ink">
-          <div className="sheet flex h-16 items-center justify-between">
-            <button type="button" className="inline-flex min-h-11 min-w-11 items-center justify-center" onClick={() => setOpen(false)}>
-              <X className="size-6" aria-hidden />
-              <span className="sr-only">Close menu</span>
-            </button>
-            <span className="font-logo text-2xl font-semibold">Ledgerline</span>
-            <AccountLink className="inline-flex min-h-11 items-center px-2 text-sm font-semibold" />
-          </div>
-          <form onSubmit={goSearch} className="sheet mt-2 flex">
-            <label className="sr-only" htmlFor="menu-search">
-              Search news, topics and more
-            </label>
-            <input
-              id="menu-search"
-              value={q}
-              onChange={(event) => setQ(event.target.value)}
-              placeholder="Search news, topics and more"
-              className="min-h-12 flex-1 border border-ink bg-card px-3"
-            />
-            <button type="submit" className="inline-flex min-h-12 min-w-12 items-center justify-center bg-ink text-inverse-fg" aria-label="Search">
-              <Search className="size-5" />
-            </button>
-          </form>
-          <nav className="sheet mt-6 space-y-6 text-base pb-12">
-            <div>
-              <p className="text-xs font-bold tracking-widest text-accent uppercase">Coverage</p>
-              <div className="mt-2 grid gap-1 font-semibold text-lg">
-                <Link to="/crypto" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Crypto</Link>
-                <Link to="/ai" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>AI</Link>
-                <Link to="/saas" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>SaaS</Link>
-              </div>
-            </div>
-
-            <div className="border-t border-line pt-4">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-bold tracking-widest text-accent uppercase">Opportunities</p>
-                <span className="text-[10px] uppercase font-bold tracking-wider bg-accent/10 text-accent px-1.5 py-0.5 rounded">Tracker</span>
-              </div>
-              <div className="mt-2 grid gap-1">
-                <Link to="/opportunities" className="block py-2 font-semibold text-lg hover:text-accent" onClick={() => setOpen(false)}>
-                  All Opportunities
-                </Link>
-                <div className="pl-3 border-l border-line grid gap-1 text-sm text-muted">
-                  <Link to="/opportunities" search={{ kind: "testnet" }} className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Testnets (Zero Capital)</Link>
-                  <Link to="/opportunities" search={{ kind: "points" }} className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Points Programs</Link>
-                  <Link to="/opportunities" search={{ rewardStatus: "confirmed" } as { kind?: string; rewardStatus?: string }} className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Confirmed Airdrops</Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-line pt-4">
-              <p className="text-xs font-bold tracking-widest text-accent uppercase">Library</p>
-              <div className="mt-2 grid gap-1 font-semibold text-lg">
-                <Link to="/guides" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Guides</Link>
-                <Link to="/comparisons" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Reviews</Link>
-                <Link to="/research" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Research</Link>
-                <Link to="/archive" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Archive</Link>
-              </div>
-            </div>
-
-            <details className="group border-t border-line pt-4 text-sm text-muted">
-              <summary className="cursor-pointer py-2 font-semibold text-ink list-none flex justify-between items-center text-base">
-                <span>About & Disclosures</span>
-                <span className="text-xs transition-transform group-open:rotate-180">▼</span>
-              </summary>
-              <div className="mt-2 grid gap-2 pl-3 border-l border-line text-xs">
-                <Link to="/about" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>About Ledgerline</Link>
-                <Link to="/standards" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Editorial Standards</Link>
-                <Link to="/corrections" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Corrections</Link>
-                <Link to="/disclosure" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Affiliate Disclosure</Link>
-                <Link to="/disclaimer" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Research Disclaimer</Link>
-                <Link to="/contact" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Contact</Link>
-                <Link to="/privacy" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Privacy Policy</Link>
-                <Link to="/terms" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Terms of Service</Link>
-              </div>
-            </details>
-          </nav>
-        </div>
-      ) : null}
+      <MobileMenu
+        open={open}
+        onClose={() => setOpen(false)}
+        q={q}
+        onQ={setQ}
+        onSearch={goSearch}
+        account={<AccountLink className="inline-flex min-h-11 items-center px-2 text-sm font-semibold" />}
+      />
     </header>
   );
 }

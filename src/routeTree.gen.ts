@@ -24,6 +24,7 @@ import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DisclosureRouteImport } from './routes/disclosure'
 import { Route as GuidesRouteImport } from './routes/guides'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as OpportunitiesRouteImport } from './routes/opportunities'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResearchRouteImport } from './routes/research'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -41,6 +42,7 @@ import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminMediaRouteImport } from './routes/admin/media'
 import { Route as AdminMessagesRouteImport } from './routes/admin/messages'
+import { Route as AdminOpportunitiesRouteImport } from './routes/admin/opportunities'
 import { Route as AdminPagesRouteImport } from './routes/admin/pages'
 import { Route as AdminProfileRouteImport } from './routes/admin/profile'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
@@ -128,6 +130,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OpportunitiesRoute = OpportunitiesRouteImport.update({
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -213,6 +220,11 @@ const AdminMessagesRoute = AdminMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOpportunitiesRoute = AdminOpportunitiesRouteImport.update({
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPagesRoute = AdminPagesRouteImport.update({
   id: '/pages',
   path: '/pages',
@@ -286,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/disclosure': typeof DisclosureRoute
   '/guides': typeof GuidesRoute
   '/login': typeof LoginRoute
+  '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -302,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/messages': typeof AdminMessagesRoute
+  '/admin/opportunities': typeof AdminOpportunitiesRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -330,6 +344,7 @@ export interface FileRoutesByTo {
   '/disclosure': typeof DisclosureRoute
   '/guides': typeof GuidesRoute
   '/login': typeof LoginRoute
+  '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -345,6 +360,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/messages': typeof AdminMessagesRoute
+  '/admin/opportunities': typeof AdminOpportunitiesRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -375,6 +391,7 @@ export interface FileRoutesById {
   '/disclosure': typeof DisclosureRoute
   '/guides': typeof GuidesRoute
   '/login': typeof LoginRoute
+  '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -391,6 +408,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/messages': typeof AdminMessagesRoute
+  '/admin/opportunities': typeof AdminOpportunitiesRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -422,6 +440,7 @@ export interface FileRouteTypes {
     | '/disclosure'
     | '/guides'
     | '/login'
+    | '/opportunities'
     | '/privacy'
     | '/research'
     | '/robots.txt'
@@ -438,6 +457,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/media'
     | '/admin/messages'
+    | '/admin/opportunities'
     | '/admin/pages'
     | '/admin/profile'
     | '/admin/settings'
@@ -466,6 +486,7 @@ export interface FileRouteTypes {
     | '/disclosure'
     | '/guides'
     | '/login'
+    | '/opportunities'
     | '/privacy'
     | '/research'
     | '/robots.txt'
@@ -481,6 +502,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/media'
     | '/admin/messages'
+    | '/admin/opportunities'
     | '/admin/pages'
     | '/admin/profile'
     | '/admin/settings'
@@ -510,6 +532,7 @@ export interface FileRouteTypes {
     | '/disclosure'
     | '/guides'
     | '/login'
+    | '/opportunities'
     | '/privacy'
     | '/research'
     | '/robots.txt'
@@ -526,6 +549,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/media'
     | '/admin/messages'
+    | '/admin/opportunities'
     | '/admin/pages'
     | '/admin/profile'
     | '/admin/settings'
@@ -556,6 +580,7 @@ export interface RootRouteChildren {
   DisclosureRoute: typeof DisclosureRoute
   GuidesRoute: typeof GuidesRoute
   LoginRoute: typeof LoginRoute
+  OpportunitiesRoute: typeof OpportunitiesRoute
   PrivacyRoute: typeof PrivacyRoute
   ResearchRoute: typeof ResearchRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -677,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/opportunities': {
+      id: '/opportunities'
+      path: '/opportunities'
+      fullPath: '/opportunities'
+      preLoaderRoute: typeof OpportunitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -796,6 +828,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMessagesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/opportunities': {
+      id: '/admin/opportunities'
+      path: '/opportunities'
+      fullPath: '/admin/opportunities'
+      preLoaderRoute: typeof AdminOpportunitiesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/pages': {
       id: '/admin/pages'
       path: '/pages'
@@ -901,6 +940,7 @@ interface AdminRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMediaRoute: typeof AdminMediaRoute
   AdminMessagesRoute: typeof AdminMessagesRoute
+  AdminOpportunitiesRoute: typeof AdminOpportunitiesRoute
   AdminPagesRoute: typeof AdminPagesRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -915,6 +955,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminMediaRoute: AdminMediaRoute,
   AdminMessagesRoute: AdminMessagesRoute,
+  AdminOpportunitiesRoute: AdminOpportunitiesRoute,
   AdminPagesRoute: AdminPagesRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminSettingsRoute: AdminSettingsRoute,
@@ -950,6 +991,7 @@ const rootRouteChildren: RootRouteChildren = {
   DisclosureRoute: DisclosureRoute,
   GuidesRoute: GuidesRoute,
   LoginRoute: LoginRoute,
+  OpportunitiesRoute: OpportunitiesRoute,
   PrivacyRoute: PrivacyRoute,
   ResearchRoute: ResearchRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
