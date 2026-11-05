@@ -5,6 +5,8 @@ import { signOut } from "@/lib/auth/client";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { Avatar } from "@/components/editorial/account-menu";
 import { ThemeToggle } from "@/components/editorial/theme-toggle";
+import { PhotoButton } from "@/components/editorial/avatar-upload";
+import { getMyAvatar } from "@/lib/editorial/avatar";
 
 type Me = Awaited<ReturnType<typeof getMyProfile>>;
 
@@ -14,6 +16,21 @@ export function PublicAccountMenu() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const box = useRef<HTMLDivElement>(null);
+  const [mine, setMine] = useState("");
+  useEffect(() => {
+    if (!user?.id) return;
+    let live = true;
+    const load = () =>
+      getMyAvatar()
+        .then((r) => live && setMine(r.avatarUrl))
+        .catch(() => {});
+    void load();
+    window.addEventListener("ledgerline:profile-updated", load);
+    return () => {
+      live = false;
+      window.removeEventListener("ledgerline:profile-updated", load);
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -66,12 +83,12 @@ export function PublicAccountMenu() {
         onClick={() => setOpen((v) => !v)}
         className="rounded-full"
       >
-        <Avatar url={staff?.avatarUrl} name={name} />
+        <Avatar url={staff?.avatarUrl || mine} name={name} />
       </button>
       {open ? (
         <div className="absolute right-0 top-12 z-50 w-72 max-w-[calc(100vw-2rem)] border border-ink bg-card text-ink shadow-lg">
           <div className="flex items-center gap-3 border-b border-line p-4">
-            <Avatar url={staff?.avatarUrl} name={name} size={48} />
+            <Avatar url={staff?.avatarUrl || mine} name={name} size={48} />
             <div className="min-w-0">
               <p className="truncate font-serif text-lg font-semibold leading-tight">{name}</p>
               <p className="truncate text-xs text-muted">{email}</p>
@@ -84,6 +101,7 @@ export function PublicAccountMenu() {
             <Link to="/account" className={item} onClick={() => setOpen(false)}>
               Account
             </Link>
+            <PhotoButton className={item + " cursor-pointer"} />
             {staff ? (
               <Link to="/admin" className={item} onClick={() => setOpen(false)}>
                 Open the desk

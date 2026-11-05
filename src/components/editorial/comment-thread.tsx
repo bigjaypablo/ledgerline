@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { getMyAvatar } from "@/lib/editorial/avatar";
 import { Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { myCommentLikes, postComment, toggleCommentLike } from "@/lib/editorial/comments";
@@ -23,6 +24,21 @@ export function CommentThread({ slug, comments }: { slug: string; comments: Comm
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [shown, setShown] = useState(5);
+  const [myPhoto, setMyPhoto] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user?.id) return;
+    let live = true;
+    const load = () =>
+      getMyAvatar()
+        .then((r) => live && setMyPhoto(r.avatarUrl || null))
+        .catch(() => {});
+    void load();
+    window.addEventListener("ledgerline:profile-updated", load);
+    return () => {
+      live = false;
+      window.removeEventListener("ledgerline:profile-updated", load);
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -80,7 +96,7 @@ export function CommentThread({ slug, comments }: { slug: string; comments: Comm
     }
     return (
       <div className="flex gap-3">
-        <Avatar name={user.displayName ?? "R"} url={user.profileImageUrl} />
+        <Avatar name={user.displayName ?? "R"} url={myPhoto} />
         <div className="min-w-0 flex-1">
           <textarea
             value={text}

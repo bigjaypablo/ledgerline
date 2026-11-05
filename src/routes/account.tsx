@@ -2,6 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { StoryCard } from "@/components/editorial/cards";
 import { PublicShell } from "@/components/editorial/shell";
+import { AvatarPicker } from "@/components/editorial/avatar-upload";
 import { signOut } from "@/lib/auth/client";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { readerHome } from "@/lib/editorial/public";
@@ -67,6 +68,7 @@ function AccountPage() {
               Sign out
             </button>
             {error ? <p className="mt-4 text-sm text-accent">{error}</p> : null}
+            <AvatarPicker name={name || user.displayName || "Reader"} />
             <h2 className="mt-8 font-serif text-2xl font-semibold">Saved</h2>
             {saved && saved.length === 0 ? <p className="mt-3 text-muted">Nothing saved yet. Open an article and choose Save.</p> : null}
             {saved && saved.length > 0 ? (

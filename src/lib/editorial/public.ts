@@ -343,9 +343,9 @@ export const getArticle = createServerFn({ method: "GET" })
           order by published_at asc limit 1
         `,
         sql<{ id: string; author_name: string; body: string; created_at: unknown; parent_id: string | null; avatar: string | null; likes: unknown }>`
-          select c.id, c.author_name, c.body, c.created_at, c.parent_id, u.image as avatar,
+          select c.id, c.author_name, c.body, c.created_at, c.parent_id, p.avatar_url as avatar,
                  (select count(*)::int from comment_likes l where l.comment_id = c.id) as likes
-          from comments c left join "user" u on u.id = c.user_id
+          from comments c left join profiles p on p.user_id = c.user_id
           where c.article_id = ${row.id} and c.status = 'approved'
           order by c.created_at asc
         `,
