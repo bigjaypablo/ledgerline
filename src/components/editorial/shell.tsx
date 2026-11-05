@@ -146,7 +146,7 @@ export function SiteHeader() {
                 <div className="pl-3 border-l border-line grid gap-1 text-sm text-muted">
                   <Link to="/opportunities" search={{ kind: "testnet" }} className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Testnets (Zero Capital)</Link>
                   <Link to="/opportunities" search={{ kind: "points" }} className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Points Programs</Link>
-                  <Link to="/opportunities" search={{ rewardStatus: "confirmed" }} className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Confirmed Airdrops</Link>
+                  <Link to="/opportunities" search={{ rewardStatus: "confirmed" } as { kind?: string; rewardStatus?: string } className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Confirmed Airdrops</Link>
                 </div>
               </div>
             </div>
