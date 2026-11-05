@@ -24,6 +24,7 @@ function StaffLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -46,7 +47,7 @@ function StaffLogin() {
     let live = true;
     claimStaff()
       .then((result) => {
-        if (live && result.ok) window.location.assign("/admin");
+        if (live && result.ok) setIsStaff(true);
       })
       .catch(() => undefined);
     return () => {
@@ -72,7 +73,7 @@ function StaffLogin() {
         const claim = await claimStaff();
         if (!claim.ok) throw new Error("That account is a reader. An admin has to grant staff access.");
       }
-      window.location.assign("/admin");
+      window.location.replace("/admin");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Could not sign in.");
       setPending(false);
@@ -103,6 +104,11 @@ function StaffLogin() {
             : "Email and password for editors. Reader accounts stay on the public site until an admin changes the role."}
         </p>
         {!authEnabled ? <p className="mt-4 text-sm text-muted">Sign-in is turned off.</p> : null}
+        {isStaff ? (
+          <a href="/admin" className="mt-4 flex min-h-12 w-full items-center justify-center bg-ink text-sm font-semibold text-inverse-fg">
+            Continue to the desk
+          </a>
+        ) : null}
         {needsBootstrap && user ? (
           <button type="button" className="mt-4 min-h-12 w-full bg-ink text-sm font-semibold text-inverse-fg" disabled={pending} onClick={() => void promoteCurrent()}>
             Use this signed-in account as the first admin
@@ -128,7 +134,7 @@ function StaffLogin() {
             {pending ? "Working…" : needsBootstrap ? "Create admin" : "Sign in"}
           </button>
         </form>
-        <Link to="/" className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-accent">
+        <Link to="/" replace className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-accent">
           Back to the publication
         </Link>
       </div>
