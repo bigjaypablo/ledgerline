@@ -4,6 +4,7 @@ import { getMyProfile } from "@/lib/editorial/admin";
 import { signOut } from "@/lib/auth/client";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { Avatar } from "@/components/editorial/account-menu";
+import { ThemeToggle } from "@/components/editorial/theme-toggle";
 
 type Me = Awaited<ReturnType<typeof getMyProfile>>;
 
@@ -88,6 +89,10 @@ export function PublicAccountMenu() {
                 Open the desk
               </Link>
             ) : null}
+          </div>
+          <div className="border-t border-line px-4 py-3">
+            <p className="mb-2 text-xs font-bold tracking-widest text-muted uppercase">Theme</p>
+            <ThemeToggle />
           </div>
           <div className="border-t border-line py-1">
             <button
