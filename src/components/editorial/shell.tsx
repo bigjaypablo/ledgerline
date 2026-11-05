@@ -128,9 +128,9 @@ export function SiteHeader() {
             <div>
               <p className="text-xs font-bold tracking-widest text-accent uppercase">Coverage</p>
               <div className="mt-2 grid gap-1 font-semibold text-lg">
-                <Link to="/category/crypto" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Crypto</Link>
-                <Link to="/category/ai" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>AI</Link>
-                <Link to="/category/saas" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>SaaS</Link>
+                <Link to="/crypto" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Crypto</Link>
+                <Link to="/ai" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>AI</Link>
+                <Link to="/saas" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>SaaS</Link>
               </div>
             </div>
 
@@ -144,9 +144,9 @@ export function SiteHeader() {
                   All Opportunities
                 </Link>
                 <div className="pl-3 border-l border-line grid gap-1 text-sm text-muted">
-                  <Link to="/opportunities?kind=testnet" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Testnets (Zero Capital)</Link>
-                  <Link to="/opportunities?kind=points" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Points Programs</Link>
-                  <Link to="/opportunities?rewardStatus=confirmed" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Confirmed Airdrops</Link>
+                  <Link to="/opportunities" search={{ kind: "testnet" }} className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Testnets (Zero Capital)</Link>
+                  <Link to="/opportunities" search={{ kind: "points" }} className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Points Programs</Link>
+                  <Link to="/opportunities" search={{ rewardStatus: "confirmed" }} className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Confirmed Airdrops</Link>
                 </div>
               </div>
             </div>
@@ -154,9 +154,9 @@ export function SiteHeader() {
             <div className="border-t border-line pt-4">
               <p className="text-xs font-bold tracking-widest text-accent uppercase">Library</p>
               <div className="mt-2 grid gap-1 font-semibold text-lg">
-                <Link to="/category/guides" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Guides</Link>
-                <Link to="/category/reviews" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Reviews</Link>
-                <Link to="/category/research" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Research</Link>
+                <Link to="/guides" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Guides</Link>
+                <Link to="/comparisons" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Reviews</Link>
+                <Link to="/research" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Research</Link>
                 <Link to="/archive" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Archive</Link>
               </div>
             </div>
