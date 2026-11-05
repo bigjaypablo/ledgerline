@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { emailSignIn, emailSignUp } from "@/components/editorial/email-auth";
 import { authEnabled } from "@/lib/auth/client";
@@ -134,9 +134,9 @@ function StaffLogin() {
             {pending ? "Working…" : needsBootstrap ? "Create admin" : "Sign in"}
           </button>
         </form>
-        <Link to="/" replace className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-accent">
+        <a href="/" className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-accent">
           Back to the publication
-        </Link>
+        </a>
       </div>
     </main>
   );
