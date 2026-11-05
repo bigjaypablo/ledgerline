@@ -11,6 +11,7 @@ import { PriceTicker } from "@/components/editorial/ticker";
 
 export const NAV = [
   { to: "/crypto", label: "Crypto" },
+  { to: "/opportunities", label: "Opportunities" },
   { to: "/ai", label: "AI" },
   { to: "/saas", label: "SaaS" },
   { to: "/guides", label: "Guides" },
@@ -123,27 +124,60 @@ export function SiteHeader() {
               <Search className="size-5" />
             </button>
           </form>
-          <ul className="sheet mt-4 divide-y divide-line border-t border-line text-lg">
-            <li>
-              <Link to="/" className="block py-4" onClick={() => setOpen(false)}>
-                Home
-              </Link>
-            </li>
-            {NAV.map((item) => (
-              <li key={item.to} className="md:hidden">
-                <Link to={item.to} className="block py-4" onClick={() => setOpen(false)}>
-                  {item.label}
+          <nav className="sheet mt-6 space-y-6 text-base pb-12">
+            <div>
+              <p className="text-xs font-bold tracking-widest text-accent uppercase">Coverage</p>
+              <div className="mt-2 grid gap-1 font-semibold text-lg">
+                <Link to="/category/crypto" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Crypto</Link>
+                <Link to="/category/ai" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>AI</Link>
+                <Link to="/category/saas" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>SaaS</Link>
+              </div>
+            </div>
+
+            <div className="border-t border-line pt-4">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold tracking-widest text-accent uppercase">Opportunities</p>
+                <span className="text-[10px] uppercase font-bold tracking-wider bg-accent/10 text-accent px-1.5 py-0.5 rounded">Tracker</span>
+              </div>
+              <div className="mt-2 grid gap-1">
+                <Link to="/opportunities" className="block py-2 font-semibold text-lg hover:text-accent" onClick={() => setOpen(false)}>
+                  All Opportunities
                 </Link>
-              </li>
-            ))}
-            {MORE.map((item) => (
-              <li key={item.to}>
-                <Link to={item.to} className="block py-4 text-base" onClick={() => setOpen(false)}>
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+                <div className="pl-3 border-l border-line grid gap-1 text-sm text-muted">
+                  <Link to="/opportunities?kind=testnet" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Testnets (Zero Capital)</Link>
+                  <Link to="/opportunities?kind=points" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Points Programs</Link>
+                  <Link to="/opportunities?rewardStatus=confirmed" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Confirmed Airdrops</Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-line pt-4">
+              <p className="text-xs font-bold tracking-widest text-accent uppercase">Library</p>
+              <div className="mt-2 grid gap-1 font-semibold text-lg">
+                <Link to="/category/guides" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Guides</Link>
+                <Link to="/category/reviews" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Reviews</Link>
+                <Link to="/category/research" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Research</Link>
+                <Link to="/archive" className="block py-2 hover:text-accent" onClick={() => setOpen(false)}>Archive</Link>
+              </div>
+            </div>
+
+            <details className="group border-t border-line pt-4 text-sm text-muted">
+              <summary className="cursor-pointer py-2 font-semibold text-ink list-none flex justify-between items-center text-base">
+                <span>About & Disclosures</span>
+                <span className="text-xs transition-transform group-open:rotate-180">▼</span>
+              </summary>
+              <div className="mt-2 grid gap-2 pl-3 border-l border-line text-xs">
+                <Link to="/about" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>About Ledgerline</Link>
+                <Link to="/standards" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Editorial Standards</Link>
+                <Link to="/corrections" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Corrections</Link>
+                <Link to="/disclosure" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Affiliate Disclosure</Link>
+                <Link to="/disclaimer" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Research Disclaimer</Link>
+                <Link to="/contact" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Contact</Link>
+                <Link to="/privacy" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Privacy Policy</Link>
+                <Link to="/terms" className="py-1 hover:text-ink" onClick={() => setOpen(false)}>Terms of Service</Link>
+              </div>
+            </details>
+          </nav>
         </div>
       ) : null}
     </header>
