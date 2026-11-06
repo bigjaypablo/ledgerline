@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Cover, SectionBand, StoryCard } from "@/components/editorial/cards";
 import { FeatureCard, LatestList } from "@/components/editorial/rows";
 import { ThumbSlider } from "@/components/editorial/thumb-slider";
-import { NewsletterForm, PublicShell } from "@/components/editorial/shell";
+import { PublicShell } from "@/components/editorial/shell";
+import { NewsletterBand } from "@/components/editorial/newsletter-band";
 import { LeadSlideshow } from "@/components/editorial/slideshow";
 import { MarketWidgets } from "@/components/editorial/market-widgets";
 import { trackAffiliateClick } from "@/lib/editorial/public";
@@ -183,29 +184,8 @@ export function HomeView({ data }: { data: HomeData }) {
             </ul>
           </section>
         ) : null}
-
-        <section className="border-t border-line bg-card">
-          <div className="sheet grid gap-8 py-10 md:grid-cols-2">
-            <div>
-              <h2 className="font-serif text-3xl font-semibold">The desk note</h2>
-              <p className="mt-3 text-base leading-7 text-muted">
-                Occasional research, not a product blast. Addresses are stored here.
-                {data.settings.newsletterConfigured
-                  ? " A mail provider is marked as connected."
-                  : " A confirmation email is not sent until a mail provider is connected."}
-              </p>
-              {data.settings.xUrl ? (
-                <p className="mt-4 text-sm">
-                  <a href={data.settings.xUrl} className="font-semibold text-accent" rel="noopener noreferrer">
-                    Follow Ledgerline on X
-                  </a>
-                </p>
-              ) : null}
-            </div>
-            <NewsletterForm />
-          </div>
-        </section>
       </main>
+      <NewsletterBand xUrl={data.settings.xUrl} />
     </PublicShell>
   );
 }
