@@ -1,7 +1,7 @@
 export const LIBRARY = [
   { to: "/crypto", label: "Crypto" },
   { to: "/guides", label: "Guides" },
-  { to: "/comparisons", label: "Reviews" },
+  { to: "/comparisons", label: "Comparisons" },
   { to: "/research", label: "Research" },
   { to: "/archive", label: "Archive" },
 ] as const;
