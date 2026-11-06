@@ -1,7 +1,7 @@
 import { PublicShell } from "@/components/editorial/shell";
 import type { Opportunity } from "@/lib/editorial/opportunities";
 import { OpportunityFilters } from "./opportunity-filters";
-import { OpportunityGrid } from "./opportunity-grid";
+import { OpportunityList } from "./opportunity-list";
 import { OpportunityNotice } from "./opportunity-notice";
 
 export type OpportunitiesData = {
@@ -22,7 +22,7 @@ export function OpportunitiesView({ data }: { data: OpportunitiesData }) {
           not re-verified within 14 days is removed.
         </p>
         <OpportunityFilters kind={data.kind} rewardStatus={data.rewardStatus} capital={data.capital} />
-        <OpportunityGrid items={data.items} />
+        <OpportunityList items={data.items} />
         <OpportunityNotice />
       </main>
     </PublicShell>
