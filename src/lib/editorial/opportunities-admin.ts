@@ -4,6 +4,7 @@ import { getSql } from "@/lib/db";
 import { slugify } from "@/lib/editorial/text";
 import {
   deadlineDate,
+  projectStatus,
   normalizeCampaigns,
   normalizeLinks,
   normalizeTeam,
@@ -23,6 +24,10 @@ export type AdminOpportunity = {
   whyNote: string;
   backers: string;
   raised: string;
+  raisedSource: string;
+  raisedOn: string;
+  category: string;
+  tags: string;
   officialUrl: string;
   riskNote: string;
   sponsored: boolean;
@@ -47,6 +52,16 @@ async function gate(userId: string) {
   return sql;
 }
 
+function tagList(v: unknown): string[] {
+  const raw = typeof v === "string" ? v.split(",") : Array.isArray(v) ? v : [];
+  const out: string[] = [];
+  for (const t of raw) {
+    const s = String(t).trim().slice(0, 30);
+    if (s && !out.includes(s)) out.push(s);
+  }
+  return out.slice(0, 10);
+}
+
 const STATUSES = ["draft", "published", "archived"];
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const RANK = { none: 0, gas_only: 1, funds_at_risk: 2 } as const;
@@ -58,11 +73,8 @@ function headline(campaigns: Campaign[]) {
   if (pool.length === 0) {
     return { kind: "testnet", rewardStatus: "potential", capital: "gas_only", minutes: null as number | null, deadline: null as string | null };
   }
-  const rewardStatus = pool.some((c) => c.rewardStatus === "confirmed")
-    ? "confirmed"
-    : pool.some((c) => c.rewardStatus === "potential")
-      ? "potential"
-      : "none";
+  const top = projectStatus(campaigns);
+  const rewardStatus = top === "none" || top === "potential" ? top : "confirmed";
   const capital = pool.reduce<Campaign["capital"]>((top, c) => (RANK[c.capital] > RANK[top] ? c.capital : top), "none");
   const total = pool.reduce((sum, c) => sum + (Number(c.timeMinutes) || 0), 0);
   const kind = pool.some((c) => c.rewardType === "token") ? "airdrop" : pool.some((c) => c.rewardType === "points") ? "points" : "testnet";
@@ -78,7 +90,8 @@ export const listOpportunities = createServerFn({ method: "GET" })
     const sql = await gate(context.userId);
     const rows = await sql<Row>`
       select id, slug, name, logo_url, chain, summary, about, why_note, backers, raised, official_url,
-             risk_note, sponsored, status, verified_on, team, links, campaigns
+             risk_note, sponsored, status, verified_on, team, links, campaigns,
+             category, tags, raised_source, raised_on
       from opportunities
       order by updated_at desc
     `;
@@ -93,6 +106,10 @@ export const listOpportunities = createServerFn({ method: "GET" })
       whyNote: text(r.why_note, 1500),
       backers: text(r.backers, 300),
       raised: text(r.raised, 60),
+      raisedSource: text(r.raised_source, 500),
+      raisedOn: day(r.raised_on),
+      category: text(r.category, 40),
+      tags: tagList(r.tags).join(", "),
       officialUrl: text(r.official_url, 500),
       riskNote: text(r.risk_note, 400),
       sponsored: r.sponsored === true || r.sponsored === "t",
@@ -136,17 +153,29 @@ export const saveOpportunity = createServerFn({ method: "POST" })
     const raised = String(data.raised ?? "").slice(0, 60);
     const riskNote = String(data.riskNote ?? "").slice(0, 400);
     const sponsored = Boolean(data.sponsored);
+    const category = String(data.category ?? "").trim().slice(0, 40);
+    const tags = tagList(data.tags);
+    const raisedSource = String(data.raisedSource ?? "").trim().slice(0, 500);
+    if (raisedSource && !raisedSource.startsWith("https://")) {
+      throw new Error("The raise source must start with https://");
+    }
+    const raisedOn = String(data.raisedOn ?? "").trim();
+    if (raisedOn && !DATE.test(raisedOn)) throw new Error("Raise date is not valid.");
+    const pstatus = projectStatus(campaigns);
 
     await sql`
       insert into opportunities (
         id, slug, name, logo_url, chain, kind, reward_status, summary, capital, cost_note,
         time_minutes, deadline, official_url, risk_note, sponsored, status, verified_on,
-        about, why_note, backers, raised, team, links, campaigns
+        about, why_note, backers, raised, team, links, campaigns,
+        category, tags, raised_source, raised_on, project_status
       ) values (
         ${id}, ${slug}, ${name}, ${logoUrl}, ${chain}, ${h.kind}, ${h.rewardStatus}, ${summary}, ${h.capital}, '',
         ${h.minutes}, ${h.deadline}, ${officialUrl}, ${riskNote}, ${sponsored}, ${status}, ${verifiedOn || null},
         ${about}, ${whyNote}, ${backers}, ${raised},
-        ${JSON.stringify(team)}::jsonb, ${JSON.stringify(links)}::jsonb, ${JSON.stringify(campaigns)}::jsonb
+        ${JSON.stringify(team)}::jsonb, ${JSON.stringify(links)}::jsonb, ${JSON.stringify(campaigns)}::jsonb,
+        ${category}, ${JSON.stringify(tags)}::jsonb, ${raisedSource},
+        ${raisedOn || null}, ${pstatus}
       )
       on conflict (id) do update set
         name = excluded.name,
@@ -170,6 +199,14 @@ export const saveOpportunity = createServerFn({ method: "POST" })
         team = excluded.team,
         links = excluded.links,
         campaigns = excluded.campaigns,
+        category = excluded.category,
+        tags = excluded.tags,
+        raised_source = excluded.raised_source,
+        raised_on = excluded.raised_on,
+        status_changed_on = case
+          when opportunities.project_status is distinct from excluded.project_status
+          then now() else opportunities.status_changed_on end,
+        project_status = excluded.project_status,
         updated_at = now()
     `;
     return { id, campaigns: campaigns.length };

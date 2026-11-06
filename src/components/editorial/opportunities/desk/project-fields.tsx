@@ -3,6 +3,20 @@ import { Field, SelectField } from "./field";
 import { LogoUpload } from "./logo-upload";
 import { TextArea } from "./text-area";
 
+const CATEGORY = [
+  ["", "Not set"],
+  ["DeFi", "DeFi"],
+  ["Perps", "Perps"],
+  ["Gaming", "Gaming"],
+  ["NFT", "NFT"],
+  ["Infrastructure", "Infrastructure"],
+  ["AI", "AI"],
+  ["Wallet", "Wallet"],
+  ["Social", "Social"],
+  ["Prediction", "Prediction markets"],
+  ["Other", "Other"],
+] as const;
+
 const STATUS = [["draft", "Draft"], ["published", "Published"], ["archived", "Archived"]] as const;
 
 export function ProjectFields({ form, set }: { form: AdminOpportunity; set: (patch: Partial<AdminOpportunity>) => void }) {
@@ -29,6 +43,10 @@ export function ProjectFields({ form, set }: { form: AdminOpportunity; set: (pat
       </div>
       <Field label="Backers (names, comma separated)" value={form.backers} onChange={(backers) => set({ backers })} />
       <Field label="Funding raised (e.g. $9.5M)" value={form.raised} onChange={(raised) => set({ raised })} />
+      <Field label="Raise source link (https://)" value={form.raisedSource} onChange={(raisedSource) => set({ raisedSource })} />
+      <Field label="Raise reported on" value={form.raisedOn} onChange={(raisedOn) => set({ raisedOn })} type="date" />
+      <SelectField label="Category" value={form.category} onChange={(category) => set({ category })} options={CATEGORY} />
+      <Field label="Tags (comma separated)" value={form.tags} onChange={(tags) => set({ tags })} />
       <div className="md:col-span-2">
         <TextArea label="Key risks" value={form.riskNote} onChange={(riskNote) => set({ riskNote })} rows={2} />
       </div>
