@@ -6,6 +6,14 @@ import type { Card } from "@/lib/editorial/types";
 
 const PER_PAGE = 4;
 
+// Distance between the start of one slide and the next (slides may be narrower than the track).
+function stepOf(el: HTMLElement): number {
+  const a = el.children[0] as HTMLElement | undefined;
+  const b = el.children[1] as HTMLElement | undefined;
+  if (a && b) return Math.max(b.offsetLeft - a.offsetLeft, 1);
+  return Math.max(el.clientWidth, 1);
+}
+
 export function ThumbSlider({ cards }: { cards: Card[] }) {
   const track = useRef<HTMLDivElement>(null);
   const drag = useRef({ active: false, moved: false, startX: 0, startLeft: 0 });
@@ -20,7 +28,7 @@ export function ThumbSlider({ cards }: { cards: Card[] }) {
     const el = track.current;
     if (!el) return;
     const next = Math.max(0, Math.min(pages.length - 1, n));
-    el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
+    el.scrollTo({ left: next * stepOf(el), behavior: "smooth" });
   }
 
   function down(e: React.PointerEvent<HTMLDivElement>) {
@@ -48,8 +56,8 @@ export function ThumbSlider({ cards }: { cards: Card[] }) {
     d.active = false;
     if (d.moved && el) {
       const delta = el.scrollLeft - d.startLeft;
-      const base = d.startLeft / Math.max(el.clientWidth, 1);
-      const target = Math.abs(delta) > el.clientWidth * 0.15 ? (delta > 0 ? Math.ceil(base) : Math.floor(base)) : Math.round(base);
+      const base = d.startLeft / stepOf(el);
+      const target = Math.abs(delta) > stepOf(el) * 0.15 ? (delta > 0 ? Math.ceil(base) : Math.floor(base)) : Math.round(base);
       setDragging(false);
       goTo(Math.round(target));
     }
@@ -80,7 +88,7 @@ export function ThumbSlider({ cards }: { cards: Card[] }) {
           }}
           onScroll={(e) => {
             const el = e.currentTarget;
-            setPage(Math.round(el.scrollLeft / Math.max(el.clientWidth, 1)));
+            setPage(Math.round(el.scrollLeft / stepOf(el)));
           }}
         >
           {pages.map((group, i) => (
