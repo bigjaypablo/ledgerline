@@ -1,8 +1,10 @@
 import { signOut } from "@/lib/auth/client";
 import { Card } from "./card";
+import { DeleteAccount } from "./delete-account";
 
 export function SessionSection() {
   return (
+    <div className="grid gap-6">
     <Card title="Sign out">
       <p className="text-sm text-muted">You will be returned to the homepage.</p>
       <button
@@ -13,5 +15,7 @@ export function SessionSection() {
         Sign out
       </button>
     </Card>
+    <DeleteAccount />
+    </div>
   );
 }

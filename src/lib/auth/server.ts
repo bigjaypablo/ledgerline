@@ -4,7 +4,8 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { getCookie } from "@tanstack/react-start/server";
 import { randomBytes } from "node:crypto";
 import { Pool } from "pg";
-import { ensureDbReady, getPglite } from "../db";
+import { APIError } from "better-auth/api";
+import { ensureDbReady, getPglite, getSql } from "../db";
 import { pgliteDialect } from "./pglite-dialect";
 
 void ensureDbReady();
@@ -44,6 +45,26 @@ export const auth = betterAuth({
   trustedOrigins,
   session: { cookieCache: { enabled: true, maxAge: 300 } },
   emailAndPassword: { enabled: true, minPasswordLength: 8 },
+  user: {
+    deleteUser: {
+      enabled: true,
+      beforeDelete: async (user) => {
+        const sql = await getSql();
+        const rows = await sql<{ role: string }>`select role from profiles where user_id = ${user.id}`;
+        const role = rows[0]?.role;
+        if (role === "admin" || role === "editor") {
+          throw new APIError("BAD_REQUEST", {
+            message: "Staff accounts can't be deleted here. Ask an admin to change your role first.",
+          });
+        }
+      },
+      afterDelete: async (user) => {
+        const sql = await getSql();
+        await sql`delete from article_saves where user_id = ${user.id}`;
+        await sql`delete from profiles where user_id = ${user.id}`;
+      },
+    },
+  },
   advanced: {
     useSecureCookies: false,
     defaultCookieAttributes: { secure: true, sameSite: "lax", path: "/" },
