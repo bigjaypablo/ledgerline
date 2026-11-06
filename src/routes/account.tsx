@@ -1,14 +1,19 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { StoryCard } from "@/components/editorial/cards";
 import { PublicShell } from "@/components/editorial/shell";
-import { AvatarPicker } from "@/components/editorial/avatar-upload";
-import { signOut } from "@/lib/auth/client";
+import { AccountNav } from "@/components/editorial/account/account-nav";
+import { PreferencesSection } from "@/components/editorial/account/preferences-section";
+import { ProfileSection } from "@/components/editorial/account/profile-section";
+import { SavedSection } from "@/components/editorial/account/saved-section";
+import { SessionSection } from "@/components/editorial/account/session-section";
+import { asSection } from "@/components/editorial/account/sections";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { readerHome } from "@/lib/editorial/public";
 import type { Card } from "@/lib/editorial/types";
 
 export const Route = createFileRoute("/account")({
+  validateSearch: (search: Record<string, unknown>): { section?: string } =>
+    search.section ? { section: String(search.section).slice(0, 20) } : {},
   head: () => ({
     meta: [
       { title: "Your account — Ledgerline" },
@@ -20,6 +25,8 @@ export const Route = createFileRoute("/account")({
 
 function AccountPage() {
   const { user, isPending } = useCurrentUserState();
+  const search = Route.useSearch();
+  const section = asSection(search.section);
   const [saved, setSaved] = useState<Card[] | null>(null);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
@@ -41,10 +48,12 @@ function AccountPage() {
     };
   }, [user?.id]);
 
+  const shownName = name || user?.displayName || user?.primaryEmail || "Reader";
+
   return (
     <PublicShell>
       <main className="sheet py-10">
-        <p className="text-xs font-bold tracking-widest text-accent uppercase">Readers</p>
+        <p className="text-xs font-bold tracking-widest text-accent uppercase">Account</p>
         <h1 className="mt-2 font-serif text-4xl font-semibold">Your account</h1>
         {isPending ? <p className="mt-4 text-muted">Checking the session…</p> : null}
         {!isPending && !user ? (
@@ -52,33 +61,20 @@ function AccountPage() {
             <Link to="/login" className="font-semibold text-accent">
               Sign in
             </Link>{" "}
-            to see saved research.
+            to see your account.
           </p>
         ) : null}
         {user ? (
-          <>
-            <p className="mt-3 max-w-xl text-muted">
-              Signed in as {name || user.displayName || user.primaryEmail || "reader"}. This page is not the staff desk.
-            </p>
-            <button
-              type="button"
-              className="mt-4 min-h-11 border border-ink px-4 text-sm font-semibold"
-              onClick={() => void signOut("/")}
-            >
-              Sign out
-            </button>
-            {error ? <p className="mt-4 text-sm text-accent">{error}</p> : null}
-            <AvatarPicker name={name || user.displayName || "Reader"} />
-            <h2 className="mt-8 font-serif text-2xl font-semibold">Saved</h2>
-            {saved && saved.length === 0 ? <p className="mt-3 text-muted">Nothing saved yet. Open an article and choose Save.</p> : null}
-            {saved && saved.length > 0 ? (
-              <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {saved.map((card) => (
-                  <StoryCard key={card.id} card={card} />
-                ))}
-              </div>
-            ) : null}
-          </>
+          <div className="mt-6 grid gap-6 md:grid-cols-[14rem_1fr]">
+            <AccountNav active={section} />
+            <div>
+              {error ? <p className="mb-4 text-sm text-accent">{error}</p> : null}
+              {section === "profile" ? <ProfileSection name={shownName} email={user.primaryEmail ?? ""} /> : null}
+              {section === "saved" ? <SavedSection saved={saved} /> : null}
+              {section === "preferences" ? <PreferencesSection /> : null}
+              {section === "session" ? <SessionSection /> : null}
+            </div>
+          </div>
         ) : null}
       </main>
     </PublicShell>

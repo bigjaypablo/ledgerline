@@ -4,8 +4,6 @@ import { getMyProfile } from "@/lib/editorial/admin";
 import { signOut } from "@/lib/auth/client";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { Avatar } from "@/components/editorial/account-menu";
-import { ThemeToggle } from "@/components/editorial/theme-toggle";
-import { PhotoButton } from "@/components/editorial/avatar-upload";
 import { getMyAvatar } from "@/lib/editorial/avatar";
 
 type Me = Awaited<ReturnType<typeof getMyProfile>>;
@@ -95,22 +93,17 @@ export function PublicAccountMenu() {
             </div>
           </div>
           <div className="py-1">
-            <Link to="/account" className={item} onClick={() => setOpen(false)}>
+            <Link to="/account" search={{ section: "saved" }} className={item} onClick={() => setOpen(false)}>
               Saved articles
             </Link>
-            <Link to="/account" className={item} onClick={() => setOpen(false)}>
-              Account
+            <Link to="/account" search={{}} className={item} onClick={() => setOpen(false)}>
+              Account settings
             </Link>
-            <PhotoButton className={item + " cursor-pointer"} />
             {staff ? (
               <Link to="/admin" className={item} onClick={() => setOpen(false)}>
                 Open the desk
               </Link>
             ) : null}
-          </div>
-          <div className="border-t border-line px-4 py-3">
-            <p className="mb-2 text-xs font-bold tracking-widest text-muted uppercase">Theme</p>
-            <ThemeToggle />
           </div>
           <div className="border-t border-line py-1">
             <button
