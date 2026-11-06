@@ -28,19 +28,19 @@ export function NewsletterInlineForm() {
 
   return (
     <form onSubmit={onSubmit} id="desk-note" className="w-full">
-      <label className="sr-only" htmlFor="band-email">
+      <label className="sr-only" htmlFor="newsletter-band-email">
         Email address
       </label>
       <div className="relative">
         <input
-          id="band-email"
+          id="newsletter-band-email"
           type="email"
           required
           autoComplete="email"
           placeholder="Enter your email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="min-h-14 w-full border border-inverse-fg/40 bg-transparent pr-32 pl-4 text-base text-inverse-fg placeholder:text-inverse-fg/60"
+          className="min-h-14 w-full border border-white/40 bg-transparent pr-32 pl-4 text-base text-white placeholder:text-white/60"
         />
         <button
           type="submit"
@@ -54,8 +54,8 @@ export function NewsletterInlineForm() {
         Company
         <input value={company} onChange={(event) => setCompany(event.target.value)} tabIndex={-1} autoComplete="off" />
       </label>
-      <p className="mt-3 text-xs leading-5 text-inverse-fg/70">
-        By subscribing you agree to receive the occasional desk note. Unsubscribe anytime.
+      <p className="mt-3 text-xs leading-5 text-white/70">
+        No spam. Unsubscribe whenever you like.
       </p>
       {message ? (
         <p className={`mt-2 text-sm font-semibold ${done ? "" : "text-accent"}`} role="status">

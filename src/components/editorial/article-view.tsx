@@ -1,5 +1,6 @@
 import { CommentThread } from "@/components/editorial/comment-thread";
-import { ActionBar, ReadyBand } from "@/components/editorial/end-blocks";
+import { ActionBar } from "@/components/editorial/end-blocks";
+import { NewsletterBand } from "@/components/editorial/newsletter-band";
 import { ReadingProgress } from "@/components/editorial/reading-progress";
 import { TocSidebar } from "@/components/editorial/toc-sidebar";
 import { Standfirst } from "@/components/editorial/standfirst";
@@ -10,7 +11,6 @@ import { useEffect, useState } from "react";
 import { Cover } from "@/components/editorial/cards";
 import { MarkdownBody, TableOfContents } from "@/components/editorial/markdown-body";
 import { PublicShell } from "@/components/editorial/shell";
-import { NewsletterBand } from "@/components/editorial/newsletter-band";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { absoluteUrl, formatDate, headingIds } from "@/lib/editorial/text";
 import type { ArticlePage } from "@/lib/editorial/types";
@@ -248,7 +248,6 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         </div>
       </article>
       <ActionBar articleId={article.id} title={article.title} commentCount={data.comments.length} />
-      <ReadyBand />
       <NewsletterBand xUrl={data.settings.xUrl} />
     </PublicShell>
   );
