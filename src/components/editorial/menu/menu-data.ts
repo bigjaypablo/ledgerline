@@ -1,10 +1,5 @@
-export const COVERAGE = [
-  { to: "/crypto", label: "Crypto" },
-  { to: "/ai", label: "AI" },
-  { to: "/saas", label: "SaaS" },
-] as const;
-
 export const LIBRARY = [
+  { to: "/crypto", label: "Crypto" },
   { to: "/guides", label: "Guides" },
   { to: "/comparisons", label: "Reviews" },
   { to: "/research", label: "Research" },

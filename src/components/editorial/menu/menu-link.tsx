@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
-type To = "/crypto" | "/ai" | "/saas" | "/guides" | "/comparisons" | "/research" | "/archive" | "/opportunities";
+type To = "/crypto" | "/guides" | "/comparisons" | "/research" | "/archive" | "/opportunities";
 
 export function MenuLink({ to, onNavigate, children }: { to: To; onNavigate: () => void; children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });

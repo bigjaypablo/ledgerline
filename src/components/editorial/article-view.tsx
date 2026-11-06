@@ -1,5 +1,7 @@
 import { CommentThread } from "@/components/editorial/comment-thread";
 import { ActionBar, ReadyBand } from "@/components/editorial/end-blocks";
+import { ReadingProgress } from "@/components/editorial/reading-progress";
+import { TocSidebar } from "@/components/editorial/toc-sidebar";
 import { Standfirst } from "@/components/editorial/standfirst";
 import { MoreList } from "@/components/editorial/more-list";
 import { ShareLinks } from "@/components/editorial/share-links";
@@ -44,6 +46,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
+      <ReadingProgress />
       <article className="sheet py-6">
         <div className="mx-auto max-w-6xl md:grid md:grid-cols-[minmax(0,1fr)_15rem] md:gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-10">
         <div className="min-w-0">
@@ -233,22 +236,7 @@ export function ArticleView({ data }: { data: ArticlePage }) {
         
       </div>
         <aside className="hidden min-w-0 break-words md:sticky md:top-28 md:block md:max-h-[calc(100vh-8rem)] md:self-start md:overflow-y-auto" aria-label="Sidebar">
-          {headingIds(article.body).filter((item) => item.level === 2).length > 1 ? (
-            <nav className="border-t border-ink pt-3" aria-label="On this page">
-              <h2 className="text-xs font-bold tracking-widest uppercase">On this page</h2>
-              <ol className="mt-3 space-y-2 text-sm leading-5">
-                {headingIds(article.body)
-                  .filter((item) => item.level === 2)
-                  .map((item) => (
-                    <li key={item.id}>
-                      <a href={`#${item.id}`} className="hover:text-accent">
-                        {item.text}
-                      </a>
-                    </li>
-                  ))}
-              </ol>
-            </nav>
-          ) : null}
+          <TocSidebar body={article.body} />
           {data.related.length > 0 ? (
             <div className="mt-8 border-t border-ink pt-3">
               <h2 className="text-xs font-bold tracking-widest uppercase">More from Ledgerline</h2>

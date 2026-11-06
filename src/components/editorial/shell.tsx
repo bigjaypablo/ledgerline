@@ -13,8 +13,6 @@ import { MobileMenu } from "@/components/editorial/menu/mobile-menu";
 export const NAV = [
   { to: "/crypto", label: "Crypto" },
   { to: "/opportunities", label: "Airdrops" },
-  { to: "/ai", label: "AI" },
-  { to: "/saas", label: "SaaS" },
   { to: "/guides", label: "Guides" },
   { to: "/comparisons", label: "Reviews" },
   { to: "/research", label: "Research" },

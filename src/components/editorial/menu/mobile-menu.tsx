@@ -1,6 +1,6 @@
 import { Search, X } from "lucide-react";
 import type { FormEvent, ReactNode } from "react";
-import { COVERAGE, LIBRARY } from "./menu-data";
+import { LIBRARY } from "./menu-data";
 import { MenuAbout } from "./menu-about";
 import { MenuLink } from "./menu-link";
 import { MenuOpportunities } from "./menu-opportunities";
@@ -46,12 +46,7 @@ export function MobileMenu({ open, onClose, q, onQ, onSearch, account }: Props) 
       </div>
       <nav className="sheet space-y-5 pt-2 pb-12" aria-label="Menu">
         <MenuOpportunities onNavigate={onClose} />
-        <MenuSection label="Coverage">
-          {COVERAGE.map((i) => (
-            <MenuLink key={i.to} to={i.to} onNavigate={onClose}>{i.label}</MenuLink>
-          ))}
-        </MenuSection>
-        <MenuSection label="Library">
+        <MenuSection label="Read">
           {LIBRARY.map((i) => (
             <MenuLink key={i.to} to={i.to} onNavigate={onClose}>{i.label}</MenuLink>
           ))}

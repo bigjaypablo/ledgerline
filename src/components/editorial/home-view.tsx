@@ -12,7 +12,7 @@ import type { Card, HomeData } from "@/lib/editorial/types";
 function slideCards(data: HomeData): Card[] {
   const seen = new Set<string>();
   const cards: Card[] = [];
-  for (const card of [data.lead, ...data.secondary.slice(0, 3), ...data.picks, ...data.latest, ...data.crypto, ...data.ai, ...data.saas]) {
+  for (const card of [data.lead, ...data.secondary.slice(0, 3), ...data.picks, ...data.latest, ...data.crypto]) {
     if (!card || seen.has(card.id)) continue;
     seen.add(card.id);
     cards.push(card);
@@ -119,8 +119,6 @@ export function HomeView({ data }: { data: HomeData }) {
         ) : null}
 
         <SectionBand title="Crypto" href="/crypto" articles={data.crypto} />
-        <SectionBand title="AI" href="/ai" articles={data.ai} />
-        <SectionBand title="SaaS" href="/saas" articles={data.saas} />
 
         {data.guides.length > 0 ? (
           <section className="sheet border-t border-ink py-8">
