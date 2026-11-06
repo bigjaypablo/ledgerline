@@ -6,9 +6,10 @@ import { nextDeadline } from "@/lib/editorial/opportunity-types";
 import { ACTIVITY_LABEL } from "./labels";
 import { OpportunityLogo } from "./logo";
 
-const REWARD = {
+const LEVEL = { confirmed: 3, potential: 2, none: 1 } as const;
+const LEVEL_TEXT = {
   confirmed: "Reward confirmed",
-  potential: "Potential",
+  potential: "Reward potential",
   none: "No reward",
 } as const;
 const CAPITAL = {
@@ -17,123 +18,129 @@ const CAPITAL = {
   funds_at_risk: "Funds at risk",
 } as const;
 
-function parse(v: string): Date | null {
-  const m = /^\d{4}-\d{2}-\d{2}/.exec(v || "");
-  if (!m) return null;
-  const d = new Date(m[0] + "T00:00:00");
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-function short(d: Date): string {
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-}
-
-function endsOn(item: Opportunity): Date | null {
+function endKey(item: Opportunity): string {
   const raw = nextDeadline(item.campaigns) || item.deadline || "";
-  return parse(String(raw));
+  const m = /^\d{4}-\d{2}-\d{2}/.exec(String(raw));
+  return m ? m[0] : "";
 }
 
-function Row({ item }: { item: Opportunity }) {
-  const end = endsOn(item);
-  const ver = parse(item.verifiedOn);
+function chains(item: Opportunity): string[] {
+  return item.chain
+    .split(",")
+    .map((c) => c.trim())
+    .filter(Boolean);
+}
+
+function Bars({ level }: { level: number }) {
+  const heights = ["h-2", "h-3", "h-4"];
+  return (
+    <span className="inline-flex items-end gap-0.5" aria-hidden>
+      {heights.map((h, i) => (
+        <span
+          key={h}
+          className={
+            "w-1 " + h + (i < level ? " bg-accent" : " bg-line")
+          }
+        />
+      ))}
+    </span>
+  );
+}
+
+function Chip({ text }: { text: string }) {
+  return (
+    <span className="rounded-full border border-line px-3 py-1 text-xs">
+      {text}
+    </span>
+  );
+}
+
+function Card({ item }: { item: Opportunity }) {
   const kinds = Array.from(
     new Set(item.campaigns.map((c) => ACTIVITY_LABEL[c.activity])),
-  ).join(" · ");
-  const sub = [kinds || "Airdrop", item.chain].filter(Boolean).join(" · ");
+  );
+  const sub = kinds.join(" · ") || "Airdrop";
+  const tags = [kinds[0], CAPITAL[item.capital], chains(item)[0]].filter(
+    Boolean,
+  ) as string[];
+  const end = endKey(item);
   return (
-    <li className="border-b border-line">
+    <li>
       <Link
         to="/opportunities/$slug"
         params={{ slug: item.slug }}
-        className="grid grid-cols-[3.5rem_1fr] items-start gap-3 py-4 font-sans"
+        className="block h-full border border-line bg-card p-4 font-sans"
       >
-        <span className="pt-1 text-[11px] leading-tight font-bold tracking-wide text-accent uppercase">
-          <span className="block text-[9px] font-semibold text-muted">
-            {end ? "Ends" : "Verified"}
+        <div className="flex items-center gap-3">
+          <OpportunityLogo name={item.name} url={item.logoUrl} size={48} />
+          <div className="min-w-0">
+            <p className="text-lg leading-tight font-semibold">
+              {item.name}
+              {item.sponsored ? (
+                <span className="ml-2 text-[10px] font-bold text-muted uppercase">
+                  Sponsored
+                </span>
+              ) : null}
+            </p>
+            <p className="truncate text-[11px] tracking-widest text-muted uppercase">
+              {sub}
+            </p>
+          </div>
+        </div>
+        {item.summary ? (
+          <p className="mt-3 line-clamp-2 text-sm leading-5 text-muted">
+            {item.summary}
+          </p>
+        ) : null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {tags.map((t) => (
+            <Chip key={t} text={t} />
+          ))}
+          {item.riskNote ? <Chip text="Risk noted" /> : null}
+        </div>
+        <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-sm">
+          <span className="inline-flex items-center gap-2 font-medium text-accent">
+            <Bars level={LEVEL[item.rewardStatus]} />
+            {LEVEL_TEXT[item.rewardStatus]}
           </span>
-          {end ? short(end) : ver ? short(ver) : "—"}
-        </span>
-        <span className="flex min-w-0 items-start gap-3">
-          <OpportunityLogo name={item.name} url={item.logoUrl} size={44} />
-          <span className="min-w-0 flex-1">
-            <span className="flex items-start justify-between gap-2">
-              <span className="min-w-0">
-                <span className="block text-base leading-tight font-semibold">
-                  {item.name}
-                  {item.sponsored ? (
-                    <span className="ml-2 text-[10px] font-bold text-muted uppercase">
-                      Sponsored
-                    </span>
-                  ) : null}
-                </span>
-                <span className="mt-0.5 block truncate text-[11px] tracking-wide text-muted uppercase">
-                  {sub}
-                </span>
-              </span>
-              <span className="shrink-0 text-right text-[11px] leading-tight font-semibold text-accent">
-                {REWARD[item.rewardStatus]}
-                <span className="block font-normal text-muted">
-                  {CAPITAL[item.capital]}
-                </span>
-              </span>
-            </span>
-            {item.summary ? (
-              <span className="mt-1.5 line-clamp-2 block text-sm leading-5 text-muted">
-                {item.summary}
-              </span>
-            ) : null}
-            {item.riskNote ? (
-              <span className="mt-1.5 inline-block border border-line px-1.5 py-0.5 text-[10px] font-semibold text-muted uppercase">
-                Risk noted
-              </span>
-            ) : null}
-          </span>
-        </span>
+          <span className="font-semibold">View guide →</span>
+        </div>
+        {end ? (
+          <p className="mt-2 text-[11px] text-muted">Ends {end}</p>
+        ) : null}
       </Link>
     </li>
   );
 }
 
-function Block({ title, items }: { title: string; items: Opportunity[] }) {
-  return (
-    <section className="mt-8">
-      <h2 className="font-sans text-2xl font-medium">{title}</h2>
-      <ul className="mt-3 border-t border-ink">
-        {items.map((i) => (
-          <Row key={i.id} item={i} />
-        ))}
-      </ul>
-    </section>
-  );
-}
+const sel = "min-h-11 border border-line bg-card px-3 text-sm";
 
 export function OpportunityList({ items }: { items: Opportunity[] }) {
   const [q, setQ] = useState("");
+  const [chain, setChain] = useState("");
+  const [sort, setSort] = useState("verified");
   const needle = q.trim().toLowerCase();
-  const shown = needle
-    ? items.filter((i) =>
-        (i.name + " " + i.chain + " " + i.summary).toLowerCase().includes(needle),
-      )
-    : items;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const closing = items
-    .map((i) => ({ i, d: endsOn(i) }))
-    .filter((x) => x.d && x.d.getTime() >= today.getTime())
-    .sort((a, b) => a.d!.getTime() - b.d!.getTime())
-    .map((x) => x.i);
-  const latest = items.reduce(
-    (m, i) => (i.verifiedOn > m ? i.verifiedOn : m),
-    "",
-  );
-  const lastDate = parse(latest);
+  const all = Array.from(new Set(items.flatMap(chains))).sort();
+  const shown = items
+    .filter((i) => !chain || chains(i).includes(chain))
+    .filter(
+      (i) =>
+        !needle ||
+        (i.name + " " + i.chain + " " + i.summary)
+          .toLowerCase()
+          .includes(needle),
+    )
+    .sort((a, b) => {
+      if (sort === "deadline") {
+        const x = endKey(a) || "9999";
+        const y = endKey(b) || "9999";
+        return x.localeCompare(y);
+      }
+      return b.verifiedOn.localeCompare(a.verifiedOn);
+    });
   return (
-    <div>
-      <p className="mt-6 font-sans text-sm text-muted">
-        {items.length} verified
-        {lastDate ? " · last checked " + short(lastDate) : ""}
-      </p>
-      <label className="mt-3 flex min-h-12 items-center gap-3 border border-line bg-card px-3 font-sans">
+    <div className="font-sans">
+      <label className="mt-6 flex min-h-12 items-center gap-3 border border-line bg-card px-3">
         <Search className="size-4 shrink-0 text-muted" aria-hidden />
         <span className="sr-only">Search airdrops</span>
         <input
@@ -143,17 +150,45 @@ export function OpportunityList({ items }: { items: Opportunity[] }) {
           className="w-full bg-transparent text-sm outline-none"
         />
       </label>
-      {!needle && closing.length >= 3 ? (
-        <Block title="Closing soon" items={closing.slice(0, 8)} />
-      ) : null}
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        <select
+          className={sel}
+          value={chain}
+          onChange={(e) => setChain(e.target.value)}
+          aria-label="Chain"
+        >
+          <option value="">All chains</option>
+          {all.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <select
+          className={sel}
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          aria-label="Sort by"
+        >
+          <option value="verified">Latest verified</option>
+          <option value="deadline">Soonest deadline</option>
+        </select>
+      </div>
+      <p className="mt-3 text-sm text-muted">
+        {shown.length} airdrop{shown.length === 1 ? "" : "s"}
+      </p>
       {shown.length === 0 ? (
-        <p className="mt-8 border-t border-ink pt-6 text-muted">
+        <p className="mt-6 border-t border-ink pt-6 text-muted">
           {items.length === 0
             ? "No verified opportunities right now. Check back soon."
             : "Nothing matches that search."}
         </p>
       ) : (
-        <Block title="All airdrops" items={shown} />
+        <ul className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {shown.map((i) => (
+            <Card key={i.id} item={i} />
+          ))}
+        </ul>
       )}
     </div>
   );
