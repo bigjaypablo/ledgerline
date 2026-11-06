@@ -1,6 +1,31 @@
 export const ACTIVITIES = ["testnet", "mainnet", "community"] as const;
 export const REWARD_TYPES = ["points", "token", "whitelist", "none"] as const;
-export const REWARD_STATUSES = ["confirmed", "potential", "none"] as const;
+export const REWARD_STATUSES = [
+  "none",
+  "potential",
+  "confirmed",
+  "snapshot",
+  "verification",
+  "rewards_available",
+  "distributed",
+] as const;
+export const TASK_TYPES = [
+  "social",
+  "form",
+  "testnet",
+  "mainnet",
+  "trading",
+  "liquidity",
+  "nft",
+  "ambassador",
+  "hold",
+  "node",
+  "staking",
+  "bridge",
+  "quests",
+  "referral",
+] as const;
+export type TaskType = (typeof TASK_TYPES)[number];
 export const CAPITALS = ["none", "gas_only", "funds_at_risk"] as const;
 export const CAMPAIGN_STATUSES = ["open", "paused", "closed"] as const;
 
@@ -10,6 +35,7 @@ export type Campaign = {
   title: string;
   explanation: string;
   activity: (typeof ACTIVITIES)[number];
+  tasks: TaskType[];
   rewardType: (typeof REWARD_TYPES)[number];
   rewardStatus: (typeof REWARD_STATUSES)[number];
   capital: (typeof CAPITALS)[number];
@@ -62,6 +88,7 @@ export function normalizeCampaigns(v: unknown): Campaign[] {
         title: str(c.title, 120),
         explanation: str(c.explanation, 1500),
         activity: pick(c.activity, ACTIVITIES, "mainnet"),
+        tasks: cleanTasks(c.tasks, c.activity),
         rewardType: pick(c.rewardType, REWARD_TYPES, "points"),
         rewardStatus: pick(c.rewardStatus, REWARD_STATUSES, "potential"),
         capital: pick(c.capital, CAPITALS, "gas_only"),
@@ -126,4 +153,37 @@ export function nextDeadline(campaigns: Campaign[]): string {
     .filter((d): d is Date => d !== null)
     .sort((a, b) => a.getTime() - b.getTime());
   return ends[0] ? ends[0].toISOString().slice(0, 10) : "";
+}
+
+function cleanTasks(v: unknown, activity: unknown): TaskType[] {
+  const list = Array.isArray(v) ? v : [];
+  const out: TaskType[] = [];
+  for (const t of list) {
+    const ok = TASK_TYPES.includes(t as TaskType);
+    if (ok && !out.includes(t as TaskType)) out.push(t as TaskType);
+  }
+  if (out.length === 0) {
+    if (activity === "testnet") out.push("testnet");
+    if (activity === "mainnet") out.push("mainnet");
+  }
+  return out.slice(0, 8);
+}
+
+type RewardStatus = (typeof REWARD_STATUSES)[number];
+
+export function projectStatus(campaigns: Campaign[]): RewardStatus {
+  const rank = (c: Campaign) => REWARD_STATUSES.indexOf(c.rewardStatus);
+  const best = (list: Campaign[]) =>
+    list.reduce((m, c) => Math.max(m, rank(c)), 0);
+  const live = campaigns.filter((c) => campaignState(c) !== "closed");
+  const pool = live.length > 0 ? live : campaigns;
+  return REWARD_STATUSES[best(pool)];
+}
+
+export function projectTasks(campaigns: Campaign[]): TaskType[] {
+  const out: TaskType[] = [];
+  for (const c of campaigns) {
+    for (const t of c.tasks) if (!out.includes(t)) out.push(t);
+  }
+  return out;
 }

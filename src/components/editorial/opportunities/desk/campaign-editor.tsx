@@ -1,11 +1,20 @@
 import type { Campaign } from "@/lib/editorial/opportunity-types";
 import { Field, SelectField } from "./field";
 import { StepsEditor } from "./steps-editor";
+import { TaskPicker } from "./task-picker";
 import { TextArea } from "./text-area";
 
 const ACTIVITY = [["testnet", "Testnet"], ["mainnet", "Mainnet"], ["community", "Community (Discord, roles, forms)"]] as const;
 const REWARD_TYPE = [["points", "Points"], ["token", "Token"], ["whitelist", "Whitelist"], ["none", "No reward"]] as const;
-const REWARD_STATUS = [["potential", "Potential"], ["confirmed", "Confirmed"], ["none", "None announced"]] as const;
+const REWARD_STATUS = [
+  ["potential", "Potential"],
+  ["confirmed", "Confirmed"],
+  ["snapshot", "Snapshot"],
+  ["verification", "Verification"],
+  ["rewards_available", "Rewards available"],
+  ["distributed", "Distributed"],
+  ["none", "None announced"],
+] as const;
 const CAPITAL = [["none", "No capital needed"], ["gas_only", "Gas fees only"], ["funds_at_risk", "Funds at risk"]] as const;
 const STATE = [["open", "Open"], ["paused", "Paused"], ["closed", "Closed"]] as const;
 const TZ = [
@@ -28,6 +37,7 @@ const blank = (): Campaign => ({
   title: "",
   explanation: "",
   activity: "mainnet",
+  tasks: [],
   rewardType: "points",
   rewardStatus: "potential",
   capital: "gas_only",
@@ -57,9 +67,10 @@ export function CampaignEditor({ campaigns, onChange }: { campaigns: Campaign[];
             <summary className="min-h-11 cursor-pointer py-2 font-semibold">{c.title || "New campaign"}</summary>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
               <Field label="Campaign title" value={c.title} onChange={pick(i, "title")} />
+              <TaskPicker value={c.tasks} onChange={(tasks) => set(i, { tasks })} />
               <SelectField label="Activity" value={c.activity} onChange={pick(i, "activity")} options={ACTIVITY} />
               <SelectField label="Reward type" value={c.rewardType} onChange={pick(i, "rewardType")} options={REWARD_TYPE} />
-              <SelectField label="Reward status" value={c.rewardStatus} onChange={pick(i, "rewardStatus")} options={REWARD_STATUS} />
+              <SelectField label="Status (what readers see)" value={c.rewardStatus} onChange={pick(i, "rewardStatus")} options={REWARD_STATUS} />
               <SelectField label="Capital needed" value={c.capital} onChange={pick(i, "capital")} options={CAPITAL} />
               <Field label="Cost note (e.g. from about $5)" value={c.costNote} onChange={pick(i, "costNote")} />
               <Field label="Time needed (minutes)" value={c.timeMinutes} onChange={pick(i, "timeMinutes")} type="number" />
