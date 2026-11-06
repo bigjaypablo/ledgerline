@@ -205,7 +205,7 @@ function PriceCard() {
   const rangeLabel = RANGES.find((r) => r[0] === range)?.[2] ?? "";
 
   return (
-    <div className="col-span-2 border border-line bg-card p-3 md:p-4">
+    <div className="col-span-2 border border-line bg-card p-3 md:row-span-2 md:p-4">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <button type="button" aria-label="Previous coin" className={arrowCls} onClick={() => step(-1)}>
@@ -245,7 +245,7 @@ function PriceCard() {
           </div>
           <div
             ref={box}
-            className={`relative mt-3 h-32 touch-pan-y select-none ${loading ? "opacity-50" : ""}`}
+            className={`relative mt-3 h-32 touch-pan-y select-none md:h-52 ${loading ? "opacity-50" : ""}`}
             onPointerDown={track}
             onPointerMove={track}
             onPointerLeave={() => setHover(null)}
@@ -319,12 +319,14 @@ export function MarketWidgets() {
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
         <PriceCard />
         {fg ? (
-          <Card title="Fear & Greed" tag="Daily">
-            <Gauge value={fg.value} label={fg.label} />
+          <Card title="Fear & Greed" tag="Daily" className="md:col-span-2">
+            <div className="my-auto">
+              <Gauge value={fg.value} label={fg.label} />
+            </div>
           </Card>
         ) : null}
         {data && data.marketCap !== null ? (
-          <Card title="Total market cap" tag="24H">
+          <Card title="Total market cap" tag="24H" className="md:col-span-2">
             <div className="my-auto py-3">
               <p className="font-serif text-3xl">{usd(data.marketCap)}</p>
               {data.marketCapChange !== null ? <Change v={data.marketCapChange} /> : null}
