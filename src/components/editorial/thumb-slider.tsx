@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { ThumbRow } from "@/components/editorial/rows";
+import { SliderControls } from "@/components/editorial/slider-controls";
 import type { Card } from "@/lib/editorial/types";
 
 const PER_PAGE = 4;
@@ -90,23 +91,7 @@ export function ThumbSlider({ cards }: { cards: Card[] }) {
             </div>
           ))}
         </div>
-        {pages.length > 1 ? (
-          <div className="mt-3 flex items-center justify-center gap-3">
-            <button type="button" aria-label="Previous stories" disabled={page === 0} className="slider-arrow" onClick={() => goTo(page - 1)}>
-              ‹
-            </button>
-            <div className="flex items-center">
-              {pages.map((_, i) => (
-                <button key={i} type="button" aria-label={`Go to page ${i + 1}`} aria-current={i === page} className="hero-dot-hit" onClick={() => goTo(i)}>
-                  <span className={i === page ? "hero-dot on" : "hero-dot"} />
-                </button>
-              ))}
-            </div>
-            <button type="button" aria-label="Next stories" disabled={page === pages.length - 1} className="slider-arrow" onClick={() => goTo(page + 1)}>
-              ›
-            </button>
-          </div>
-        ) : null}
+        {pages.length > 1 ? <SliderControls page={page} total={pages.length} onGo={goTo} /> : null}
       </div>
     </section>
   );
