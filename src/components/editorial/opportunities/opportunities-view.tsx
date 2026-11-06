@@ -1,11 +1,10 @@
 import { PublicShell } from "@/components/editorial/shell";
-import type { Opportunity } from "@/lib/editorial/opportunities";
-import { OpportunityFilters } from "./opportunity-filters";
+import type { ListItem } from "@/lib/editorial/opportunities";
 import { OpportunityList } from "./opportunity-list";
 import { OpportunityNotice } from "./opportunity-notice";
 
 export type OpportunitiesData = {
-  items: Opportunity[];
+  items: ListItem[];
   kind: string;
   rewardStatus: string;
   capital: string;
@@ -21,7 +20,6 @@ export function OpportunitiesView({ data }: { data: OpportunitiesData }) {
           Testnets, points programs and airdrops we have checked against the project's official page. Anything
           not re-verified within 14 days is removed.
         </p>
-        <OpportunityFilters kind={data.kind} rewardStatus={data.rewardStatus} capital={data.capital} />
         <OpportunityList items={data.items} />
         <OpportunityNotice />
       </main>

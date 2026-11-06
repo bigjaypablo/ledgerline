@@ -1,69 +1,36 @@
 import { Link } from "@tanstack/react-router";
-import { Search } from "lucide-react";
-import { useState } from "react";
-import type { Opportunity } from "@/lib/editorial/opportunities";
-import { nextDeadline } from "@/lib/editorial/opportunity-types";
-import { ACTIVITY_LABEL } from "./labels";
+import { Filter, Search, Settings } from "lucide-react";
+import { useMemo, useState } from "react";
+import type { ListItem } from "@/lib/editorial/opportunities";
+import { projectTasks } from "@/lib/editorial/opportunity-types";
+import {
+  activeCount, chainsOf, daysAgo, EMPTY, endKey, matches, sortItems,
+  type Filters, type Sort,
+} from "./filter-state";
+import { STATUS_HELP, STATUS_TAG, TASK_LABEL } from "./labels";
 import { OpportunityLogo } from "./logo";
+import { FilterSheet, SettingsSheet } from "./opportunity-sheets";
 
-const LEVEL = { confirmed: 3, potential: 2, none: 1 } as const;
-const LEVEL_TEXT = {
-  confirmed: "Reward confirmed",
-  potential: "Reward potential",
-  none: "No reward",
-} as const;
-const CAPITAL = {
-  none: "No capital",
-  gas_only: "Gas only",
-  funds_at_risk: "Funds at risk",
-} as const;
+const TONE: Record<string, string> = {
+  none: "border-line text-muted",
+  potential: "border-line text-muted",
+  confirmed: "border-accent text-accent",
+  snapshot: "border-ink text-ink",
+  verification: "border-ink text-ink",
+  rewards_available: "border-accent bg-accent text-white",
+  distributed: "border-line bg-line text-muted",
+};
 
-function endKey(item: Opportunity): string {
-  const raw = nextDeadline(item.campaigns) || item.deadline || "";
-  const m = /^\d{4}-\d{2}-\d{2}/.exec(String(raw));
-  return m ? m[0] : "";
+function Tag({ status }: { status: keyof typeof STATUS_TAG }) {
+  const cls = "rounded-full border px-3 py-1 text-xs font-semibold " + TONE[status];
+  return <span className={cls}>{STATUS_TAG[status]}</span>;
 }
 
-function chains(item: Opportunity): string[] {
-  return item.chain
-    .split(",")
-    .map((c) => c.trim())
-    .filter(Boolean);
-}
-
-function Bars({ level }: { level: number }) {
-  const heights = ["h-2", "h-3", "h-4"];
-  return (
-    <span className="inline-flex items-end gap-0.5" aria-hidden>
-      {heights.map((h, i) => (
-        <span
-          key={h}
-          className={
-            "w-1 " + h + (i < level ? " bg-accent" : " bg-line")
-          }
-        />
-      ))}
-    </span>
-  );
-}
-
-function Chip({ text }: { text: string }) {
-  return (
-    <span className="rounded-full border border-line px-3 py-1 text-xs">
-      {text}
-    </span>
-  );
-}
-
-function Card({ item }: { item: Opportunity }) {
-  const kinds = Array.from(
-    new Set(item.campaigns.map((c) => ACTIVITY_LABEL[c.activity])),
-  );
-  const sub = kinds.join(" · ") || "Airdrop";
-  const tags = [kinds[0], CAPITAL[item.capital], chains(item)[0]].filter(
-    Boolean,
-  ) as string[];
+function Card({ item, compact }: { item: ListItem; compact: boolean }) {
+  const tasks = projectTasks(item.campaigns);
   const end = endKey(item);
+  const fresh = daysAgo(item.createdOn) <= 7;
+  const sub = [item.category, chainsOf(item)[0]].filter(Boolean).join(" · ");
   return (
     <li>
       <Link
@@ -72,124 +39,129 @@ function Card({ item }: { item: Opportunity }) {
         className="block h-full border border-line bg-card p-4 font-sans"
       >
         <div className="flex items-center gap-3">
-          <OpportunityLogo name={item.name} url={item.logoUrl} size={48} />
-          <div className="min-w-0">
+          <OpportunityLogo name={item.name} url={item.logoUrl} size={compact ? 40 : 48} />
+          <div className="min-w-0 flex-1">
             <p className="text-lg leading-tight font-semibold">
               {item.name}
-              {item.sponsored ? (
-                <span className="ml-2 text-[10px] font-bold text-muted uppercase">
-                  Sponsored
-                </span>
-              ) : null}
+              {fresh ? <span className="ml-2 text-[10px] font-bold text-accent uppercase">New</span> : null}
+              {item.sponsored ? <span className="ml-2 text-[10px] font-bold text-muted uppercase">Sponsored</span> : null}
             </p>
-            <p className="truncate text-[11px] tracking-widest text-muted uppercase">
-              {sub}
-            </p>
+            <p className="truncate text-[11px] tracking-widest text-muted uppercase">{sub || "Airdrop"}</p>
           </div>
+          {compact ? <Tag status={item.projectStatus} /> : null}
         </div>
-        {item.summary ? (
-          <p className="mt-3 line-clamp-2 text-sm leading-5 text-muted">
-            {item.summary}
-          </p>
+        {!compact && item.summary ? (
+          <p className="mt-3 line-clamp-2 text-sm leading-5 text-muted">{item.summary}</p>
         ) : null}
-        <div className="mt-3 flex flex-wrap gap-2">
-          {tags.map((t) => (
-            <Chip key={t} text={t} />
-          ))}
-          {item.riskNote ? <Chip text="Risk noted" /> : null}
-        </div>
-        <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-sm">
-          <span className="inline-flex items-center gap-2 font-medium text-accent">
-            <Bars level={LEVEL[item.rewardStatus]} />
-            {LEVEL_TEXT[item.rewardStatus]}
-          </span>
-          <span className="font-semibold">View guide →</span>
-        </div>
-        {end ? (
-          <p className="mt-2 text-[11px] text-muted">Ends {end}</p>
+        {!compact && tasks.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {tasks.slice(0, 4).map((t) => (
+              <span key={t} className="rounded-full border border-line px-3 py-1 text-xs">{TASK_LABEL[t]}</span>
+            ))}
+          </div>
         ) : null}
+        {!compact ? (
+          <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-sm">
+            <Tag status={item.projectStatus} />
+            <span className="font-semibold">View guide →</span>
+          </div>
+        ) : null}
+        {!compact && end ? <p className="mt-2 text-[11px] text-muted">Next deadline {end}</p> : null}
       </Link>
     </li>
   );
 }
 
-const sel = "min-h-11 border border-line bg-card px-3 text-sm";
+const iconBtn = "relative inline-flex min-h-12 min-w-12 items-center justify-center border border-line bg-card";
 
-export function OpportunityList({ items }: { items: Opportunity[] }) {
+export function OpportunityList({ items }: { items: ListItem[] }) {
   const [q, setQ] = useState("");
-  const [chain, setChain] = useState("");
-  const [sort, setSort] = useState("verified");
+  const [f, setF] = useState<Filters>(EMPTY);
+  const [sort, setSort] = useState<Sort>("updated");
+  const [compact, setCompact] = useState(false);
+  const [fOpen, setFOpen] = useState(false);
+  const [sOpen, setSOpen] = useState(false);
   const needle = q.trim().toLowerCase();
-  const all = Array.from(new Set(items.flatMap(chains))).sort();
-  const shown = items
-    .filter((i) => !chain || chains(i).includes(chain))
-    .filter(
-      (i) =>
-        !needle ||
-        (i.name + " " + i.chain + " " + i.summary)
-          .toLowerCase()
-          .includes(needle),
-    )
-    .sort((a, b) => {
-      if (sort === "deadline") {
-        const x = endKey(a) || "9999";
-        const y = endKey(b) || "9999";
-        return x.localeCompare(y);
-      }
-      return b.verifiedOn.localeCompare(a.verifiedOn);
-    });
+
+  const shown = useMemo(() => {
+    const hit = (i: ListItem) =>
+      !needle || (i.name + " " + i.chain + " " + i.summary + " " + i.tags.join(" ")).toLowerCase().includes(needle);
+    return sortItems(items.filter((i) => matches(i, f) && hit(i)), sort);
+  }, [items, f, needle, sort]);
+
+  const opts = useMemo(() => {
+    const uniq = (l: string[]) => Array.from(new Set(l.filter(Boolean))).sort();
+    return {
+      categories: uniq(items.map((i) => i.category)),
+      tags: uniq(items.flatMap((i) => i.tags)),
+      chains: uniq(items.flatMap(chainsOf)),
+    };
+  }, [items]);
+
+  const counts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const i of items) for (const t of projectTasks(i.campaigns)) m.set(t, (m.get(t) ?? 0) + 1);
+    return Array.from(m.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  }, [items]);
+
+  const n = activeCount(f);
+  const chip = (on: boolean) =>
+    "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-semibold " +
+    (on ? "border-ink bg-ink text-inverse-fg" : "border-line bg-card");
+
   return (
     <div className="font-sans">
-      <label className="mt-6 flex min-h-12 items-center gap-3 border border-line bg-card px-3">
-        <Search className="size-4 shrink-0 text-muted" aria-hidden />
-        <span className="sr-only">Search airdrops</span>
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search projects, chains or keywords…"
-          className="w-full bg-transparent text-sm outline-none"
-        />
-      </label>
-      <div className="mt-3 grid grid-cols-2 gap-3">
-        <select
-          className={sel}
-          value={chain}
-          onChange={(e) => setChain(e.target.value)}
-          aria-label="Chain"
-        >
-          <option value="">All chains</option>
-          {all.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <select
-          className={sel}
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          aria-label="Sort by"
-        >
-          <option value="verified">Latest verified</option>
-          <option value="deadline">Soonest deadline</option>
-        </select>
+      <div className="mt-6 flex gap-2">
+        <label className="flex min-h-12 flex-1 items-center gap-3 border border-line bg-card px-3">
+          <Search className="size-4 shrink-0 text-muted" aria-hidden />
+          <span className="sr-only">Search airdrops</span>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search projects, tags or chains…" className="w-full bg-transparent text-sm outline-none" />
+        </label>
+        <button type="button" onClick={() => setFOpen(true)} className={iconBtn} aria-label="Filters">
+          <Filter className="size-5" aria-hidden />
+          {n > 0 ? <span className="absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-accent text-[10px] font-bold text-white">{n}</span> : null}
+        </button>
+        <button type="button" onClick={() => setSOpen(true)} className={iconBtn} aria-label="Sort and view">
+          <Settings className="size-5" aria-hidden />
+        </button>
+      </div>
+      <div className="mt-3 flex gap-2 overflow-x-auto">
+        <button type="button" className={chip(f.tasks.length === 0)} onClick={() => setF({ ...f, tasks: [] })}>
+          All <span className="font-normal opacity-70">{items.length}</span>
+        </button>
+        {counts.map(([t, c]) => (
+          <button key={t} type="button" className={chip(f.tasks.length === 1 && f.tasks[0] === t)} onClick={() => setF({ ...f, tasks: f.tasks[0] === t && f.tasks.length === 1 ? [] : [t] })}>
+            {TASK_LABEL[t as keyof typeof TASK_LABEL]} <span className="font-normal opacity-70">{c}</span>
+          </button>
+        ))}
       </div>
       <p className="mt-3 text-sm text-muted">
         {shown.length} airdrop{shown.length === 1 ? "" : "s"}
       </p>
+      <details className="mt-2 border border-line bg-card px-3 text-sm">
+        <summary className="min-h-11 cursor-pointer py-3 font-semibold">What do the statuses mean?</summary>
+        <dl className="pb-3">
+          {Object.entries(STATUS_TAG).map(([k, label]) => (
+            <div key={k} className="mt-2">
+              <dt className="font-semibold">{label}</dt>
+              <dd className="text-muted">{STATUS_HELP[k as keyof typeof STATUS_HELP]}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
       {shown.length === 0 ? (
         <p className="mt-6 border-t border-ink pt-6 text-muted">
-          {items.length === 0
-            ? "No verified opportunities right now. Check back soon."
-            : "Nothing matches that search."}
+          {items.length === 0 ? "No verified opportunities right now. Check back soon." : "Nothing matches. Try fewer filters."}
         </p>
       ) : (
-        <ul className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <ul className={"mt-4 grid gap-4 " + (compact ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-3")}>
           {shown.map((i) => (
-            <Card key={i.id} item={i} />
+            <Card key={i.id} item={i} compact={compact} />
           ))}
         </ul>
       )}
+      <FilterSheet open={fOpen} onOpenChange={setFOpen} f={f} setF={setF} opts={opts} shown={shown.length} />
+      <SettingsSheet open={sOpen} onOpenChange={setSOpen} sort={sort} setSort={setSort} compact={compact} setCompact={setCompact} />
     </div>
   );
 }
