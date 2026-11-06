@@ -1,0 +1,9 @@
+alter table opportunities add column if not exists logo_url text not null default '';
+alter table opportunities add column if not exists about text not null default '';
+alter table opportunities add column if not exists reward_detail text not null default '';
+alter table opportunities add column if not exists why_note text not null default '';
+alter table opportunities add column if not exists backers text not null default '';
+alter table opportunities add column if not exists raised text not null default '';
+alter table opportunities add column if not exists tasks jsonb not null default '[]'::jsonb;
+alter table opportunities add column if not exists team jsonb not null default '[]'::jsonb;
+alter table opportunities add column if not exists links jsonb not null default '[]'::jsonb;

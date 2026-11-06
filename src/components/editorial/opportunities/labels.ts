@@ -10,11 +10,6 @@ export const REWARD_LABEL = {
   none: "No reward announced",
 } as const;
 
-export const KIND_LABEL = { testnet: "Testnet", points: "Points", airdrop: "Token reward" } as const;
-
-export const KIND_FILTERS = [
-  { kind: "", label: "All" },
-  { kind: "testnet", label: "Testnets" },
-  { kind: "points", label: "Points" },
-  { kind: "airdrop", label: "Airdrops" },
-] as const;
+export const ACTIVITY_LABEL = { testnet: "Testnet", mainnet: "Mainnet", community: "Community" } as const;
+export const REWARD_TYPE_LABEL = { points: "Points", token: "Token", whitelist: "Whitelist", none: "No reward" } as const;
+export const STATE_LABEL = { open: "Open", upcoming: "Upcoming", paused: "Paused", closed: "Closed" } as const;

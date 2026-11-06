@@ -7,7 +7,7 @@ type Search = { kind?: string; rewardStatus?: string; capital?: string };
 
 const text = (v: unknown) => (typeof v === "string" ? v.slice(0, 20) : "");
 
-export const Route = createFileRoute("/opportunities")({
+export const Route = createFileRoute("/opportunities/")({
   validateSearch: (search: Record<string, unknown>): Search => {
     const out: Search = {};
     if (text(search.kind)) out.kind = text(search.kind);

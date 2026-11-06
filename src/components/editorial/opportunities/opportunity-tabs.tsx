@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { SlidersHorizontal } from "lucide-react";
 import { buildSearch, type Current } from "./filter-utils";
 
-const TABS = [["", "All"], ["testnet", "Testnets"], ["points", "Points"]] as const;
+const TABS = [["", "All"], ["testnet", "Testnets"], ["mainnet", "Mainnet"]] as const;
 
 export function OpportunityTabs({ current, onOpen, count }: { current: Current; onOpen: () => void; count: number }) {
   return (

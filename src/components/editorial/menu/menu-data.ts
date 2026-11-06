@@ -8,8 +8,8 @@ export const LIBRARY = [
 
 export const OPPORTUNITY_FILTERS = [
   { kind: "testnet", label: "Testnets" },
-  { kind: "points", label: "Points programs" },
-  { kind: "airdrop", label: "Token rewards" },
+  { kind: "mainnet", label: "Mainnet" },
+  { kind: "community", label: "Community" },
 ] as const;
 
 export const ABOUT_LINKS = [

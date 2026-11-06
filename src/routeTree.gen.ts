@@ -24,7 +24,6 @@ import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DisclosureRouteImport } from './routes/disclosure'
 import { Route as GuidesRouteImport } from './routes/guides'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as OpportunitiesRouteImport } from './routes/opportunities'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResearchRouteImport } from './routes/research'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -49,6 +48,8 @@ import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminSubscribersRouteImport } from './routes/admin/subscribers'
 import { Route as ArticleSlugRouteImport } from './routes/article/$slug'
 import { Route as DeskSplatRouteImport } from './routes/desk.$'
+import { Route as OpportunitiesIndexRouteImport } from './routes/opportunities.index'
+import { Route as OpportunitiesSlugRouteImport } from './routes/opportunities.$slug'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin/articles/index'
 import { Route as AdminArticlesArticleIdRouteImport } from './routes/admin/articles/$articleId'
 import { Route as AdminArticlesNewRouteImport } from './routes/admin/articles/new'
@@ -128,11 +129,6 @@ const GuidesRoute = GuidesRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OpportunitiesRoute = OpportunitiesRouteImport.update({
-  id: '/opportunities',
-  path: '/opportunities',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -255,6 +251,16 @@ const DeskSplatRoute = DeskSplatRouteImport.update({
   path: '/$',
   getParentRoute: () => DeskRoute,
 } as any)
+const OpportunitiesIndexRoute = OpportunitiesIndexRouteImport.update({
+  id: '/opportunities/',
+  path: '/opportunities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpportunitiesSlugRoute = OpportunitiesSlugRouteImport.update({
+  id: '/opportunities/$slug',
+  path: '/opportunities/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -298,7 +304,6 @@ export interface FileRoutesByFullPath {
   '/disclosure': typeof DisclosureRoute
   '/guides': typeof GuidesRoute
   '/login': typeof LoginRoute
-  '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -322,7 +327,9 @@ export interface FileRoutesByFullPath {
   '/admin/subscribers': typeof AdminSubscribersRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/desk/$': typeof DeskSplatRoute
+  '/opportunities/$slug': typeof OpportunitiesSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/opportunities/': typeof OpportunitiesIndexRoute
   '/admin/articles/$articleId': typeof AdminArticlesArticleIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -344,7 +351,6 @@ export interface FileRoutesByTo {
   '/disclosure': typeof DisclosureRoute
   '/guides': typeof GuidesRoute
   '/login': typeof LoginRoute
-  '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -367,7 +373,9 @@ export interface FileRoutesByTo {
   '/admin/subscribers': typeof AdminSubscribersRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/desk/$': typeof DeskSplatRoute
+  '/opportunities/$slug': typeof OpportunitiesSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/opportunities': typeof OpportunitiesIndexRoute
   '/admin/articles/$articleId': typeof AdminArticlesArticleIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -391,7 +399,6 @@ export interface FileRoutesById {
   '/disclosure': typeof DisclosureRoute
   '/guides': typeof GuidesRoute
   '/login': typeof LoginRoute
-  '/opportunities': typeof OpportunitiesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -415,7 +422,9 @@ export interface FileRoutesById {
   '/admin/subscribers': typeof AdminSubscribersRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/desk/$': typeof DeskSplatRoute
+  '/opportunities/$slug': typeof OpportunitiesSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/opportunities/': typeof OpportunitiesIndexRoute
   '/admin/articles/$articleId': typeof AdminArticlesArticleIdRoute
   '/admin/articles/new': typeof AdminArticlesNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -440,7 +449,6 @@ export interface FileRouteTypes {
     | '/disclosure'
     | '/guides'
     | '/login'
-    | '/opportunities'
     | '/privacy'
     | '/research'
     | '/robots.txt'
@@ -464,7 +472,9 @@ export interface FileRouteTypes {
     | '/admin/subscribers'
     | '/article/$slug'
     | '/desk/$'
+    | '/opportunities/$slug'
     | '/admin/'
+    | '/opportunities/'
     | '/admin/articles/$articleId'
     | '/admin/articles/new'
     | '/api/auth/$'
@@ -486,7 +496,6 @@ export interface FileRouteTypes {
     | '/disclosure'
     | '/guides'
     | '/login'
-    | '/opportunities'
     | '/privacy'
     | '/research'
     | '/robots.txt'
@@ -509,7 +518,9 @@ export interface FileRouteTypes {
     | '/admin/subscribers'
     | '/article/$slug'
     | '/desk/$'
+    | '/opportunities/$slug'
     | '/admin'
+    | '/opportunities'
     | '/admin/articles/$articleId'
     | '/admin/articles/new'
     | '/api/auth/$'
@@ -532,7 +543,6 @@ export interface FileRouteTypes {
     | '/disclosure'
     | '/guides'
     | '/login'
-    | '/opportunities'
     | '/privacy'
     | '/research'
     | '/robots.txt'
@@ -556,7 +566,9 @@ export interface FileRouteTypes {
     | '/admin/subscribers'
     | '/article/$slug'
     | '/desk/$'
+    | '/opportunities/$slug'
     | '/admin/'
+    | '/opportunities/'
     | '/admin/articles/$articleId'
     | '/admin/articles/new'
     | '/api/auth/$'
@@ -580,7 +592,6 @@ export interface RootRouteChildren {
   DisclosureRoute: typeof DisclosureRoute
   GuidesRoute: typeof GuidesRoute
   LoginRoute: typeof LoginRoute
-  OpportunitiesRoute: typeof OpportunitiesRoute
   PrivacyRoute: typeof PrivacyRoute
   ResearchRoute: typeof ResearchRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -592,6 +603,8 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
+  OpportunitiesSlugRoute: typeof OpportunitiesSlugRoute
+  OpportunitiesIndexRoute: typeof OpportunitiesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -700,13 +713,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/opportunities': {
-      id: '/opportunities'
-      path: '/opportunities'
-      fullPath: '/opportunities'
-      preLoaderRoute: typeof OpportunitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -877,6 +883,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeskSplatRouteImport
       parentRoute: typeof DeskRoute
     }
+    '/opportunities/': {
+      id: '/opportunities/'
+      path: '/opportunities'
+      fullPath: '/opportunities/'
+      preLoaderRoute: typeof OpportunitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/opportunities/$slug': {
+      id: '/opportunities/$slug'
+      path: '/opportunities/$slug'
+      fullPath: '/opportunities/$slug'
+      preLoaderRoute: typeof OpportunitiesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/articles/': {
       id: '/admin/articles/'
       path: '/'
@@ -991,7 +1011,6 @@ const rootRouteChildren: RootRouteChildren = {
   DisclosureRoute: DisclosureRoute,
   GuidesRoute: GuidesRoute,
   LoginRoute: LoginRoute,
-  OpportunitiesRoute: OpportunitiesRoute,
   PrivacyRoute: PrivacyRoute,
   ResearchRoute: ResearchRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
@@ -1003,6 +1022,8 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   ArticleSlugRoute: ArticleSlugRoute,
+  OpportunitiesSlugRoute: OpportunitiesSlugRoute,
+  OpportunitiesIndexRoute: OpportunitiesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

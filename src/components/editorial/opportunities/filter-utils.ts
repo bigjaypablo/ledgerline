@@ -3,8 +3,8 @@ export type SearchOut = { kind?: string; rewardStatus?: string; capital?: string
 
 export const KIND_OPTIONS = [
   ["testnet", "Testnets"],
-  ["points", "Points"],
-  ["airdrop", "Token rewards"],
+  ["mainnet", "Mainnet"],
+  ["community", "Community"],
 ] as const;
 export const REWARD_OPTIONS = [
   ["confirmed", "Confirmed"],
