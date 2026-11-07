@@ -26,6 +26,7 @@ const MORE = [
   { to: "/disclosure", label: "Affiliate disclosure" },
   { to: "/disclaimer", label: "Research disclaimer" },
   { to: "/contact", label: "Contact" },
+  { to: "/advertise", label: "Advertise" },
   { to: "/privacy", label: "Privacy" },
   { to: "/terms", label: "Terms" },
 ] as const;
@@ -110,7 +111,7 @@ export function SiteHeader() {
   );
 }
 
-const ABOUT = MORE.filter((i) => ["/about", "/standards", "/corrections", "/contact"].includes(i.to));
+const ABOUT = MORE.filter((i) => ["/about", "/standards", "/corrections", "/contact", "/advertise"].includes(i.to));
 const LEGAL = MORE.filter((i) => ["/disclosure", "/disclaimer", "/privacy", "/terms"].includes(i.to));
 const fl = "inline-flex min-h-11 items-center hover:text-accent";
 
