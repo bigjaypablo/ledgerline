@@ -73,6 +73,19 @@ function getMd(editor: Editor): string {
   return cleanMd((editor.storage as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown());
 }
 
+function cleanPastedHtml(html: string): string {
+  try {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll("p").forEach((para) => {
+      const empty = !para.textContent?.replace(/\u00a0/g, "").trim();
+      if (empty && !para.querySelector("img,table,iframe")) para.remove();
+    });
+    return doc.body.innerHTML;
+  } catch {
+    return html;
+  }
+}
+
 function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
   const saved = (node.attrs.title as string | null) ?? "";
   const [text, setText] = useState(saved);
@@ -150,6 +163,9 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
   const [viewMenu, setViewMenu] = useState(false);
   const [htmlText, setHtmlText] = useState("");
   const [artOpen, setArtOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [kb, setKb] = useState(0);
+  const [kbOpen, setKbOpen] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -163,11 +179,12 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
       TableHeader,
       TableCell,
       Underline,
-      Markdown.configure({ html: true, tightLists: true }),
+      Markdown.configure({ html: true, tightLists: true, transformPastedText: true }),
     ],
     content: cleanMd(value),
     editorProps: {
       attributes: { class: "rich-body", "aria-label": "Article body" },
+      transformPastedHTML: cleanPastedHtml,
     },
     onUpdate: ({ editor: ed }) => {
       try {
@@ -195,6 +212,36 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
       onChange(cleaned);
     }
   }, [editor, value, onChange]);
+
+  useEffect(() => {
+    if (!editor) return;
+    const on = () => setFocused(true);
+    const off = () => setFocused(false);
+    editor.on("focus", on);
+    editor.on("blur", off);
+    return () => {
+      editor.off("focus", on);
+      editor.off("blur", off);
+    };
+  }, [editor]);
+
+  // Follow the on-screen keyboard so the toolbar can sit on top of it.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      const gap = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+      setKb(gap);
+      setKbOpen(gap > 80 || vv.height < window.screen.height * 0.65);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
 
   // Table menu above the table; below it if there is no room above.
   useEffect(() => {
@@ -227,12 +274,31 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
   if (!editor) return <div className="min-h-80 border border-line bg-card" aria-hidden />;
 
   const c = () => editor.chain().focus();
+  const docked = focused && kbOpen && view === "compose";
 
   function switchView(next: "compose" | "html") {
     setViewMenu(false);
     if (next === view) return;
     if (next === "html") setHtmlText(formatHtml(editor!.getHTML()));
     setView(next);
+  }
+
+  async function pastePlain() {
+    try {
+      const text = await navigator.clipboard.readText();
+      const blocks = text
+        .split(/\n\s*\n/)
+        .map((b) => b.replace(/\s*\n\s*/g, " ").trim())
+        .filter(Boolean);
+      if (blocks.length === 0) return;
+      editor!
+        .chain()
+        .focus()
+        .insertContent(blocks.map((t) => ({ type: "paragraph", content: [{ type: "text", text: t }] })))
+        .run();
+    } catch {
+      onError("Allow clipboard access to paste.");
+    }
   }
 
   function setLink() {
@@ -245,11 +311,18 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
 
   return (
     <div className="rich">
-      <div className="rich-bar" role="toolbar" aria-label="Formatting">
+      {docked ? <div className="rich-spacer" aria-hidden="true" /> : null}
+      <div
+        className={docked ? "rich-bar rich-dock" : "rich-bar"}
+        style={docked ? { bottom: kb } : undefined}
+        onMouseDown={(e) => e.preventDefault()}
+        role="toolbar"
+        aria-label="Formatting"
+      >
         <div className="relative">
           <Btn label="Switch view" icon={view === "html" ? "htmlview" : "pencil"} active={viewMenu} onClick={() => setViewMenu((m) => !m)} />
           {viewMenu ? (
-            <div className="desk-menu" style={{ left: 0, right: "auto" }}>
+            <div className="desk-menu" style={docked ? { position: "fixed", left: "0.5rem", right: "auto", top: "auto", bottom: `calc(${kb}px + 3.2rem)` } : { position: "fixed", left: "0.5rem", right: "auto", top: "auto" }}>
               <button type="button" onClick={() => switchView("html")}>
                 HTML view
               </button>
@@ -299,6 +372,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
         <Btn label="Code block" icon="braces" active={editor.isActive("codeBlock")} onClick={() => c().toggleCodeBlock().run()} />
         <Btn label="Divider" icon="rule" onClick={() => c().setHorizontalRule().run()} />
         <Btn label="Clear formatting" icon="clear" onClick={() => c().unsetAllMarks().clearNodes().run()} />
+        <Btn label="Paste as plain text" text="Plain" onClick={() => void pastePlain()} />
           </>
         ) : null}
         <input

@@ -326,3 +326,12 @@ h1, h2, h3, h4 { font-weight: 600; }
 
 /* Stop Chrome Android from enlarging editor text */
 html:has(.rich-body) { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* Editor: text scales with Page size, one-line toolbar docked above the keyboard */
+.rich-body { font-size: 1rem; line-height: 1.6; }
+.rich-hint { font-size: 1rem; line-height: 1.6; top: 1.6rem; }
+.rich-bar { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.rich-bar::-webkit-scrollbar { display: none; }
+.rich-dock { position: fixed; left: 0; right: 0; top: auto; z-index: 60; border-left: 0; border-right: 0; border-top: 1px solid var(--color-ink); }
+.rich-spacer { height: 3.05rem; }
+html:has(.rich-body) { scroll-padding-bottom: 4rem; }
