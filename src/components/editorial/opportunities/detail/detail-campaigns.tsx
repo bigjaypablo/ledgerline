@@ -1,6 +1,6 @@
 import type { Campaign } from "@/lib/editorial/opportunity-types";
 import { campaignState, deadlineLabel } from "@/lib/editorial/opportunity-types";
-import { ACTIVITY_LABEL, CAPITAL_LABEL, REWARD_LABEL, REWARD_TYPE_LABEL, STATE_LABEL } from "../labels";
+import { ACTIVITY_LABEL, CAPITAL_LABEL, REWARD_LABEL, REWARD_TYPE_LABEL, STATE_LABEL, TASK_LABEL } from "../labels";
 import { Paragraphs } from "./section";
 
 function Fact({ label, value }: { label: string; value: string }) {
@@ -19,7 +19,7 @@ function CampaignCard({ c }: { c: Campaign }) {
       <summary className="flex min-h-11 cursor-pointer list-none items-start justify-between gap-3">
         <span className="min-w-0">
           <span className="block text-xs font-bold tracking-widest text-accent uppercase">
-            {ACTIVITY_LABEL[c.activity]} · {REWARD_TYPE_LABEL[c.rewardType]}
+            {c.tasks.length ? c.tasks.map((t) => TASK_LABEL[t]).join(" · ") : ACTIVITY_LABEL[c.activity]} · {REWARD_TYPE_LABEL[c.rewardType]}
           </span>
           <span className="mt-1 block font-serif text-xl leading-tight font-semibold">{c.title}</span>
         </span>
@@ -28,7 +28,7 @@ function CampaignCard({ c }: { c: Campaign }) {
         </span>
       </summary>
       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-        <Fact label="Reward" value={REWARD_LABEL[c.rewardStatus]} />
+        <Fact label="Status" value={REWARD_LABEL[c.rewardStatus]} />
         <Fact label="Capital" value={`${CAPITAL_LABEL[c.capital]}${c.costNote ? ` (${c.costNote})` : ""}`} />
         <Fact label="Time" value={c.timeMinutes ? `About ${c.timeMinutes} min` : "Not stated"} />
         <Fact label="Starts" value={c.startsOn || "Already live"} />

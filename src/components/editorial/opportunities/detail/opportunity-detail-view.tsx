@@ -3,6 +3,7 @@ import type { OpportunityDetail } from "@/lib/editorial/opportunity-detail";
 import { OpportunityNotice } from "../opportunity-notice";
 import { DetailCampaigns } from "./detail-campaigns";
 import { DetailFacts } from "./detail-facts";
+import { StatusGuide } from "./status-guide";
 import { DetailHeader } from "./detail-header";
 import { DetailLinks, DetailTeam } from "./detail-people-links";
 import { Paragraphs, Section } from "./section";
@@ -21,6 +22,23 @@ export function OpportunityDetailView({ item }: { item: OpportunityDetail }) {
             </p>
           ) : null}
           <DetailFacts item={item} />
+          {item.raised && item.raisedSource ? (
+            <p className="mt-2 text-xs text-muted">
+              Reported raise {item.raised}
+              {item.raisedOn ? " (" + item.raisedOn + ")" : ""} ·{" "}
+              <a href={item.raisedSource} target="_blank" rel="noopener noreferrer nofollow" className="underline hover:text-accent">
+                source
+              </a>
+            </p>
+          ) : null}
+          {item.category || item.tags.length > 0 ? (
+            <p className="mt-3 flex flex-wrap gap-2 text-xs">
+              {[item.category, ...item.tags].filter(Boolean).map((t) => (
+                <span key={t} className="rounded-full border border-line px-3 py-1">{t}</span>
+              ))}
+            </p>
+          ) : null}
+          <StatusGuide campaigns={item.campaigns} fallback={item.rewardStatus} />
           {item.about ? <Section title="About the project"><Paragraphs text={item.about} /></Section> : null}
           {item.campaigns.length > 0 ? <Section title="Campaigns"><DetailCampaigns campaigns={item.campaigns} /></Section> : null}
           {item.whyNote ? <Section title="Why it may be worth your time"><Paragraphs text={item.whyNote} /></Section> : null}

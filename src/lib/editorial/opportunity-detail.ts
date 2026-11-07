@@ -18,6 +18,10 @@ export type OpportunityDetail = Opportunity & {
   whyNote: string;
   backers: string;
   raised: string;
+  raisedSource: string;
+  raisedOn: string;
+  category: string;
+  tags: string[];
   team: Member[];
   links: LinkItem[];
   stale: boolean;
@@ -38,7 +42,7 @@ export const getOpportunity = createServerFn({ method: "GET" })
     const rows = await sql<Row>`
       select id, slug, name, logo_url, chain, reward_status, summary, capital, time_minutes, deadline,
              official_url, risk_note, sponsored, verified_on, about, why_note, backers, raised,
-             team, links, campaigns,
+             team, links, campaigns, category, tags, raised_source, raised_on,
              (verified_on is null or verified_on < current_date - 14) as stale
       from opportunities
       where slug = ${data.slug} and status = 'published'
@@ -66,6 +70,10 @@ export const getOpportunity = createServerFn({ method: "GET" })
       whyNote: text(r.why_note, 1500),
       backers: text(r.backers, 300),
       raised: text(r.raised, 60),
+      raisedSource: text(r.raised_source, 500),
+      raisedOn: day(r.raised_on),
+      category: text(r.category, 40),
+      tags: Array.isArray(r.tags) ? r.tags.map(String) : [],
       team: normalizeTeam(r.team),
       links: normalizeLinks(r.links),
       stale: flag(r.stale),
