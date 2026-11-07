@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
+import { LINKY, LINK_MSG } from "@/lib/editorial/comment-rules";
 
 const clean = (s: string) => s.replace(/<[^>]*>/g, "").trim();
 
@@ -13,7 +14,7 @@ export const postComment = createServerFn({ method: "POST" })
   }))
   .handler(async ({ context, data }) => {
     if (data.body.length < 8) return { ok: false, message: "Write at least a full sentence." };
-    if (/https?:\/\/|www\./i.test(data.body)) return { ok: false, message: "Links are not accepted in comments." };
+    if (LINKY.test(data.body)) return { ok: false, message: LINK_MSG };
     const sql = await getSql();
     const articles = await sql<{ id: string }>`
       select id from articles where slug = ${data.articleSlug} and status = 'published'
@@ -35,11 +36,27 @@ export const postComment = createServerFn({ method: "POST" })
     }
     const users = await sql<{ name: string }>`select name from "user" where id = ${context.userId}`;
     const name = (users[0]?.name || "Reader").slice(0, 80);
+    const id = "cmt_" + crypto.randomUUID();
     await sql`
       insert into comments (id, article_id, author_name, body, status, parent_id, user_id)
-      values (${`cmt_${crypto.randomUUID()}`}, ${articles[0].id}, ${name}, ${data.body}, 'pending', ${parent}, ${context.userId})
+      values (${id}, ${articles[0].id}, ${name}, ${data.body}, 'approved', ${parent}, ${context.userId})
     `;
-    return { ok: true, message: "Sent for moderation. It appears once an editor approves it." };
+    const av = await sql<{ avatar_url: string | null }>`
+      select avatar_url from profiles where user_id = ${context.userId}
+    `;
+    return {
+      ok: true,
+      message: "Posted.",
+      comment: {
+        id,
+        authorName: name,
+        body: data.body,
+        createdAt: new Date().toISOString(),
+        parentId: parent,
+        likes: 0,
+        avatarUrl: av[0]?.avatar_url || null,
+      },
+    };
   });
 
 export const toggleCommentLike = createServerFn({ method: "POST" })

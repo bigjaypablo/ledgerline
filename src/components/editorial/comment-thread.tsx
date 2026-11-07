@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { getMyAvatar } from "@/lib/editorial/avatar";
 import { Heart } from "lucide-react";
-import { useEffect, useState } from "react";
+import { LINKY, LINK_MSG } from "@/lib/editorial/comment-rules";
+import { Fragment, useEffect, useState } from "react";
 import { myCommentLikes, postComment, toggleCommentLike } from "@/lib/editorial/comments";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { formatDate } from "@/lib/editorial/text";
@@ -24,6 +25,8 @@ export function CommentThread({ slug, comments }: { slug: string; comments: Comm
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [shown, setShown] = useState(5);
+  const [added, setAdded] = useState<Comment[]>([]);
+  const all = [...comments, ...added];
   const [myPhoto, setMyPhoto] = useState<string | null>(null);
   useEffect(() => {
     if (!user?.id) return;
@@ -51,15 +54,21 @@ export function CommentThread({ slug, comments }: { slug: string; comments: Comm
     };
   }, [user?.id, slug]);
 
-  const top = comments.filter((c) => !c.parentId);
-  const repliesOf = (id: string) => comments.filter((c) => c.parentId === id);
+  const top = all.filter((c) => !c.parentId);
+  const repliesOf = (id: string) => all.filter((c) => c.parentId === id);
 
   async function send(parentId: string | null) {
     setBusy(true);
     setNote("");
     try {
+      if (LINKY.test(text)) {
+        setNote(LINK_MSG);
+        return;
+      }
       const r = await postComment({ data: { articleSlug: slug, body: text, parentId } });
       setNote(r.message);
+      const made = "comment" in r ? r.comment : null;
+      if (made) setAdded((a) => [...a, made]);
       if (r.ok) {
         setText("");
         setReplyTo(null);
@@ -144,10 +153,10 @@ export function CommentThread({ slug, comments }: { slug: string; comments: Comm
                 </button>
               ) : null}
             </div>
-            {replyTo === c.id ? <div className="mt-3"><Box parentId={c.id} /></div> : null}
+            {replyTo === c.id ? <div className="mt-3">{Box({ parentId: c.id })}</div> : null}
           </div>
         </div>
-        {!reply ? <ul>{repliesOf(c.id).map((r) => <Item key={r.id} c={r} reply />)}</ul> : null}
+        {!reply ? <ul>{repliesOf(c.id).map((r) => <Fragment key={r.id}>{Item({ c: r, reply: true })}</Fragment>)}</ul> : null}
       </li>
     );
   }
@@ -156,9 +165,9 @@ export function CommentThread({ slug, comments }: { slug: string; comments: Comm
     <section id="comments" className="mx-auto mt-10 max-w-3xl border-t border-line pt-6">
       <h2 className="font-sans text-2xl font-medium">Discussion about this post</h2>
       <p className="mt-2 font-sans text-sm text-muted">Comments are checked before they appear. Links are not accepted.</p>
-      <div className="mt-5">{replyTo === null ? <Box parentId={null} /> : null}</div>
-      {note ? <p className="mt-3 font-sans text-sm">{note}</p> : null}
-      <ul className="mt-4">{top.slice(0, shown).map((c) => <Item key={c.id} c={c} />)}</ul>
+      <div className="mt-5">{replyTo === null ? Box({ parentId: null }) : null}</div>
+      {note ? <p role="alert" className="mt-3 border-l-2 border-accent bg-card px-3 py-2 font-sans text-sm">{note}</p> : null}
+      <ul className="mt-4">{top.slice(0, shown).map((c) => <Fragment key={c.id}>{Item({ c })}</Fragment>)}</ul>
       {top.length > shown ? (
         <button type="button" onClick={() => setShown((n) => n + 5)} className="mt-4 min-h-11 bg-line/60 px-4 font-sans text-sm font-semibold">
           Show more comments
