@@ -329,7 +329,13 @@ export const getArticle = createServerFn({ method: "GET" })
           from articles a
           join categories c on c.slug = a.category_slug
           where a.status = 'published' and a.id <> ${row.id}
-          order by (a.category_slug = ${row.category_slug}) desc, a.published_at desc nulls last
+          order by (
+            select count(*) from article_tags x
+            join article_tags y on y.tag_slug = x.tag_slug
+            where x.article_id = a.id and y.article_id = ${row.id}
+          ) desc,
+          (a.category_slug = ${row.category_slug}) desc,
+          a.published_at desc nulls last
           limit 8
         `,
         sql<{ slug: string; title: string }>`
@@ -1045,4 +1051,29 @@ export const getCoinChart = createServerFn({ method: "GET" })
       points = out;
     }
     return { ok: points.length > 1, coin: data.coin, range: data.range, points };
+  });
+
+export const getTagPage = createServerFn({ method: "GET" })
+  .validator((input: { slug?: string }) => ({
+    slug: String(input?.slug ?? "").slice(0, 80),
+  }))
+  .handler(async ({ data }) => {
+    const sql = await getSql();
+    const t = await sql<{ name: string }>`
+      select name from tags where slug = ${data.slug}
+    `;
+    if (!t[0]) return null;
+    const rows = await sql<CardRow>`
+      select a.id, a.slug, a.title, a.summary, a.category_slug,
+             c.name as category_name, a.label, a.cover_image, a.cover_alt,
+             a.cover_caption, a.published_at, a.updated_at,
+             a.reading_minutes, a.featured, a.deep_dive, a.last_checked
+      from articles a
+      join categories c on c.slug = a.category_slug
+      join article_tags at on at.article_id = a.id
+      where a.status = 'published' and at.tag_slug = ${data.slug}
+      order by a.published_at desc nulls last
+      limit 60
+    `;
+    return { name: t[0].name, slug: data.slug, articles: rows.map(asCard) };
   });

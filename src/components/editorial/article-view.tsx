@@ -12,7 +12,7 @@ import { Cover } from "@/components/editorial/cards";
 import { MarkdownBody, TableOfContents } from "@/components/editorial/markdown-body";
 import { PublicShell } from "@/components/editorial/shell";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { absoluteUrl, formatDate, headingIds } from "@/lib/editorial/text";
+import { absoluteUrl, formatDate, headingIds, slugify } from "@/lib/editorial/text";
 import type { ArticlePage } from "@/lib/editorial/types";
 import { getReactions, reactToArticle, saveState, toggleSave, trackAffiliateClick } from "@/lib/editorial/public";
 
@@ -205,7 +205,14 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           </section>
         ) : null}
         {article.tags.length > 0 ? (
-          <p className="mt-6 text-sm text-muted">Tags: {article.tags.join(", ")}</p>
+          <p className="mx-auto mt-6 flex max-w-3xl flex-wrap gap-2 font-sans text-sm">
+            {article.tags.map((t) => (
+              <Link key={t} to="/tag/$slug" params={{ slug: slugify(t) }}
+                className="rounded-full border border-line px-3 py-1 hover:text-accent">
+                {t}
+              </Link>
+            ))}
+          </p>
         ) : null}
         <section className="mt-10 mx-auto max-w-3xl border-t border-line pt-6">
           <h2 className="font-serif text-2xl font-semibold">{data.author.name}</h2>
