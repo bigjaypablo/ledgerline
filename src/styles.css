@@ -1,24 +1,25 @@
 @import "tailwindcss";
 @import "@fontsource/spectral/400.css";
 @import "@fontsource/spectral/400-italic.css";
+@import "@fontsource/spectral/600.css";
 @import "@fontsource/spectral/700.css";
 @import "@fontsource/roboto/400.css";
 @import "@fontsource/roboto/500.css";
 @import "@fontsource/roboto/700.css";
 
 @theme {
-  --font-sans: "Roboto", "Segoe UI", system-ui, sans-serif;
-  --font-serif: "Roboto", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Spectral", Georgia, serif;
+  --font-serif: "Spectral", Georgia, serif;
   --font-body: "Spectral", Georgia, serif;
   --font-logo: "Fraunces", "Iowan Old Style", Georgia, serif;
 
-  --color-paper: #f3f0ea;
-  --color-card: #fffcf8;
-  --color-ink: #161310;
-  --color-muted: #5e574f;
-  --color-line: #e2dbd1;
-  --color-accent: #8e1d38;
-  --color-inverse: #161310;
+  --color-paper: #f5f4f0;
+  --color-card: #faf9f6;
+  --color-ink: #1f1d1a;
+  --color-muted: #6b665e;
+  --color-line: #d9d5cb;
+  --color-accent: #c8102e;
+  --color-inverse: #1f1d1a;
   --color-inverse-fg: #f6f1ea;
 }
 
@@ -316,3 +317,9 @@ header, button, input, select, textarea, .rich-bar, .hero-cta { font-family: var
   .snap-page { flex-basis: 88%; }
   .snap-page:last-child { flex-basis: 100%; }
 }
+
+/* SNI-style type and dotted rules */
+h1, h2, h3, h4 { font-weight: 600; }
+.border-t, .border-b, .border-y { border-style: dotted; }
+.divide-y > * { border-style: dotted; }
+.hero-dot, .hero-cta { font-family: var(--font-sans); }
