@@ -10,6 +10,7 @@ import TableCell from "@tiptap/extension-table-cell";
 import { Markdown } from "tiptap-markdown";
 import Underline from "@tiptap/extension-underline";
 import { Icon } from "@/components/editorial/icons";
+import { ArticleLinkPicker } from "@/components/editorial/article-link-picker";
 
 type Props = {
   value: string;
@@ -148,6 +149,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
   const [view, setView] = useState<"compose" | "html">("compose");
   const [viewMenu, setViewMenu] = useState(false);
   const [htmlText, setHtmlText] = useState("");
+  const [artOpen, setArtOpen] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -274,6 +276,23 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
         <Btn label="Quote" icon="quote" active={editor.isActive("blockquote")} onClick={() => c().toggleBlockquote().run()} />
         <Sep />
         <Btn label="Link" icon="link" active={editor.isActive("link")} onClick={setLink} />
+        <Btn label="Link to an article" text="Article" onClick={() => setArtOpen(true)} />
+        <ArticleLinkPicker
+          open={artOpen}
+          onOpenChange={setArtOpen}
+          onPick={(slug, title) => {
+            const href = "/article/" + slug;
+            if (editor.state.selection.empty) {
+              c().insertContent({
+                type: "text",
+                text: title,
+                marks: [{ type: "link", attrs: { href } }],
+              }).run();
+            } else {
+              c().extendMarkRange("link").setLink({ href }).run();
+            }
+          }}
+        />
         <Btn label="Image" icon="image" onClick={() => fileRef.current?.click()} />
         
         <Btn label="Table" icon="table" active={picker} onClick={() => setPicker((p) => !p)} />
