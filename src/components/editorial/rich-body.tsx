@@ -87,6 +87,24 @@ function cleanPastedHtml(html: string): string {
   }
 }
 
+const MD_LINES = /^(#{1,6}\s|[-*+]\s|\d+[.)]\s|>\s|\|.*\|)/m;
+const MD_BOLD = /\*\*[^*\n]+\*\*/;
+const HTML_STRUCTURE = /<(h[1-6]|ul|ol|li|table|strong|b|em)[\s>]/i;
+
+// Plain markdown on the clipboard (Perplexity, ChatGPT): convert it properly.
+function handleMarkdownPaste(editor: Editor | null, event: ClipboardEvent): boolean {
+  const data = event.clipboardData;
+  if (!editor || !data) return false;
+  const text = data.getData("text/plain");
+  const html = data.getData("text/html");
+  if (!text || !(MD_LINES.test(text) || MD_BOLD.test(text))) return false;
+  if (html && HTML_STRUCTURE.test(html)) return false;
+  const parser = (editor.storage as { markdown: { parser: { parse: (src: string) => string } } }).markdown.parser;
+  const fixed = text.replace(/^#\s+/gm, "## ");
+  editor.chain().focus().insertContent(parser.parse(fixed)).run();
+  return true;
+}
+
 function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
   const saved = (node.attrs.title as string | null) ?? "";
   const [text, setText] = useState(saved);
@@ -151,6 +169,7 @@ const CaptionImage = ImageExt.extend({
 
 export function RichBody({ value, onChange, compress, onError }: Props) {
   const last = useRef(value);
+  const edRef = useRef<Editor | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
@@ -187,6 +206,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
     editorProps: {
       attributes: { class: "rich-body", "aria-label": "Article body" },
       transformPastedHTML: cleanPastedHtml,
+      handlePaste: (_view, event) => handleMarkdownPaste(edRef.current, event as ClipboardEvent),
     },
     onUpdate: ({ editor: ed }) => {
       try {
@@ -198,6 +218,8 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
       }
     },
   });
+
+  edRef.current = editor;
 
   useEffect(() => {
     if (!editor || value === last.current) return;
