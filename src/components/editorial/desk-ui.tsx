@@ -27,6 +27,7 @@ const links = [
   ["/admin", "Home"],
   ["/admin/articles", "Posts"],
   ["/admin/media", "Media"],
+  ["/admin/orphans", "Links"],
   ["/admin/pages", "Pages"],
   ["/admin/comments", "Comments"],
   ["/admin/subscribers", "Subscribers"],
