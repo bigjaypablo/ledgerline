@@ -335,3 +335,14 @@ html:has(.rich-body) { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .rich-dock { position: fixed; left: 0; right: 0; top: auto; z-index: 60; border-left: 0; border-right: 0; border-top: 1px solid var(--color-ink); }
 .rich-spacer { height: 3.05rem; }
 html:has(.rich-body) { scroll-padding-bottom: 4rem; }
+
+/* Placeholder drawn inside the empty first line, so it matches the cursor */
+.rich-hint { display: none; }
+.rich-body p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--color-muted);
+  opacity: .7;
+}

@@ -9,6 +9,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableCell from "@tiptap/extension-table-cell";
 import { Markdown } from "tiptap-markdown";
 import Underline from "@tiptap/extension-underline";
+import Placeholder from "@tiptap/extension-placeholder";
 import { Icon } from "@/components/editorial/icons";
 import { ArticleLinkPicker } from "@/components/editorial/article-link-picker";
 
@@ -179,6 +180,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
       TableHeader,
       TableCell,
       Underline,
+      Placeholder.configure({ placeholder: "Start writing here. Use the toolbar for headings, lists, tables and images." }),
       Markdown.configure({ html: true, tightLists: true, transformPastedText: true }),
     ],
     content: cleanMd(value),
@@ -432,7 +434,7 @@ export function RichBody({ value, onChange, compress, onError }: Props) {
             ) : null}
           </div>
         ) : null}
-        {view === "compose" && editor.isEmpty ? <p className="rich-hint">Start writing here. Use the toolbar for headings, lists, tables and images.</p> : null}
+        
         <div hidden={view === "html"}>
           <EditorContent editor={editor} />
         </div>
