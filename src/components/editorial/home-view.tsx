@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Cover, SectionBand, StoryCard } from "@/components/editorial/cards";
+import { Cover } from "@/components/editorial/cards";
+import { TopicGrid } from "@/components/editorial/topic-grid";
 import { FeatureCard, LatestList } from "@/components/editorial/rows";
 import { ThumbSlider } from "@/components/editorial/thumb-slider";
 import { PublicShell } from "@/components/editorial/shell";
@@ -119,23 +120,7 @@ export function HomeView({ data }: { data: HomeData }) {
           <ThumbSlider cards={data.secondary.filter((c) => !latest.some((l) => l.id === c.id))} />
         ) : null}
 
-        <SectionBand title="Crypto" href="/crypto" articles={data.crypto} />
-
-        {data.guides.length > 0 ? (
-          <section className="sheet border-t border-ink py-8">
-            <div className="mb-4 flex items-end justify-between border-b border-ink pb-2">
-              <h2 className="text-sm font-bold tracking-widest uppercase">Guides and comparisons</h2>
-              <Link to="/guides" className="text-sm font-semibold text-accent">
-                More
-              </Link>
-            </div>
-            <div className="grid gap-6 md:grid-cols-3">
-              {data.guides.map((card) => (
-                <StoryCard key={card.id} card={card} />
-              ))}
-            </div>
-          </section>
-        ) : null}
+        <TopicGrid data={data} />
 
         {data.picks.length > 0 ? (
           <section className="bg-ink text-inverse-fg">
