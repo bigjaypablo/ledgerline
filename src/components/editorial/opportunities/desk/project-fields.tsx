@@ -32,6 +32,10 @@ export function ProjectFields({ form, set }: { form: AdminOpportunity; set: (pat
         <input type="checkbox" checked={form.sponsored} onChange={(event) => set({ sponsored: event.target.checked })} />
         Sponsored (paid placement)
       </label>
+      <label className="flex items-center gap-2 text-sm font-semibold">
+        <input type="checkbox" checked={form.featured} onChange={(event) => set({ featured: event.target.checked })} />
+        Feature on the radar
+      </label>
       <div className="md:col-span-2">
         <TextArea label="One-line summary (shown on the card)" value={form.summary} onChange={(summary) => set({ summary })} rows={2} />
       </div>

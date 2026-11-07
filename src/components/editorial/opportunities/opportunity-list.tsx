@@ -72,6 +72,43 @@ function Card({ item, compact }: { item: ListItem; compact: boolean }) {
   );
 }
 
+function Radar({ items }: { items: ListItem[] }) {
+  const picks = items.filter((i) => i.featured || i.sponsored).slice(0, 8);
+  if (picks.length < 2) return null;
+  return (
+    <section className="mt-6">
+      <h2 className="text-2xl font-medium">On the radar</h2>
+      <ul className="mt-3 flex snap-x gap-3 overflow-x-auto pb-2">
+        {picks.map((i) => (
+          <li key={i.id} className="w-64 shrink-0 snap-start">
+            <Link
+              to="/opportunities/$slug"
+              params={{ slug: i.slug }}
+              className="block h-full border border-line bg-card p-4"
+            >
+              <div className="flex items-center gap-3">
+                <OpportunityLogo name={i.name} url={i.logoUrl} size={40} />
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">{i.name}</p>
+                  <p className="text-[10px] font-bold tracking-widest text-muted uppercase">
+                    {i.sponsored ? "Sponsored" : "Featured"}
+                  </p>
+                </div>
+              </div>
+              {i.summary ? (
+                <p className="mt-3 line-clamp-2 text-sm text-muted">{i.summary}</p>
+              ) : null}
+              <div className="mt-3">
+                <Tag status={i.projectStatus} />
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 const iconBtn = "relative inline-flex min-h-12 min-w-12 items-center justify-center border border-line bg-card";
 
 export function OpportunityList({ items }: { items: ListItem[] }) {
@@ -135,6 +172,7 @@ export function OpportunityList({ items }: { items: ListItem[] }) {
           </button>
         ))}
       </div>
+      {n === 0 && !needle ? <Radar items={items} /> : null}
       <p className="mt-3 text-sm text-muted">
         {shown.length} airdrop{shown.length === 1 ? "" : "s"}
       </p>

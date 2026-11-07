@@ -27,6 +27,7 @@ export type ListItem = Opportunity & {
   projectStatus: (typeof REWARD_STATUSES)[number];
   createdOn: string;
   statusChangedOn: string;
+  featured: boolean;
 };
 
 type Extra = {
@@ -35,6 +36,7 @@ type Extra = {
   raised: string;
   created_at: unknown;
   status_changed_on: unknown;
+  featured: unknown;
 };
 
 type Row = {
@@ -74,7 +76,7 @@ export const getOpportunities = createServerFn({ method: "GET" })
       select id, slug, name, logo_url, chain, reward_status, summary,
              capital, time_minutes, deadline, official_url, risk_note,
              sponsored, verified_on, campaigns, category, tags, raised,
-             created_at, status_changed_on
+             created_at, status_changed_on, featured
       from opportunities
       where status = 'published'
         and verified_on >= current_date - 14
@@ -117,6 +119,7 @@ export const getOpportunities = createServerFn({ method: "GET" })
         projectStatus: projectStatus(campaigns),
         createdOn: day(r.created_at),
         statusChangedOn: day(r.status_changed_on),
+        featured: r.featured === true || r.featured === "t",
       };
     });
     return { items, kind: "", rewardStatus: "", capital: "" };

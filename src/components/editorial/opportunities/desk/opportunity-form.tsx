@@ -19,6 +19,7 @@ export const BLANK: AdminOpportunity = {
   raisedOn: "",
   category: "",
   tags: "",
+  featured: false,
   officialUrl: "",
   riskNote: "",
   sponsored: false,

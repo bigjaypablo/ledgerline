@@ -28,6 +28,7 @@ export type AdminOpportunity = {
   raisedOn: string;
   category: string;
   tags: string;
+  featured: boolean;
   officialUrl: string;
   riskNote: string;
   sponsored: boolean;
@@ -91,7 +92,7 @@ export const listOpportunities = createServerFn({ method: "GET" })
     const rows = await sql<Row>`
       select id, slug, name, logo_url, chain, summary, about, why_note, backers, raised, official_url,
              risk_note, sponsored, status, verified_on, team, links, campaigns,
-             category, tags, raised_source, raised_on
+             category, tags, raised_source, raised_on, featured
       from opportunities
       order by updated_at desc
     `;
@@ -110,6 +111,7 @@ export const listOpportunities = createServerFn({ method: "GET" })
       raisedOn: day(r.raised_on),
       category: text(r.category, 40),
       tags: tagList(r.tags).join(", "),
+      featured: r.featured === true || r.featured === "t",
       officialUrl: text(r.official_url, 500),
       riskNote: text(r.risk_note, 400),
       sponsored: r.sponsored === true || r.sponsored === "t",
@@ -168,14 +170,14 @@ export const saveOpportunity = createServerFn({ method: "POST" })
         id, slug, name, logo_url, chain, kind, reward_status, summary, capital, cost_note,
         time_minutes, deadline, official_url, risk_note, sponsored, status, verified_on,
         about, why_note, backers, raised, team, links, campaigns,
-        category, tags, raised_source, raised_on, project_status
+        category, tags, raised_source, raised_on, project_status, featured
       ) values (
         ${id}, ${slug}, ${name}, ${logoUrl}, ${chain}, ${h.kind}, ${h.rewardStatus}, ${summary}, ${h.capital}, '',
         ${h.minutes}, ${h.deadline}, ${officialUrl}, ${riskNote}, ${sponsored}, ${status}, ${verifiedOn || null},
         ${about}, ${whyNote}, ${backers}, ${raised},
         ${JSON.stringify(team)}::jsonb, ${JSON.stringify(links)}::jsonb, ${JSON.stringify(campaigns)}::jsonb,
         ${category}, ${JSON.stringify(tags)}::jsonb, ${raisedSource},
-        ${raisedOn || null}, ${pstatus}
+        ${raisedOn || null}, ${pstatus}, ${Boolean(data.featured)}
       )
       on conflict (id) do update set
         name = excluded.name,
@@ -200,6 +202,7 @@ export const saveOpportunity = createServerFn({ method: "POST" })
         links = excluded.links,
         campaigns = excluded.campaigns,
         category = excluded.category,
+        featured = excluded.featured,
         tags = excluded.tags,
         raised_source = excluded.raised_source,
         raised_on = excluded.raised_on,
