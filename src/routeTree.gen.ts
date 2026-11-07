@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdvertiseRouteImport } from './routes/advertise'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as ComparisonsRouteImport } from './routes/comparisons'
@@ -42,6 +43,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminMediaRouteImport } from './routes/admin/media'
 import { Route as AdminMessagesRouteImport } from './routes/admin/messages'
 import { Route as AdminOpportunitiesRouteImport } from './routes/admin/opportunities'
+import { Route as AdminOrphansRouteImport } from './routes/admin/orphans'
 import { Route as AdminPagesRouteImport } from './routes/admin/pages'
 import { Route as AdminProfileRouteImport } from './routes/admin/profile'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
@@ -50,6 +52,7 @@ import { Route as ArticleSlugRouteImport } from './routes/article/$slug'
 import { Route as DeskSplatRouteImport } from './routes/desk.$'
 import { Route as OpportunitiesIndexRouteImport } from './routes/opportunities.index'
 import { Route as OpportunitiesSlugRouteImport } from './routes/opportunities.$slug'
+import { Route as TagSlugRouteImport } from './routes/tag.$slug'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin/articles/index'
 import { Route as AdminArticlesArticleIdRouteImport } from './routes/admin/articles/$articleId'
 import { Route as AdminArticlesNewRouteImport } from './routes/admin/articles/new'
@@ -74,6 +77,11 @@ const AccountRoute = AccountRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdvertiseRoute = AdvertiseRouteImport.update({
+  id: '/advertise',
+  path: '/advertise',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiRoute = AiRouteImport.update({
@@ -221,6 +229,11 @@ const AdminOpportunitiesRoute = AdminOpportunitiesRouteImport.update({
   path: '/opportunities',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOrphansRoute = AdminOrphansRouteImport.update({
+  id: '/orphans',
+  path: '/orphans',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPagesRoute = AdminPagesRouteImport.update({
   id: '/pages',
   path: '/pages',
@@ -261,6 +274,11 @@ const OpportunitiesSlugRoute = OpportunitiesSlugRouteImport.update({
   path: '/opportunities/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TagSlugRoute = TagSlugRouteImport.update({
+  id: '/tag/$slug',
+  path: '/tag/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -293,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
+  '/advertise': typeof AdvertiseRoute
   '/ai': typeof AiRoute
   '/archive': typeof ArchiveRoute
   '/comparisons': typeof ComparisonsRoute
@@ -321,6 +340,7 @@ export interface FileRoutesByFullPath {
   '/admin/media': typeof AdminMediaRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/opportunities': typeof AdminOpportunitiesRoute
+  '/admin/orphans': typeof AdminOrphansRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -328,6 +348,7 @@ export interface FileRoutesByFullPath {
   '/article/$slug': typeof ArticleSlugRoute
   '/desk/$': typeof DeskSplatRoute
   '/opportunities/$slug': typeof OpportunitiesSlugRoute
+  '/tag/$slug': typeof TagSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/opportunities/': typeof OpportunitiesIndexRoute
   '/admin/articles/$articleId': typeof AdminArticlesArticleIdRoute
@@ -340,6 +361,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
+  '/advertise': typeof AdvertiseRoute
   '/ai': typeof AiRoute
   '/archive': typeof ArchiveRoute
   '/comparisons': typeof ComparisonsRoute
@@ -367,6 +389,7 @@ export interface FileRoutesByTo {
   '/admin/media': typeof AdminMediaRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/opportunities': typeof AdminOpportunitiesRoute
+  '/admin/orphans': typeof AdminOrphansRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -374,6 +397,7 @@ export interface FileRoutesByTo {
   '/article/$slug': typeof ArticleSlugRoute
   '/desk/$': typeof DeskSplatRoute
   '/opportunities/$slug': typeof OpportunitiesSlugRoute
+  '/tag/$slug': typeof TagSlugRoute
   '/admin': typeof AdminIndexRoute
   '/opportunities': typeof OpportunitiesIndexRoute
   '/admin/articles/$articleId': typeof AdminArticlesArticleIdRoute
@@ -388,6 +412,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
+  '/advertise': typeof AdvertiseRoute
   '/ai': typeof AiRoute
   '/archive': typeof ArchiveRoute
   '/comparisons': typeof ComparisonsRoute
@@ -416,6 +441,7 @@ export interface FileRoutesById {
   '/admin/media': typeof AdminMediaRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/opportunities': typeof AdminOpportunitiesRoute
+  '/admin/orphans': typeof AdminOrphansRoute
   '/admin/pages': typeof AdminPagesRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -423,6 +449,7 @@ export interface FileRoutesById {
   '/article/$slug': typeof ArticleSlugRoute
   '/desk/$': typeof DeskSplatRoute
   '/opportunities/$slug': typeof OpportunitiesSlugRoute
+  '/tag/$slug': typeof TagSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/opportunities/': typeof OpportunitiesIndexRoute
   '/admin/articles/$articleId': typeof AdminArticlesArticleIdRoute
@@ -438,6 +465,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/admin'
+    | '/advertise'
     | '/ai'
     | '/archive'
     | '/comparisons'
@@ -466,6 +494,7 @@ export interface FileRouteTypes {
     | '/admin/media'
     | '/admin/messages'
     | '/admin/opportunities'
+    | '/admin/orphans'
     | '/admin/pages'
     | '/admin/profile'
     | '/admin/settings'
@@ -473,6 +502,7 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/desk/$'
     | '/opportunities/$slug'
+    | '/tag/$slug'
     | '/admin/'
     | '/opportunities/'
     | '/admin/articles/$articleId'
@@ -485,6 +515,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/account'
+    | '/advertise'
     | '/ai'
     | '/archive'
     | '/comparisons'
@@ -512,6 +543,7 @@ export interface FileRouteTypes {
     | '/admin/media'
     | '/admin/messages'
     | '/admin/opportunities'
+    | '/admin/orphans'
     | '/admin/pages'
     | '/admin/profile'
     | '/admin/settings'
@@ -519,6 +551,7 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/desk/$'
     | '/opportunities/$slug'
+    | '/tag/$slug'
     | '/admin'
     | '/opportunities'
     | '/admin/articles/$articleId'
@@ -532,6 +565,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/account'
     | '/admin'
+    | '/advertise'
     | '/ai'
     | '/archive'
     | '/comparisons'
@@ -560,6 +594,7 @@ export interface FileRouteTypes {
     | '/admin/media'
     | '/admin/messages'
     | '/admin/opportunities'
+    | '/admin/orphans'
     | '/admin/pages'
     | '/admin/profile'
     | '/admin/settings'
@@ -567,6 +602,7 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/desk/$'
     | '/opportunities/$slug'
+    | '/tag/$slug'
     | '/admin/'
     | '/opportunities/'
     | '/admin/articles/$articleId'
@@ -581,6 +617,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AdvertiseRoute: typeof AdvertiseRoute
   AiRoute: typeof AiRoute
   ArchiveRoute: typeof ArchiveRoute
   ComparisonsRoute: typeof ComparisonsRoute
@@ -604,6 +641,7 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
   OpportunitiesSlugRoute: typeof OpportunitiesSlugRoute
+  TagSlugRoute: typeof TagSlugRoute
   OpportunitiesIndexRoute: typeof OpportunitiesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -636,6 +674,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advertise': {
+      id: '/advertise'
+      path: '/advertise'
+      fullPath: '/advertise'
+      preLoaderRoute: typeof AdvertiseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai': {
@@ -841,6 +886,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOpportunitiesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/orphans': {
+      id: '/admin/orphans'
+      path: '/orphans'
+      fullPath: '/admin/orphans'
+      preLoaderRoute: typeof AdminOrphansRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/pages': {
       id: '/admin/pages'
       path: '/pages'
@@ -895,6 +947,13 @@ declare module '@tanstack/react-router' {
       path: '/opportunities/$slug'
       fullPath: '/opportunities/$slug'
       preLoaderRoute: typeof OpportunitiesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tag/$slug': {
+      id: '/tag/$slug'
+      path: '/tag/$slug'
+      fullPath: '/tag/$slug'
+      preLoaderRoute: typeof TagSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/articles/': {
@@ -961,6 +1020,7 @@ interface AdminRouteChildren {
   AdminMediaRoute: typeof AdminMediaRoute
   AdminMessagesRoute: typeof AdminMessagesRoute
   AdminOpportunitiesRoute: typeof AdminOpportunitiesRoute
+  AdminOrphansRoute: typeof AdminOrphansRoute
   AdminPagesRoute: typeof AdminPagesRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -976,6 +1036,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMediaRoute: AdminMediaRoute,
   AdminMessagesRoute: AdminMessagesRoute,
   AdminOpportunitiesRoute: AdminOpportunitiesRoute,
+  AdminOrphansRoute: AdminOrphansRoute,
   AdminPagesRoute: AdminPagesRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminSettingsRoute: AdminSettingsRoute,
@@ -1000,6 +1061,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AccountRoute: AccountRoute,
   AdminRoute: AdminRouteWithChildren,
+  AdvertiseRoute: AdvertiseRoute,
   AiRoute: AiRoute,
   ArchiveRoute: ArchiveRoute,
   ComparisonsRoute: ComparisonsRoute,
@@ -1023,6 +1085,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   ArticleSlugRoute: ArticleSlugRoute,
   OpportunitiesSlugRoute: OpportunitiesSlugRoute,
+  TagSlugRoute: TagSlugRoute,
   OpportunitiesIndexRoute: OpportunitiesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
