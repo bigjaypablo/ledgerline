@@ -323,3 +323,6 @@ h1, h2, h3, h4 { font-weight: 600; }
 .border-t, .border-b, .border-y { border-style: dotted; }
 .divide-y > * { border-style: dotted; }
 .hero-dot, .hero-cta { font-family: var(--font-sans); }
+
+/* Stop Chrome Android from enlarging editor text */
+html:has(.rich-body) { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
