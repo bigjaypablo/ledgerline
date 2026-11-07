@@ -93,16 +93,36 @@ const HTML_STRUCTURE = /<(h[1-6]|ul|ol|li|table|strong|b|em)[\s>]/i;
 
 // Plain markdown on the clipboard (Perplexity, ChatGPT): convert it properly.
 function handleMarkdownPaste(editor: Editor | null, event: ClipboardEvent): boolean {
-  const data = event.clipboardData;
-  if (!editor || !data) return false;
-  const text = data.getData("text/plain");
-  const html = data.getData("text/html");
-  if (!text || !(MD_LINES.test(text) || MD_BOLD.test(text))) return false;
-  if (html && HTML_STRUCTURE.test(html)) return false;
-  const parser = (editor.storage as { markdown: { parser: { parse: (src: string) => string } } }).markdown.parser;
-  const fixed = text.replace(/^#\s+/gm, "## ");
-  editor.chain().focus().insertContent(parser.parse(fixed)).run();
-  return true;
+  const note = (msg: string) => window.alert("PASTE CHECK: " + msg);
+  try {
+    const data = event.clipboardData;
+    if (!editor || !data) {
+      note("no editor or clipboard");
+      return false;
+    }
+    const text = data.getData("text/plain");
+    const html = data.getData("text/html");
+    if (!text || !(MD_LINES.test(text) || MD_BOLD.test(text))) {
+      note("text does not look like markdown");
+      return false;
+    }
+    if (html && HTML_STRUCTURE.test(html)) {
+      note("clipboard has formatted HTML, so normal paste. Start of it: " + html.slice(0, 120));
+      return false;
+    }
+    const parser = (editor.storage as { markdown?: { parser?: { parse: (src: string) => string } } }).markdown?.parser;
+    if (!parser) {
+      note("markdown parser not found");
+      return false;
+    }
+    const out = parser.parse(text.replace(/^#\s+/gm, "## "));
+    editor.chain().focus().insertContent(out).run();
+    note("converted");
+    return true;
+  } catch (err) {
+    note("error: " + (err instanceof Error ? err.message : String(err)));
+    return false;
+  }
 }
 
 function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
