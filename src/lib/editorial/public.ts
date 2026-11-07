@@ -788,9 +788,21 @@ export const getFeedDocument = createServerFn({ method: "GET" })
       const channelLink = loc("/");
       return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${xmlEscape(settings.siteName)}</title><link>${xmlEscape(channelLink)}</link><description>${xmlEscape(settings.tagline)}</description>${items}</channel></rss>`;
     }
+    const tagRows = await sql<{ slug: string }>`
+      select t.slug
+      from tags t
+      join article_tags at on at.tag_slug = t.slug
+      join articles a on a.id = at.article_id
+      where a.status = 'published'
+      group by t.slug
+      having count(*) >= 2
+      order by t.slug asc
+    `;
     const urls = [
       ...STATIC_PATHS.map((path) => loc(path)),
+      loc("/advertise"),
       ...rows.map((row) => loc(`/article/${row.slug}`)),
+      ...tagRows.map((row) => loc(`/tag/${row.slug}`)),
     ].filter(Boolean);
     const body = urls
       .map((url) => `<url><loc>${xmlEscape(url)}</loc></url>`)
