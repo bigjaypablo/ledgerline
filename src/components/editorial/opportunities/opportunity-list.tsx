@@ -109,6 +109,35 @@ function Radar({ items }: { items: ListItem[] }) {
   );
 }
 
+function Group(p: { title: string; note: string; items: ListItem[]; compact: boolean; fold?: boolean }) {
+  if (p.items.length === 0) return null;
+  const grid = (
+    <ul className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {p.items.map((i) => (
+        <Card key={i.id} item={i} compact={p.compact} />
+      ))}
+    </ul>
+  );
+  if (p.fold) {
+    return (
+      <details className="mt-8 border-t border-ink pt-4">
+        <summary className="min-h-11 cursor-pointer py-2 text-xl font-medium">
+          {p.title} <span className="text-sm font-normal text-muted">({p.items.length})</span>
+        </summary>
+        <p className="mt-1 text-sm text-muted">{p.note}</p>
+        {grid}
+      </details>
+    );
+  }
+  return (
+    <section className="mt-6">
+      <h2 className="text-2xl font-medium">{p.title}</h2>
+      <p className="mt-1 text-sm text-muted">{p.note}</p>
+      {grid}
+    </section>
+  );
+}
+
 const iconBtn = "relative inline-flex min-h-12 min-w-12 items-center justify-center border border-line bg-card";
 
 export function OpportunityList({ items }: { items: ListItem[] }) {
@@ -125,6 +154,27 @@ export function OpportunityList({ items }: { items: ListItem[] }) {
       !needle || (i.name + " " + i.chain + " " + i.summary + " " + i.tags.join(" ")).toLowerCase().includes(needle);
     return sortItems(items.filter((i) => matches(i, f) && hit(i)), sort);
   }, [items, f, needle, sort]);
+
+  const LIVE = ["confirmed", "snapshot", "verification", "rewards_available"];
+
+  const groups = useMemo(() => {
+    const live = shown.filter((i) => LIVE.includes(i.projectStatus));
+    if (sort === "updated") {
+      live.sort((a, b) => {
+        const x = endKey(a);
+        const y = endKey(b);
+        if (x && y) return x < y ? -1 : x > y ? 1 : 0;
+        if (x) return -1;
+        if (y) return 1;
+        return 0;
+      });
+    }
+    return {
+      live,
+      watch: shown.filter((i) => i.projectStatus === "potential"),
+      ended: shown.filter((i) => i.projectStatus === "distributed"),
+    };
+  }, [shown, sort]);
 
   const opts = useMemo(() => {
     const uniq = (l: string[]) => Array.from(new Set(l.filter(Boolean))).sort();
@@ -174,7 +224,7 @@ export function OpportunityList({ items }: { items: ListItem[] }) {
       </div>
       {n === 0 && !needle ? <Radar items={items} /> : null}
       <p className="mt-3 text-sm text-muted">
-        {shown.length} airdrop{shown.length === 1 ? "" : "s"}
+        {groups.live.length} confirmed airdrop{groups.live.length === 1 ? "" : "s"}
       </p>
       <details className="mt-2 border border-line bg-card px-3 text-sm">
         <summary className="min-h-11 cursor-pointer py-3 font-semibold">What do the statuses mean?</summary>
@@ -187,16 +237,20 @@ export function OpportunityList({ items }: { items: ListItem[] }) {
           ))}
         </dl>
       </details>
-      {shown.length === 0 ? (
+      {groups.live.length === 0 && groups.watch.length === 0 && groups.ended.length === 0 ? (
         <p className="mt-6 border-t border-ink pt-6 text-muted">
           {items.length === 0 ? "No verified opportunities right now. Check back soon." : "Nothing matches. Try fewer filters."}
         </p>
       ) : (
-        <ul className={"mt-4 grid gap-4 " + (compact ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-3")}>
-          {shown.map((i) => (
-            <Card key={i.id} item={i} compact={compact} />
-          ))}
-        </ul>
+        <>
+          {groups.live.length === 0 ? (
+            <p className="mt-6 border-t border-ink pt-6 text-muted">No airdrop is confirmed right now.</p>
+          ) : (
+            <Group title="Confirmed" note="The project has officially announced a reward or token." items={groups.live} compact={compact} />
+          )}
+          <Group fold title="Watchlist: no reward confirmed" note="These projects have not announced a reward. Nothing here is a recommendation." items={groups.watch} compact={compact} />
+          <Group fold title="Ended" note="Rewards were sent, or the claim period has ended." items={groups.ended} compact={compact} />
+        </>
       )}
       <FilterSheet open={fOpen} onOpenChange={setFOpen} f={f} setF={setF} opts={opts} shown={shown.length} />
       <SettingsSheet open={sOpen} onOpenChange={setSOpen} sort={sort} setSort={setSort} compact={compact} setCompact={setCompact} />
