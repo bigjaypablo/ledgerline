@@ -12,7 +12,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Ledgerline is an independent research publication on cryptocurrency, AI tools, and software subscriptions.",
+          "Ledgerline is an independent research publication on cryptocurrency: exchanges, wallets, custody and the primary sources behind them.",
       },
       { name: "theme-color", content: "#f3f0ea" },
     ],

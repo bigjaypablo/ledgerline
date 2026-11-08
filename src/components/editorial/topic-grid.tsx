@@ -55,7 +55,7 @@ function Block(p: { title: string; text: string; cards: Card[] }) {
 }
 
 export function TopicGrid({ data }: { data: HomeData }) {
-  const blocks = TOPICS.filter((t) => data[t.key].length > 0);
+  const blocks = TOPICS.filter((t) => t.key !== "ai" && t.key !== "saas" && data[t.key].length > 0);
   if (blocks.length === 0) return null;
   return (
     <section className="sheet py-8">

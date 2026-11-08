@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
         name: "description",
         content:
           loaderData?.settings.tagline ||
-          "Independent research on cryptocurrency, AI tools, and software subscriptions.",
+          "Independent crypto research: exchanges, wallets, custody and the primary sources behind them.",
       },
     ],
   }),
