@@ -7,7 +7,7 @@ const pages = {
   about: {
     title: "About Ledgerline",
     body: [
-      "Ledgerline is an independent research publication about cryptocurrency, artificial intelligence tools, and software subscriptions.",
+      "Ledgerline is an independent research publication about cryptocurrency: exchanges, wallets, custody, and the primary documents behind them.",
       "The desk explains what a product says it does, what it says it costs, what the documents leave out, and what a reader should check before paying or connecting an account.",
       "Ledgerline is not a registered broker, exchange, law firm, or laboratory. No company registration number or street address is published here, because none is claimed. The founder edits the desk.",
       "Articles are labeled. A practical guide, a pricing analysis, or a feature comparison is not a hands-on test. The desk does not write “we tested this” unless a named person actually did.",
