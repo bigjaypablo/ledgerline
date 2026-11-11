@@ -69,10 +69,13 @@ const pages = {
   disclaimer: {
     title: "Research disclaimer",
     body: [
-      "Ledgerline publishes independent research, pricing analysis, feature comparison, documentation review, security overviews, and practical guides.",
+      "Ledgerline publishes independent research, explainers, comparisons, documentation review, security overviews, and practical guides about cryptocurrency.",
       "Unless an article explicitly says a named person tested a product, the desk did not test it. Do not read a guide as a laboratory result.",
-      "Cryptocurrency coverage is not financial advice and not a solicitation to buy, sell, or hold any asset, token, or account.",
-      "Issuer pages and vendor pricing pages are claims by those companies. Ledgerline attributes them. It does not audit reserves, uptime, or model quality unless an article says that work was done and shows the source.",
+      "Cryptocurrency coverage is general information. It is not financial, investment, legal, or tax advice, and not a solicitation to buy, sell, or hold any asset, token, or account.",
+      "Issuer and platform pages are claims by those companies. Ledgerline attributes them. It does not audit reserves or uptime unless an article says that work was done and shows the source.",
+      "Examples, calculations, and yields in articles are illustrations with a stated date and source. Rates, fees, and terms change, and past results do not predict future results. You can lose some or all of the money you put into crypto.",
+      "Rules differ by country, and many platforms are not available everywhere. Check what applies where you live, including tax, before you act.",
+      "Some pages contain affiliate links, which are marked. Ledgerline may earn a commission if you use them. This does not change how an article is researched and is not a recommendation to use any product.",
       "Nothing on this site creates a client, advisory, or fiduciary relationship.",
     ],
   },
