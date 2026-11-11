@@ -35,11 +35,13 @@ const pages = {
   disclosure: {
     title: "Affiliate disclosure",
     body: [
-      "Ledgerline may earn a commission if a reader uses an affiliate link. When that is the case, the link is marked and uses rel=\"sponsored nofollow noopener\".",
-      "An affiliate relationship is not an endorsement, not a hands-on test, and not evidence that a program has accepted Ledgerline. Records stay inactive until an admin marks them approved and supplies a destination URL.",
-      "Commission type stays “undocumented” unless the program’s own materials describe it. The desk does not invent rates, cookie lengths, or recurring commissions.",
-      "If no affiliate is approved, articles simply do not show affiliate buttons. The research should still stand without them.",
-      "This disclosure is a plain-language draft for readers. It is not a lawyer’s opinion and it is not a claim that any regulator has reviewed the site.",
+      "Some links on Ledgerline are affiliate links. If you sign up or buy through one, Ledgerline may earn a commission.",
+      "Affiliate links are labelled on the page.",
+      "A commission does not change what Ledgerline covers or what an article says. An affiliate link is not an endorsement and not a hands-on test.",
+      "Where a program publishes its commission terms, Ledgerline may show them. Where it does not, they are marked as not documented. The desk does not guess rates, cookie lengths, or recurring commissions.",
+      "Some airdrop and project listings may be marked Sponsored. Sponsored means the project paid for placement. It does not change the checks applied to the listing.",
+      "Rules about promoting and buying crypto differ by country, and some platforms are not available everywhere. Check what applies where you live before you sign up.",
+      "If no affiliate program is active, articles show no affiliate buttons. The research stands without them.",
     ],
   },
   privacy: {
