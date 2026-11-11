@@ -39,10 +39,9 @@ function StandardsNote() {
     <div className="border-b border-line bg-card">
       <div className="sheet relative flex flex-col gap-4 py-6 pr-10 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="font-serif text-3xl font-semibold leading-tight">Research before you pay.</p>
+          <p className="font-serif text-3xl font-semibold leading-tight">Understand crypto. Decide for yourself.</p>
           <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
-            Ledgerline reads pricing pages, terms, and primary sources. It is not a product lab and it is not
-            financial advice.
+            Ledgerline explains how crypto works, what it costs and what can go wrong, using primary sources. It is information, not financial advice.
           </p>
         </div>
         <Link to="/standards" className="inline-flex min-h-11 items-center justify-center bg-ink px-4 text-sm font-semibold text-inverse-fg">

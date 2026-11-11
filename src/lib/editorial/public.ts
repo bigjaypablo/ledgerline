@@ -86,7 +86,7 @@ type SettingsRow = {
 function asSettings(row: SettingsRow | undefined): Settings {
   return {
     siteName: row?.site_name ?? "Ledgerline",
-    tagline: row?.tagline ?? "Research before you pay.",
+    tagline: row?.tagline ?? "Understand crypto. Decide for yourself.",
     contactEmail: row?.contact_email ?? "",
     publicUrl: row?.public_url ?? "",
     xUrl: row?.x_url ?? "",

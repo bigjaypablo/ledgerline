@@ -8,11 +8,11 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Ledgerline — Research before you pay." },
+      { title: "Ledgerline — Understand crypto. Decide for yourself." },
       {
         name: "description",
         content:
-          "Ledgerline is an independent research publication on cryptocurrency: exchanges, wallets, custody and the primary sources behind them.",
+          "Plain-English crypto research: how things work, what they cost, what can go wrong, and what to check before you act. Information, not advice.",
       },
       { name: "theme-color", content: "#f3f0ea" },
     ],

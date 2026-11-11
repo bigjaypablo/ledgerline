@@ -914,7 +914,7 @@ export const saveSettings = createServerFn({ method: "POST" })
         author_bio = ${String(data.authorBio ?? "").slice(0, 800)},
         newsletter_configured = ${Boolean(data.newsletterConfigured)},
         comments_enabled = ${data.commentsEnabled !== false},
-        tagline = ${String(data.tagline ?? "Research before you pay.").slice(0, 140)}
+        tagline = ${String(data.tagline ?? "Understand crypto. Decide for yourself.").slice(0, 140)}
       where id = 1
     `;
     return { ok: true };

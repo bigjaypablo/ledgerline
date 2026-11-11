@@ -7,12 +7,10 @@ export const Route = createFileRoute("/")({
   loader: () => getHome(),
   head: ({ loaderData }) => ({
     meta: [
-      { title: "Ledgerline — Research before you pay." },
+      { title: "Ledgerline — Understand crypto. Decide for yourself." },
       {
         name: "description",
-        content:
-          loaderData?.settings.tagline ||
-          "Independent crypto research: exchanges, wallets, custody and the primary sources behind them.",
+        content: "Plain-English crypto research: how things work, what they cost, what can go wrong, and what to check before you act. Information, not advice.",
       },
     ],
   }),
