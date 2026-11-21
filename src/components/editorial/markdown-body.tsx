@@ -12,7 +12,7 @@ export function MarkdownBody({ markdown }: { markdown: string }) {
   const takeId = () => ids[index++]?.id ?? "section";
 
   return (
-    <div className="mx-auto max-w-3xl break-words text-[19px] leading-[1.7] text-ink">
+    <div className="mx-auto max-w-3xl break-words text-[19px] leading-[1.7] text-ink prose-ledger">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}

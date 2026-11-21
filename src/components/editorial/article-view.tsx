@@ -61,8 +61,8 @@ export function ArticleView({ data }: { data: ArticlePage }) {
           </Link>
         </p>
         <p className="mt-4 text-xs font-bold tracking-widest text-accent uppercase">{article.label}</p>
-        <h1 className="mt-2 font-sans text-[2rem] font-medium leading-[1.15] tracking-tight sm:text-5xl">{article.title}</h1>
-        <Standfirst className="mt-4 font-sans text-xl leading-8 text-muted" text={article.summary} />
+        <h1 className="mt-2 font-sans text-[1.75rem] font-normal leading-[1.2] tracking-[-0.01em] sm:text-4xl">{article.title}</h1>
+        <Standfirst className="mt-4 font-sans text-lg leading-7 text-muted" text={article.summary} />
         <p className="mt-4 text-sm text-muted">
           <span className="mr-2 inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-line bg-card align-middle text-xs font-bold text-ink">
             {data.author.avatarUrl ? (

@@ -346,3 +346,14 @@ html:has(.rich-body) { scroll-padding-bottom: 4rem; }
   color: var(--color-muted);
   opacity: .7;
 }
+
+/* Refined reading typography: same on the live article, the preview and the editor */
+.prose-ledger, .rich-body { font-size: 1.0625rem; line-height: 1.6; color: #2a2824; }
+.rich-body p { margin: 0 0 .9rem; }
+.rich-body > :first-child { margin-top: 0; }
+.prose-ledger h2, .rich-body h2 { font-weight: 400; font-size: 1.5rem; line-height: 1.25; letter-spacing: -0.01em; margin: 2.5rem 0 .75rem; }
+.prose-ledger h3, .rich-body h3 { font-weight: 600; font-size: 1.125rem; line-height: 1.35; margin: 1.75rem 0 .5rem; }
+.prose-ledger table, .rich-body table { font-family: "Roboto", system-ui, sans-serif; }
+.prose-ledger th, .prose-ledger td, .rich-body th, .rich-body td { font-size: .875rem; line-height: 1.45; padding: .7rem .75rem; border: 0; border-bottom: 1px solid var(--color-line); }
+.prose-ledger th, .rich-body th { font-weight: 600; background: transparent; }
+figcaption { font-family: "Roboto", system-ui, sans-serif; font-size: .8125rem; line-height: 1.5; color: var(--color-muted); text-align: center; }
